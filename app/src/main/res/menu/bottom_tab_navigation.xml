@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/startRunTab"
+        android:icon="@drawable/ic_walk"
+        android:title="Start" />
+
+    <item
+        android:id="@+id/historyTab"
+        android:icon="@drawable/ic_clipboard"
+        android:title="History" />
+
+    <item
+        android:id="@+id/inboxTab"
+        android:icon="@drawable/ic_mail"
+        android:title="Inbox" />
+
+    <item
+        android:id="@+id/profileTab"
+        android:icon="@drawable/ic_person"
+        android:title="Profile" />
+</menu>

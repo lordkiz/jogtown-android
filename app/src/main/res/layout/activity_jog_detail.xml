@@ -1,0 +1,519 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:orientation="vertical">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            >
+
+            <LinearLayout
+                android:id="@+id/jogDetailsHeaderView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:background="@color/colorPrimary"
+                android:padding="20dp"
+                app:layout_constraintTop_toTopOf="parent"
+                >
+
+                <com.airbnb.lottie.LottieAnimationView
+                    android:id="@+id/lottie_running_hamster"
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:layout_margin="7dp"
+                    app:lottie_autoPlay="true"
+                    app:lottie_fileName="running-hamster.json"
+                    app:lottie_loop="true" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="JOGGING"
+                    android:textColor="@color/darkWhite"
+                    android:textStyle="bold"
+                    android:textSize="16sp"
+                    />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Date"
+                    android:textColor="@color/darkWhite"
+                    android:textStyle="normal"
+                    android:textSize="12sp"
+                    />
+            </LinearLayout>
+
+            <FrameLayout
+                android:id="@+id/jog_details_map_container"
+                android:layout_width="match_parent"
+                android:layout_height="240dp"
+                app:layout_constraintTop_toBottomOf="@id/jogDetailsHeaderView"
+                app:layout_constraintBottom_toTopOf="@+id/jogDetailsSummaryHeaderText"
+                >
+            </FrameLayout>
+
+            <ProgressBar
+                android:id="@+id/jogDetailsProgressBar"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/jog_details_map_container" />
+
+            <TextView
+                android:id="@+id/jogDetailsSummaryHeaderText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="SUMMARY"
+                android:layout_margin="10dp"
+                app:layout_constraintTop_toBottomOf="@id/jog_details_map_container"
+                />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/jogDetailSummaryConstraintLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/darkWhite"
+                android:elevation="2dp"
+                android:padding="20dp"
+                android:layout_margin="10dp"
+                app:layout_constraintTop_toBottomOf="@+id/jogDetailsSummaryHeaderText">
+
+                <LinearLayout
+                    android:id="@+id/jogDetailsSummaryDurationLayout"
+                    android:layout_width="193dp"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="10dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    app:layout_constraintEnd_toStartOf="@+id/jogDetailsSummaryDistanceLayout"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="10dp"
+                        android:text=""
+                        android:scaleX="1.5"
+                        android:scaleY="1.5"
+                        android:textColor="@color/colorPrimary"
+                        android:textStyle="normal"
+                        android:drawableStart="@drawable/ic_alarm"
+                        android:drawableTint="@color/colorPrimary"
+                        />
+
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="DURATION"
+                            android:textColor="#999"
+                            android:textSize="12sp"
+                            />
+
+                        <TextView
+                            android:id="@+id/jogDetailsDurationTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0:00"
+                            android:textColor="#333"
+                            android:textSize="16sp"
+                            />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/jogDetailsSummaryDistanceLayout"
+                    android:layout_width="194dp"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="10dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toEndOf="@+id/jogDetailsSummaryDurationLayout"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="10dp"
+                        android:text=""
+                        android:scaleX="1.5"
+                        android:scaleY="1.5"
+                        android:textStyle="normal"
+                        android:drawableStart="@drawable/ic_compass"
+                        android:drawableTint="@color/colorAccent"
+                        />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        app:layout_constraintTop_toTopOf="parent">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="DISTANCE"
+                            android:textColor="#999"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/jogDetailsDistanceTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0.0"
+                            android:textColor="#333"
+                            android:textSize="16sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/jogDetailsSummaryAvgPaceLayout"
+                    android:layout_width="193dp"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="10dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    app:layout_constraintEnd_toStartOf="@+id/jogDetailsSummaryMaxPaceLayout"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/jogDetailsSummaryDurationLayout">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="10dp"
+                        android:text=""
+                        android:scaleX="1.5"
+                        android:scaleY="1.5"
+                        android:textStyle="normal"
+                        android:drawableStart="@drawable/ic_paw"
+                        android:drawableTint="@color/lightGreen"
+                        />
+
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="AVG PACE"
+                            android:textColor="#999"
+                            android:textSize="12sp"/>
+
+                        <TextView
+                            android:id="@+id/jogDetailsAveragePaceTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0:00"
+                            android:textColor="#333"
+                            android:textSize="16sp"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/jogDetailsSummaryMaxPaceLayout"
+                    android:layout_width="194dp"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="10dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toEndOf="@+id/jogDetailsSummaryAvgPaceLayout"
+                    app:layout_constraintTop_toBottomOf="@id/jogDetailsSummaryDistanceLayout">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="10dp"
+                        android:text=""
+                        android:scaleX="1.5"
+                        android:scaleY="1.5"
+                        android:textStyle="normal"
+                        android:drawableStart="@drawable/ic_paw"
+                        android:drawableTint="@color/mediumGreen"
+                        />
+
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="MAX PACE"
+                            android:textColor="#999"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/jogDetailsMaxPaceTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0:00"
+                            android:textColor="#333"
+                            android:textSize="16sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/jogDetailsSummaryAvgSpeedLayout"
+                    android:layout_width="193dp"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="10dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    app:layout_constraintEnd_toStartOf="@+id/jogDetailsSummaryMaxSpeedLayout"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/jogDetailsSummaryAvgPaceLayout">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="10dp"
+                        android:text=""
+                        android:scaleX="1.5"
+                        android:scaleY="1.5"
+                        android:textStyle="normal"
+                        android:drawableStart="@drawable/ic_speedometer"
+                        android:drawableTint="@color/mediumOrange"
+                        />
+
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="AVG SPEED"
+                            android:textColor="#999"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/jogDetailsAverageSpeedTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0.00"
+                            android:textColor="#333"
+                            android:textSize="16sp"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/jogDetailsSummaryMaxSpeedLayout"
+                    android:layout_width="194dp"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="10dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toEndOf="@+id/jogDetailsSummaryAvgSpeedLayout"
+                    app:layout_constraintTop_toBottomOf="@id/jogDetailsSummaryMaxPaceLayout">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="10dp"
+                        android:text=""
+                        android:scaleX="1.5"
+                        android:scaleY="1.5"
+                        android:textStyle="normal"
+                        android:drawableStart="@drawable/ic_speedometer"
+                        android:drawableTint="@color/red"
+                        />
+
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="MAX SPEED"
+                            android:textColor="#999"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/jogDetailsMaxSpeedTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0.00"
+                            android:textColor="#333"
+                            android:textSize="16sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/jogDetailsSummaryCaloriesLayout"
+                    android:layout_width="193dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    app:layout_constraintEnd_toStartOf="@+id/jogDetailsSummaryHydrationLayout"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/jogDetailsSummaryAvgSpeedLayout">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="10dp"
+                        android:text=""
+                        android:scaleX="1.5"
+                        android:scaleY="1.5"
+                        android:textStyle="normal"
+                        android:drawableStart="@drawable/ic_pizza"
+                        android:drawableTint="@color/darkYellow"
+                        />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="CALORIES"
+                            android:textColor="#999"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/jogDetailsCaloriesTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textColor="#333"
+                            android:textSize="16sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/jogDetailsSummaryHydrationLayout"
+                    android:layout_width="194dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toEndOf="@+id/jogDetailsSummaryCaloriesLayout"
+                    app:layout_constraintTop_toBottomOf="@id/jogDetailsSummaryMaxSpeedLayout">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="" />
+                    </LinearLayout>
+                </LinearLayout>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <TextView
+                android:id="@+id/jogDetailsPaceAnalysisHeaderText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="PACE ANALYSIS"
+                android:layout_margin="10dp"
+                app:layout_constraintTop_toBottomOf="@id/jogDetailSummaryConstraintLayout"
+                />
+
+            <LinearLayout
+                android:id="@+id/jogDetailsPaceAnalysisChartLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/purple_linear_background"
+                android:elevation="2dp"
+                android:padding="20dp"
+                android:layout_margin="10dp"
+                app:layout_constraintTop_toBottomOf="@id/jogDetailsPaceAnalysisHeaderText"
+                >
+
+                <com.github.mikephil.charting.charts.LineChart
+                    android:id="@+id/jogDetailsPaceAnalysisChart"
+                    android:layout_width="match_parent"
+                    android:layout_height="300dp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/jogDetailsSpeedAnalysisHeaderText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="SPEED ANALYSIS"
+                android:layout_margin="10dp"
+                app:layout_constraintTop_toBottomOf="@id/jogDetailsPaceAnalysisChartLayout"
+                />
+
+            <LinearLayout
+                android:id="@+id/jogDetailsSpeedAnalysisChartLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/green_linear_gradient"
+                android:elevation="2dp"
+                android:padding="20dp"
+                android:layout_margin="10dp"
+                app:layout_constraintTop_toBottomOf="@id/jogDetailsSpeedAnalysisHeaderText"
+                >
+                <com.github.mikephil.charting.charts.LineChart
+                    android:id="@+id/jogDetailsSpeedAnalysisChart"
+                    android:layout_width="match_parent"
+                    android:layout_height="300dp" />
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+
+</LinearLayout>

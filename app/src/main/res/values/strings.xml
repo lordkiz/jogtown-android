@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Jogtown</string>
+    <string name="facebook_app_id">903705633296694</string>
+    <string name="fb_login_protocol_scheme">fb903705633296694</string>
+    <string name="google_maps_key">AIzaSyA7icaAHJdIsnZt2NuPxCEqRyQM0msY_Uo</string>
+
+    <string name="root_url">https://jogtown.herokuapp.com/</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>
