@@ -2,6 +2,7 @@ package com.jogtown.jogtown.fragments;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
@@ -11,8 +12,6 @@ import androidx.fragment.app.Fragment;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.text.Layout;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,8 +20,9 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import com.jogtown.jogtown.R;
+import com.jogtown.jogtown.activities.ConversationActivity;
 import com.jogtown.jogtown.activities.MainActivity;
-import com.jogtown.jogtown.models.DefaultDialog;
+import com.jogtown.jogtown.models.MyDialog;
 import com.jogtown.jogtown.models.Message;
 import com.jogtown.jogtown.utils.MyUrlRequestCallback;
 import com.jogtown.jogtown.utils.NetworkRequest;
@@ -32,15 +32,17 @@ import com.stfalcon.chatkit.commons.models.IDialog;
 import com.stfalcon.chatkit.commons.models.IMessage;
 import com.stfalcon.chatkit.dialogs.DialogsList;
 import com.stfalcon.chatkit.dialogs.DialogsListAdapter;
+import com.stfalcon.chatkit.utils.DateFormatter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -109,7 +111,7 @@ public class InboxFragment extends Fragment {
         inboxList = view.findViewById(R.id.inboxList);
         progressBar = view.findViewById(R.id.inboxFragmentProgressBar);
         loadMoreButton = view.findViewById(R.id.inboxFragmentLoadMoreButton);
-        setDialogListAdapter(view);
+        setDialogListAdapter();
         getUserChats();
         return view;
     }
@@ -154,16 +156,61 @@ public class InboxFragment extends Fragment {
     }
 
 
-    private void setDialogListAdapter(View v) {
-        int dialog = R.layout.fragment_inbox;
-        dialogsListAdapter = new DialogsListAdapter<>(dialog, new ImageLoader() {
+    private void setDialogListAdapter() {
+        dialogsListAdapter = new DialogsListAdapter<>(new ImageLoader() {
             @Override
             public void loadImage(ImageView imageView, @Nullable String url, @Nullable Object payload) {
-                Picasso.get().load(url).into(imageView);
+                try {
+                    Picasso.get().load(url).into(imageView);
+                } catch (IllegalArgumentException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        DateFormatter.Formatter dateFormatter = new DateFormatter.Formatter() {
+            @Override
+            public String format(Date date) {
+                return MyDialog.dateFormatter(date);
+            }
+        };
+
+        dialogsListAdapter.setDatesFormatter(dateFormatter);
+
+        dialogsListAdapter.setOnDialogClickListener(new DialogsListAdapter.OnDialogClickListener() {
+            @Override
+            public void onDialogClick(IDialog dialog) {
+                //clear the unread count for this dialog.
+                //Assumption is that user has internet and the read status of the msgs
+                //will be updated in the conversations page.
+                //So I will create a new dialog with 0 unread count to replace the old dialog
+
+                MyDialog myDialog = new MyDialog();
+                myDialog.setUnreadCount(0);
+                myDialog.setDialogName(dialog.getDialogName());
+                myDialog.setDialogPhoto(dialog.getDialogPhoto());
+                myDialog.setId(dialog.getId());
+                myDialog.setLastMessage(dialog.getLastMessage());
+
+                String chatId = dialog.getId();
+                String chatName = dialog.getDialogName();
+                String chatAvatar = dialog.getDialogPhoto();
+
+                Intent intent = new Intent(getContext(), ConversationActivity.class);
+                intent.putExtra("chatId", chatId);
+                intent.putExtra("chatName", chatName);
+                intent.putExtra("chatAvatar", chatAvatar);
+
+                //change the dialog to a new dialog with 0 unread msgs
+                int position = dialogsListAdapter.getDialogPosition(dialog);
+                dialogsListAdapter.updateItem(position, myDialog);
+
+                getContext().startActivity(intent);
             }
         });
 
         inboxList.setAdapter(dialogsListAdapter);
+
     }
 
 
@@ -223,6 +270,7 @@ public class InboxFragment extends Fragment {
 
                                 String currentUserName = sharedPreferences.getString("name", "");
                                 String currentUserAvatar = sharedPreferences.getString("profilePicture", "");
+                                int currentUserId = sharedPreferences.getInt("userId", 0);
 
                                 try {
 
@@ -231,13 +279,19 @@ public class InboxFragment extends Fragment {
 
                                     for (int i = 0; i < jsonArray.length(); i++) {
                                         //Create a Chatkit dialog of each chat
-                                        DefaultDialog dialog = new DefaultDialog();
+                                        MyDialog dialog = new MyDialog();
                                         IMessage lastMessage = new Message();
 
                                         String chatObj = jsonArray.get(i).toString();
                                         JSONObject chat = new JSONObject(chatObj);
 
-                                        dialog.setChatId(Integer.toString(chat.getInt("id")));
+                                        ((Message) lastMessage).setMessageText(chat.getString("last_message"));
+                                        String DATE_FORMAT_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+                                        ((Message) lastMessage).setDate(new SimpleDateFormat(DATE_FORMAT_PATTERN).parse(chat.getString("updated_at")));
+
+                                        int chatId = chat.getInt("id");
+                                        dialog.setId(Integer.toString(chatId));
+
                                         if (currentUserName.equals(chat.getString("recipient_name"))) {
                                             dialog.setDialogName(chat.getString("sender_name"));
                                         } else {
@@ -250,7 +304,15 @@ public class InboxFragment extends Fragment {
                                             dialog.setDialogPhoto(chat.getString("recipient_avatar"));
                                         }
 
+                                        if (currentUserId == chat.getInt("sender_id")) {
+                                            dialog.setUnreadCount(chat.getInt("unread_message_count_for_sender"));
+                                        } else {
+                                            dialog.setUnreadCount(chat.getInt("unread_message_count_for_recipient"));
+                                        }
+
+
                                         dialog.setLastMessage(lastMessage);
+
 
                                         resList.add(dialog);
 
@@ -262,6 +324,8 @@ public class InboxFragment extends Fragment {
                                     showButton();
 
                                 } catch (JSONException e) {
+                                    e.printStackTrace();
+                                } catch (ParseException e) {
                                     e.printStackTrace();
                                 }
                             }
@@ -275,14 +339,15 @@ public class InboxFragment extends Fragment {
                             public void run() {
                                 showActivity();
                                 showButton();
+
+                                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+                                alertDialogBuilder
+                                        .setCancelable(true)
+                                        .setMessage(responseBody)
+                                        .setTitle("Error!");
+                                alertDialogBuilder.create().show();
                             }
                         });
-                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
-                        alertDialogBuilder
-                                .setCancelable(true)
-                                .setMessage(responseBody)
-                                .setTitle("Error!");
-                        alertDialogBuilder.create().show();
 
                     }
                 } catch (JSONException e) {

@@ -290,7 +290,7 @@ public class FacebookLogin extends Fragment {
             public void onFinishRequest(Object result) {
                 try {
                     JSONObject data = new JSONObject(result.toString());
-                    String responseBody = data.getString("body");
+                    final String responseBody = data.getString("body");
                     String headers = data.getString("headers");
                     int statusCode = data.getInt("statusCode");
                     if (statusCode < 399)  { //Some kind of success
@@ -310,12 +310,17 @@ public class FacebookLogin extends Fragment {
                         if (mListener != null) {
                             runOnUiThread(Uri.parse("loading: false"));
                         }
-                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
-                        alertDialogBuilder
-                                .setCancelable(true)
-                                .setMessage(responseBody)
-                                .setTitle("Error!");
-                        alertDialogBuilder.create().show();
+                        new Handler(Looper.getMainLooper()).post(new Runnable() {
+                            @Override
+                            public void run() {
+                                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+                                alertDialogBuilder
+                                        .setCancelable(true)
+                                        .setMessage(responseBody)
+                                        .setTitle("Error!");
+                                alertDialogBuilder.create().show();
+                            }
+                        });
 
                     }
                 } catch (JSONException e) {

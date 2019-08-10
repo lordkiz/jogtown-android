@@ -274,7 +274,7 @@ public class ProfileFragment extends Fragment {
             public void onFinishRequest(Object result) {
                 try {
                     JSONObject data = new JSONObject(result.toString());
-                    String responseBody = data.getString("body");
+                    final String responseBody = data.getString("body");
                     String headers = data.getString("headers");
                     int statusCode = data.getInt("statusCode");
                     if (statusCode == 200)  { //Some kind of success
@@ -293,14 +293,15 @@ public class ProfileFragment extends Fragment {
                             @Override
                             public void run() {
                                 showActivity();
+
+                                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+                                alertDialogBuilder
+                                        .setCancelable(true)
+                                        .setMessage(responseBody)
+                                        .setTitle("Error!");
+                                alertDialogBuilder.create().show();
                             }
                         });
-                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
-                        alertDialogBuilder
-                                .setCancelable(true)
-                                .setMessage(responseBody)
-                                .setTitle("Error!");
-                        alertDialogBuilder.create().show();
 
                     }
                 } catch (JSONException e) {

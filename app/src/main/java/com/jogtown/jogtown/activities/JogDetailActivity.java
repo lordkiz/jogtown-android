@@ -475,14 +475,16 @@ public class JogDetailActivity extends AppCompatActivity implements OnMapReadyCa
                             @Override
                             public void run() {
                                 showActivity();
+
+                                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(JogDetailActivity.this);
+                                alertDialogBuilder
+                                        .setCancelable(true)
+                                        .setMessage(responseBody)
+                                        .setTitle("Error!");
+                                alertDialogBuilder.create().show();
+
                             }
                         });
-                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getApplicationContext());
-                        alertDialogBuilder
-                                .setCancelable(true)
-                                .setMessage(responseBody)
-                                .setTitle("Error!");
-                        alertDialogBuilder.create().show();
                         //Silently Save to Phone SQLITE DB for saving later
                         saveJogToPhoneSqliteDB();
 

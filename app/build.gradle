@@ -33,8 +33,10 @@ dependencies {
     implementation 'com.google.maps.android:android-maps-utils:0.5+'
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+    implementation 'com.txusballesteros:FitChart:1.0'
     implementation 'com.github.stfalcon:chatkit:0.3.3'
     implementation 'com.squareup.picasso:picasso:2.71828'
+    implementation 'com.github.hosopy:actioncable-client-java:0.1.2'
     implementation "android.arch.lifecycle:extensions:1.1.1"
     implementation "android.arch.persistence.room:runtime:1.1.1"
     annotationProcessor "android.arch.lifecycle:compiler:1.1.1"

@@ -16,7 +16,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 public class NetworkRequest {
-    public static CronetEngine cronetEngine = new CronetEngine.Builder(MainActivity.appContext).build();
+    public static CronetEngine cronetEngine = new CronetEngine.Builder(MainActivity.appContext)
+            .build();
 
     public static Executor executor = Executors.newSingleThreadExecutor();
 
@@ -39,6 +40,7 @@ public class NetworkRequest {
         requestBuilder.addHeader("client", client);
         requestBuilder.addHeader("uid", uid);
         requestBuilder.addHeader("expiry", expiry);
+
 
 
         return requestBuilder;

@@ -27,7 +27,6 @@ public class HistoryRecyclerAdapter extends RecyclerView.Adapter<HistoryRecycler
 
     public HistoryRecyclerAdapter(List arr) {
         jogs = arr;
-        Log.i("array", arr.toString());
     }
 
 
