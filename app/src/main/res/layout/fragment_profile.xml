@@ -33,11 +33,11 @@
                     android:layout_height="140dp"
                     android:background="@drawable/purple_linear_background" />
 
-                <de.hdodenhof.circleimageview.CircleImageView
+                <ImageView
                     xmlns:app="http://schemas.android.com/apk/res-auto"
-                    android:id="@+id/profile_image"
-                    android:layout_width="96dp"
-                    android:layout_height="96dp"
+                    android:id="@+id/profile_picture"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
                     android:layout_marginTop="-60dp"
                     android:layout_gravity="center"
                     android:src="@drawable/com_facebook_profile_picture_blank_portrait"

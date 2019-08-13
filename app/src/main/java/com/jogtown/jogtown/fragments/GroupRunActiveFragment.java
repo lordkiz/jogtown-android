@@ -14,36 +14,26 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 
-import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.FrameLayout;
-import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.jogtown.jogtown.R;
-import com.jogtown.jogtown.activities.GroupRunActivity;
 import com.jogtown.jogtown.activities.MainActivity;
-import com.jogtown.jogtown.utils.LocationService;
+import com.jogtown.jogtown.utils.services.LocationService;
 
 /**
  * A simple {@link Fragment} subclass.

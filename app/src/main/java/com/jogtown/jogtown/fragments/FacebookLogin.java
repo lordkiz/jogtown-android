@@ -28,8 +28,8 @@ import com.facebook.login.LoginResult;
 import com.jogtown.jogtown.activities.MainActivity;
 import com.jogtown.jogtown.utils.Auth;
 import com.jogtown.jogtown.R;
-import com.jogtown.jogtown.utils.MyUrlRequestCallback;
-import com.jogtown.jogtown.utils.NetworkRequest;
+import com.jogtown.jogtown.utils.network.MyUrlRequestCallback;
+import com.jogtown.jogtown.utils.network.NetworkRequest;
 
 import org.chromium.net.UrlRequest;
 import org.json.JSONException;
@@ -37,7 +37,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
 
 
 /**

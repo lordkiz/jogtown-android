@@ -20,9 +20,9 @@ import android.widget.ProgressBar;
 
 import com.jogtown.jogtown.R;
 import com.jogtown.jogtown.activities.MainActivity;
-import com.jogtown.jogtown.utils.HistoryRecyclerAdapter;
-import com.jogtown.jogtown.utils.MyUrlRequestCallback;
-import com.jogtown.jogtown.utils.NetworkRequest;
+import com.jogtown.jogtown.utils.adapters.HistoryRecyclerAdapter;
+import com.jogtown.jogtown.utils.network.MyUrlRequestCallback;
+import com.jogtown.jogtown.utils.network.NetworkRequest;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -57,7 +57,6 @@ public class HistoryFragment extends Fragment {
     int page = 1;
 
     //Others
-    OkHttpClient okHttpClient = new OkHttpClient();
 
     RecyclerView recyclerView;
     RecyclerView.LayoutManager layoutManager;

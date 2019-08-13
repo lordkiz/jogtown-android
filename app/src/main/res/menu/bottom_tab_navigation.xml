@@ -17,6 +17,11 @@
         android:title="Inbox" />
 
     <item
+        android:id="@+id/groupsTab"
+        android:icon="@drawable/ic_people"
+        android:title="Groups" />
+
+    <item
         android:id="@+id/profileTab"
         android:icon="@drawable/ic_person"
         android:title="Profile" />

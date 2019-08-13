@@ -8,16 +8,16 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -25,14 +25,13 @@ import com.jogtown.jogtown.R;
 import com.jogtown.jogtown.activities.MainActivity;
 import com.jogtown.jogtown.utils.Auth;
 import com.jogtown.jogtown.utils.Conversions;
-import com.jogtown.jogtown.utils.MyUrlRequestCallback;
-import com.jogtown.jogtown.utils.NetworkRequest;
+import com.jogtown.jogtown.utils.network.MyUrlRequestCallback;
+import com.jogtown.jogtown.utils.network.NetworkRequest;
+import com.jogtown.jogtown.utils.ui.PicassoCircle;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -58,6 +57,7 @@ public class ProfileFragment extends Fragment {
     ProgressBar progressBar;
     Boolean loading = false;
 
+    ImageView profilePicture;
     TextView oneKmDoneText;
     TextView threeKmDoneText;
     TextView fiveKmDoneText;
@@ -113,12 +113,25 @@ public class ProfileFragment extends Fragment {
 
         sharedPreferences = MainActivity.appContext.getSharedPreferences("AuthPreferences", Context.MODE_PRIVATE);
         String metaName = sharedPreferences.getString("name", "");
+        Uri avatar = Uri.parse(sharedPreferences.getString("profilePicture", getString(R.string.default_profile_picture)));
 
         TextView nameText = (TextView) view.findViewById(R.id.metaNameText);
         nameText.setText(metaName);
 
+
         progressBar = (ProgressBar) view.findViewById(R.id.userKmStatsFragmentProgressBar);
         progressBar.setVisibility(View.INVISIBLE);
+
+        profilePicture = view.findViewById(R.id.profile_picture);
+
+        try {
+            Picasso.get().load(avatar)
+                    .resize(400, 400)
+                    .transform(new PicassoCircle())
+                    .into(profilePicture);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
 
         oneKmDoneText = (TextView) view.findViewById(R.id.one_km_done_text);
         threeKmDoneText = (TextView) view.findViewById(R.id.three_km_done_text);

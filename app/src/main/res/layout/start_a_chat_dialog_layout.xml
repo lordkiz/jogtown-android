@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/extraLightGhostWhite"
+    android:layout_marginTop="20dp"
+    >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="20dp">
+
+        <ImageView
+            android:id="@+id/startChatRecipientAvatar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"/>
+
+        <TextView
+            android:id="@+id/startChatRecipientName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/slate"
+            android:textSize="20sp"
+
+            />
+
+
+    </LinearLayout>
+
+
+    <com.stfalcon.chatkit.messages.MessageInput
+        android:id="@+id/startChatMessageInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+</LinearLayout>

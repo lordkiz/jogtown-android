@@ -13,7 +13,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activities.ConversationActivity"></activity>
+        <activity android:name=".activities.GroupActivity"></activity>
+        <activity android:name=".activities.ConversationActivity" />
         <activity android:name=".activities.GroupRunActivity" />
         <activity android:name=".activities.SingleRunActivity" />
         <activity android:name=".activities.JogDetailActivity" />
@@ -51,10 +52,10 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" /> <!-- Add services created in utils ! -->
         <service
-            android:name=".utils.LocationService"
+            android:name=".utils.services.LocationService"
             android:enabled="true" />
         <service
-            android:name=".utils.JogStatsService"
+            android:name=".utils.services.JogStatsService"
             android:enabled="true" />
     </application>
 

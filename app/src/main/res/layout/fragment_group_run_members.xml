@@ -19,6 +19,7 @@
 
 
     <FrameLayout
+        android:id="@+id/joggerChartFrameLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/group_run_members_fragment_recycler_view"
@@ -69,6 +70,23 @@
                 android:text="" />
 
         </LinearLayout>
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        app:layout_constraintTop_toTopOf="@id/joggerChartFrameLayout"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        >
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/group_run_messages_recycler_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            />
     </FrameLayout>
 
 

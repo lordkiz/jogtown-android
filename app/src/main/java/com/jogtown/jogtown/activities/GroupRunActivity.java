@@ -3,22 +3,15 @@ package com.jogtown.jogtown.activities;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.ViewPager;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.location.Location;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -35,19 +28,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.tabs.TabLayout;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.jogtown.jogtown.R;
 import com.jogtown.jogtown.fragments.GroupRunActiveFragment;
 import com.jogtown.jogtown.fragments.GroupRunMembersFragment;
 import com.jogtown.jogtown.subfragments.SingleRunStatsFragment;
-import com.jogtown.jogtown.utils.JogStatsService;
-import com.jogtown.jogtown.utils.LocationService;
-import com.jogtown.jogtown.utils.ViewPagerAdapter;
-import com.jogtown.jogtown.utils.ZoomOutPageTransformer;
+import com.jogtown.jogtown.utils.services.JogStatsService;
+import com.jogtown.jogtown.utils.services.LocationService;
+import com.jogtown.jogtown.utils.adapters.ViewPagerAdapter;
+import com.jogtown.jogtown.utils.ui.ZoomOutPageTransformer;
 
-import java.lang.reflect.Type;
-import java.util.List;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class GroupRunActivity extends AppCompatActivity implements
         GroupRunActiveFragment.OnFragmentInteractionListener,
@@ -66,6 +57,8 @@ public class GroupRunActivity extends AppCompatActivity implements
 
     TabLayout tabLayout;
     ViewPager viewPager;
+
+    public static int groupId; //Group you are running with
 
     Boolean mapIsReady = false; //We need to know the map in GroupRunActiveFragment is ready before starting services.
     private final int LOCATION_REQUEST_CODE = 101;
@@ -89,6 +82,15 @@ public class GroupRunActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group_run);
+
+        Intent intent = getIntent();
+        try {
+            JSONObject groupObject = new JSONObject(intent.getStringExtra("group"));
+            groupId = groupObject.getInt("id");
+        } catch (JSONException e) {
+            groupId = 0;
+            e.printStackTrace();
+        }
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) actionBar.setElevation(0);

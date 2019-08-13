@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">#592DEA</color>
+    <color name="lightPurple">#A389F4</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
     <color name="white">#FFFFFF</color>
     <color name="dimWhite">#FAFAFA</color>
+    <color name="extraLightGhostWhite">#fdfdff</color>
+    <color name="lightGhostWhite">#fafaff</color>
+    <color name="ghostWhite">#f8f8ff</color>
     <color name="lightGreen">#29EB7F</color>
     <color name="smoke">#E0E6ED</color>
     <color name="darkSmoke">#D3DCE6</color>
@@ -22,5 +26,6 @@
     <color name="mediumYellow">#FFC82C</color>
     <color name="darkYellow">#F8B700</color>
     <color name="red">#FF4949</color>
+    <color name="slate">#3C4858</color>
 
 </resources>

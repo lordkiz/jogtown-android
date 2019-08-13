@@ -7,24 +7,24 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.jogtown.jogtown.R;
+import com.jogtown.jogtown.fragments.GroupsFragment;
 import com.jogtown.jogtown.fragments.HistoryFragment;
 import com.jogtown.jogtown.fragments.InboxFragment;
 import com.jogtown.jogtown.fragments.ProfileFragment;
 import com.jogtown.jogtown.fragments.StartFragment;
+import com.jogtown.jogtown.subfragments.MyGroupsListFragment;
 import com.jogtown.jogtown.subfragments.SingleRunStatsFragment;
-import com.jogtown.jogtown.utils.JogStatsService;
-import com.jogtown.jogtown.utils.LocationService;
+import com.jogtown.jogtown.utils.services.JogStatsService;
+import com.jogtown.jogtown.utils.services.LocationService;
 
 public class AppActivity extends AppCompatActivity implements
 
@@ -32,10 +32,12 @@ public class AppActivity extends AppCompatActivity implements
         StartFragment.OnFragmentInteractionListener,
         HistoryFragment.OnFragmentInteractionListener,
         InboxFragment.OnFragmentInteractionListener,
+        GroupsFragment.OnFragmentInteractionListener,
         ProfileFragment.OnFragmentInteractionListener,
 
         //SUBFRAGMENTS THAT MAKE UP THE FRAGMENTS ABOVE
-        SingleRunStatsFragment.OnFragmentInteractionListener
+        SingleRunStatsFragment.OnFragmentInteractionListener,
+        MyGroupsListFragment.OnFragmentInteractionListener
 
 {
 
@@ -99,6 +101,14 @@ public class AppActivity extends AppCompatActivity implements
                         }
                         InboxFragment inboxFragment = new InboxFragment();
                         openFragment(inboxFragment, "Inbox");
+                        return true;
+
+                    case "Groups":
+                        if (actionBar != null) {
+                            actionBar.setTitle("Groups");
+                        }
+                        GroupsFragment groupsFragment = new GroupsFragment();
+                        openFragment(groupsFragment, "Groups");
                         return true;
 
                     case "Profile":

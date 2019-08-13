@@ -1,6 +1,7 @@
 package com.jogtown.jogtown.fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
@@ -15,18 +16,18 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.hosopy.actioncable.Subscription;
 import com.jogtown.jogtown.R;
+import com.jogtown.jogtown.activities.GroupRunActivity;
 import com.jogtown.jogtown.activities.MainActivity;
-import com.jogtown.jogtown.models.Message;
-import com.jogtown.jogtown.utils.ActionCableSocket;
-import com.jogtown.jogtown.utils.GroupRunMembersRecyclerAdapter;
-import com.jogtown.jogtown.utils.LinearLayoutManagerWrapper;
-import com.jogtown.jogtown.utils.PicassoCircle;
-import com.squareup.picasso.Picasso;
+import com.jogtown.jogtown.utils.adapters.GroupMessageRecyclerViewAdapter;
+import com.jogtown.jogtown.utils.network.ActionCableSocket;
+import com.jogtown.jogtown.utils.adapters.GroupRunMembersRecyclerAdapter;
+import com.jogtown.jogtown.utils.network.MyUrlRequestCallback;
+import com.jogtown.jogtown.utils.network.NetworkRequest;
+import com.jogtown.jogtown.utils.ui.LinearLayoutManagerWrapper;
 import com.txusballesteros.widgets.FitChart;
 
 import org.json.JSONException;
@@ -62,6 +63,14 @@ public class GroupRunMembersFragment extends Fragment {
     RecyclerView membersRecyclerView;
     RecyclerView.LayoutManager membersLayoutManager;
     RecyclerView.Adapter membersRecyclerViewAdapter;
+
+
+
+    List<JSONObject> groupMessages;
+
+    RecyclerView messagesRecyclerView;
+    RecyclerView.LayoutManager messagesLayoutManager;
+    RecyclerView.Adapter messagesRecyclerViewAdapter;
 
 
     FitChart joggerCountChart;
@@ -140,8 +149,10 @@ public class GroupRunMembersFragment extends Fragment {
 
 
         groupMembers = new ArrayList<>();
+        groupMessages = new ArrayList<>();
 
         setupGroupMembersRecyclerAdapter();
+        setupGroupMessagesRecyclerAdapter();
 
         createSocket();
 
@@ -150,6 +161,8 @@ public class GroupRunMembersFragment extends Fragment {
 
         updateJoggerCountChart();
         handler.postDelayed(joggerCountUpdaterRunnable, 60000); //update chart every minute
+
+        notifyOthersThatUSerHasStarted();
 
         return view;
     }
@@ -218,7 +231,7 @@ public class GroupRunMembersFragment extends Fragment {
         }
 
         groupMembers.add(0, currentUserJog);
-        notifyDatasetChanged();
+        notifyDatasetChanged("groupMembers");
 
         //TODO stream jog to other users
 
@@ -240,31 +253,77 @@ public class GroupRunMembersFragment extends Fragment {
 
     }
 
-    public void notifyDatasetChanged() {
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                membersRecyclerViewAdapter.notifyDataSetChanged();
-            }
-        });
+
+    public void setupGroupMessagesRecyclerAdapter() {
+        messagesLayoutManager = new LinearLayoutManagerWrapper(MainActivity.appContext);
+        //Using the wrapper I created here, refer to it in utils to know why I am using it instead
+        ((LinearLayoutManager) messagesLayoutManager).setOrientation(RecyclerView.VERTICAL);
+
+        messagesRecyclerViewAdapter = new GroupMessageRecyclerViewAdapter(groupMessages);
+        messagesRecyclerViewAdapter.setHasStableIds(true);
+
+        messagesRecyclerView.setLayoutManager(messagesLayoutManager);
+
+        messagesRecyclerView.setAdapter(messagesRecyclerViewAdapter);
+
     }
 
-    public void notifyItemInserted(final int position) {
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                membersRecyclerViewAdapter.notifyItemInserted(position);
-            }
-        });
+    public void notifyDatasetChanged(String dataSetName) {
+        if (dataSetName.equals("groupMessages")) {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    messagesRecyclerViewAdapter.notifyDataSetChanged();
+                }
+            });
+
+        } else if (dataSetName.equals("groupMembers")) {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    membersRecyclerViewAdapter.notifyDataSetChanged();
+                }
+            });
+        }
+
     }
 
-    public void notifyItemRemoved(final int position) {
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                membersRecyclerViewAdapter.notifyItemRemoved(position);
-            }
-        });
+
+    public void notifyItemInserted(final int position, String dataSetName) {
+        if (dataSetName.equals("groupMessages")) {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    messagesRecyclerViewAdapter.notifyItemInserted(position);
+                }
+            });
+        } else if (dataSetName.equals("groupMembers")) {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    membersRecyclerViewAdapter.notifyItemInserted(position);
+                }
+            });
+        }
+    }
+
+
+    public void notifyItemRemoved(final int position, String dataSetName) {
+        if (dataSetName.equals("groupMessages")) {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    messagesRecyclerViewAdapter.notifyItemRemoved(position);
+                }
+            });
+        } else if (dataSetName.equals("groupMembers")) {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    membersRecyclerViewAdapter.notifyItemRemoved(position);
+                }
+            });
+        }
     }
 
     public void createSocket() {
@@ -282,7 +341,14 @@ public class GroupRunMembersFragment extends Fragment {
             @Override
             public void onReceived(JSONObject jsonObject) {
                 if (isAGroupMessage(jsonObject)) {
-                    //TODO - work a message
+                    try {
+                        JSONObject msgObj = new JSONObject(jsonObject.get("message").toString());
+                        groupMessages.add(msgObj);
+                        notifyDatasetChanged("groupMessages");
+
+                    } catch (JSONException e) {
+
+                    }
 
                 } else if (isAGroupMembership(jsonObject)) {
 
@@ -313,7 +379,7 @@ public class GroupRunMembersFragment extends Fragment {
 
         ActionCableSocket actionCableSocket = new ActionCableSocket(
                 "GroupChannel",
-                Integer.toString(1),
+                Integer.toString(GroupRunActivity.groupId),
                 socketConnection
         );
 
@@ -370,18 +436,18 @@ public class GroupRunMembersFragment extends Fragment {
                 if (object.getInt("user_id") == jsonObject.getInt("user_id")) {
                     //The group Membership is already in the list
                     groupMembers.remove(i);
-                    notifyItemRemoved(i);
+                    notifyItemRemoved(i, "groupMembers");
 
                     if (isJogging) {
                         //if jogging true, move to front of the list after currentuser
                         groupMembers.add(1, jsonObject);
 
-                        notifyDatasetChanged();
+                        notifyDatasetChanged("groupMembers");
                         return; //Exit the function
                     } else {
                         groupMembers.add(i, jsonObject);
 
-                        notifyDatasetChanged();
+                        notifyDatasetChanged("groupMembers");
                         return;
                     }
                 }
@@ -396,7 +462,7 @@ public class GroupRunMembersFragment extends Fragment {
         if (isJogging) {
             try {
                 groupMembers.add(1, jsonObject);
-                notifyDatasetChanged();
+                notifyDatasetChanged("groupMembers");
             } catch (IndexOutOfBoundsException e) {
                 e.printStackTrace();
             }
@@ -404,12 +470,13 @@ public class GroupRunMembersFragment extends Fragment {
             // Send to the back of the list
             try {
                 groupMembers.add(jsonObject);
-                notifyDatasetChanged();
+                notifyDatasetChanged("groupMembers");
             }catch (IndexOutOfBoundsException e) {
                 e.printStackTrace();
             }
         }
     }
+
 
 
 
@@ -437,6 +504,47 @@ public class GroupRunMembersFragment extends Fragment {
         String all = "out of " + Integer.toString(groupMembers.size()) + " Joggers in group";
         joggerActiveCountText.setText(active);
         joggerAllCountText.setText(all);
+    }
+
+
+    public void notifyOthersThatUSerHasStarted() {
+        int groupId = GroupRunActivity.groupId;
+
+        String userName = authPref.getString("name", "user");
+        int userId = authPref.getInt("userId", 0);
+        String messageText = userName + " has started jogging";
+        try {
+            JSONObject payload = new JSONObject();
+            payload.put("message_text", messageText);
+            payload.put("message_type", "text");
+            payload.put("system", true);
+            payload.put("group_id", groupId);
+            payload.put("user_id", groupId);
+
+            String payloatStr = payload.toString();
+            String url = getString(R.string.root_url) + "v1/group_messages";
+
+        } catch (JSONException e) {
+
+        }
+
+    }
+
+
+    /// NETWORK REQUESTS
+    public void send(String payload, String url) {
+
+        //Send Stuffs to backend: Stats, Message etc
+        //All we are sending here is in real time though so I expect action cable to receive
+
+        MyUrlRequestCallback.OnFinishRequest onFinishRequest = new MyUrlRequestCallback.OnFinishRequest() {
+            @Override
+            public void onFinishRequest(Object result) {
+                //TODO: Ensure whatever was sent was sent
+            }
+        };
+
+        NetworkRequest.post(url, payload, new MyUrlRequestCallback(onFinishRequest));
     }
 
 }

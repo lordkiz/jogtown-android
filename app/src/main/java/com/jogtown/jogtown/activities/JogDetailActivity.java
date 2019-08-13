@@ -12,7 +12,6 @@ import android.content.SharedPreferences;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteConstraintException;
 import android.graphics.Color;
-import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -26,38 +25,32 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.model.GradientColor;
-import com.github.mikephil.charting.utils.ColorTemplate;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.jogtown.jogtown.DAO.JogDAO;
 import com.jogtown.jogtown.R;
-import com.jogtown.jogtown.utils.AppDatabase;
+import com.jogtown.jogtown.utils.database.AppDatabase;
 import com.jogtown.jogtown.utils.Auth;
 import com.jogtown.jogtown.utils.Conversions;
 import com.jogtown.jogtown.models.Jog;
-import com.jogtown.jogtown.utils.DBMigrations;
-import com.jogtown.jogtown.utils.MyUrlRequestCallback;
-import com.jogtown.jogtown.utils.NetworkRequest;
+import com.jogtown.jogtown.utils.network.MyUrlRequestCallback;
+import com.jogtown.jogtown.utils.network.NetworkRequest;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class JogDetailActivity extends AppCompatActivity implements OnMapReadyCallback {
 

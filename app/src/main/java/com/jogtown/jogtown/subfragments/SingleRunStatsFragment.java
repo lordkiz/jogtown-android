@@ -5,15 +5,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,12 +21,11 @@ import com.google.gson.Gson;
 import com.jogtown.jogtown.R;
 import com.jogtown.jogtown.activities.MainActivity;
 import com.jogtown.jogtown.utils.Conversions;
-import com.jogtown.jogtown.utils.JogStatsService;
-import com.jogtown.jogtown.utils.LocationService;
+import com.jogtown.jogtown.utils.services.JogStatsService;
+import com.jogtown.jogtown.utils.services.LocationService;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 
 

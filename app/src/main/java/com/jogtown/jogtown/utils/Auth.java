@@ -4,15 +4,13 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
 import com.facebook.login.LoginManager;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.gson.Gson;
 import com.jogtown.jogtown.activities.MainActivity;
+import com.jogtown.jogtown.utils.services.JogStatsService;
+import com.jogtown.jogtown.utils.services.LocationService;
 
 import org.json.JSONException;
 import org.json.JSONObject;
