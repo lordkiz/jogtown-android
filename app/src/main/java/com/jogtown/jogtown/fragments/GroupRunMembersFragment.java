@@ -20,8 +20,10 @@ import android.widget.TextView;
 
 import com.hosopy.actioncable.Subscription;
 import com.jogtown.jogtown.R;
+import com.jogtown.jogtown.activities.GroupActivity;
 import com.jogtown.jogtown.activities.GroupRunActivity;
 import com.jogtown.jogtown.activities.MainActivity;
+import com.jogtown.jogtown.utils.Conversions;
 import com.jogtown.jogtown.utils.adapters.GroupMessageRecyclerViewAdapter;
 import com.jogtown.jogtown.utils.network.ActionCableSocket;
 import com.jogtown.jogtown.utils.adapters.GroupRunMembersRecyclerAdapter;
@@ -30,6 +32,7 @@ import com.jogtown.jogtown.utils.network.NetworkRequest;
 import com.jogtown.jogtown.utils.ui.LinearLayoutManagerWrapper;
 import com.txusballesteros.widgets.FitChart;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -72,12 +75,12 @@ public class GroupRunMembersFragment extends Fragment {
     RecyclerView.LayoutManager messagesLayoutManager;
     RecyclerView.Adapter messagesRecyclerViewAdapter;
 
-
     FitChart joggerCountChart;
+    FitChart joggerTotalMembersChart;
+    FitChart joggerTotalKmChart;
     TextView joggerActiveCountText;
-    TextView joggerAllCountText;
-    SharedPreferences authPref;
-    SharedPreferences jogPref;
+    TextView joggerTotalMembersText;
+    TextView joggerActiveTotalKmText;
 
     private Handler handler = new Handler();
     private Runnable joggerCountUpdaterRunnable = new Runnable() {
@@ -136,20 +139,31 @@ public class GroupRunMembersFragment extends Fragment {
         View view =  inflater.inflate(R.layout.fragment_group_run_members, container, false);
 
         membersRecyclerView = view.findViewById(R.id.group_run_members_fragment_recycler_view);
+        messagesRecyclerView = view.findViewById(R.id.group_run_fragment_messages_recycler_view);
+
         joggerActiveCountText = view.findViewById(R.id.joggerActiveCountText);
-        joggerAllCountText = view.findViewById(R.id.joggerAllCountText);
-
-
-        authPref = MainActivity.appContext.getSharedPreferences("AuthPreferences", Context.MODE_PRIVATE);
-        jogPref = MainActivity.appContext.getSharedPreferences("JogPreferences", Context.MODE_PRIVATE);
+        joggerTotalMembersText = view.findViewById(R.id.joggerTotalMembersText);
+        joggerActiveTotalKmText = view.findViewById(R.id.joggerActiveTotalKmText);
 
         joggerCountChart = view.findViewById(R.id.group_run_members_fragment_jogger_count_chart);
+        joggerTotalMembersChart = view.findViewById(R.id.group_run_members_fragment_total_members_chart);
+        joggerTotalKmChart = view.findViewById(R.id.group_run_members_fragment_total_km_chart);
+
+
+
         joggerCountChart.setMinValue(0f);
         joggerCountChart.setMaxValue(100f);
 
+        joggerTotalKmChart.setMinValue(0f);
+        joggerTotalKmChart.setMaxValue(100f);
 
-        groupMembers = new ArrayList<>();
-        groupMessages = new ArrayList<>();
+
+        joggerTotalMembersChart.setMinValue(0f);
+        joggerTotalMembersChart.setMaxValue(100f);
+
+
+        setUpGroupMembers();
+        setUpGroupMessages();
 
         setupGroupMembersRecyclerAdapter();
         setupGroupMessagesRecyclerAdapter();
@@ -208,8 +222,41 @@ public class GroupRunMembersFragment extends Fragment {
         void onFragmentInteraction(Uri uri);
     }
 
+    private void setUpGroupMessages() {
+        groupMessages = new ArrayList<>();
+        try {
+            JSONArray jsonArray = GroupRunActivity.groupObject.getJSONArray("group_messages");
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = new JSONObject(jsonArray.get(i).toString());
+                groupMessages.add(jsonObject);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void setUpGroupMembers() {
+        groupMembers = new ArrayList<>();
+        try {
+            JSONArray jsonArray = GroupRunActivity.groupObject.getJSONArray("group_memberships");
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = new JSONObject(jsonArray.get(i).toString());
+                groupMembers.add(jsonObject);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+
 
     public void streamCurrentUserJog() {
+
+        SharedPreferences authPref = MainActivity.appContext.getSharedPreferences("AuthPreferences", Context.MODE_PRIVATE);
+        SharedPreferences jogPref = MainActivity.appContext.getSharedPreferences("JogPreferences", Context.MODE_PRIVATE);
+
         String avatar = authPref.getString("profilePicture", getString(R.string.default_profile_picture));
         String userName = authPref.getString("name", "-");
         int userId = authPref.getInt("userId", 0);
@@ -222,16 +269,17 @@ public class GroupRunMembersFragment extends Fragment {
             currentUserJog.put("user_name", userName);
             currentUserJog.put("user_id", userId);
             currentUserJog.put("user_avatar", avatar);
-            currentUserJog.put("distance", distance);
-            currentUserJog.put("duration", duration);
+            currentUserJog.put("current_distance", distance);
+            currentUserJog.put("current_duration", duration);
             currentUserJog.put("jogging", true);
+
+            addGroupMembershipItem(currentUserJog);
 
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        groupMembers.add(0, currentUserJog);
-        notifyDatasetChanged("groupMembers");
+
 
         //TODO stream jog to other users
 
@@ -259,12 +307,14 @@ public class GroupRunMembersFragment extends Fragment {
         //Using the wrapper I created here, refer to it in utils to know why I am using it instead
         ((LinearLayoutManager) messagesLayoutManager).setOrientation(RecyclerView.VERTICAL);
 
-        messagesRecyclerViewAdapter = new GroupMessageRecyclerViewAdapter(groupMessages);
+        messagesRecyclerViewAdapter = new GroupMessageRecyclerViewAdapter(groupMessages, false);
         messagesRecyclerViewAdapter.setHasStableIds(true);
 
         messagesRecyclerView.setLayoutManager(messagesLayoutManager);
 
         messagesRecyclerView.setAdapter(messagesRecyclerViewAdapter);
+
+        messagesRecyclerView.scrollToPosition(messagesRecyclerViewAdapter.getItemCount() -1);
 
     }
 
@@ -274,6 +324,7 @@ public class GroupRunMembersFragment extends Fragment {
                 @Override
                 public void run() {
                     messagesRecyclerViewAdapter.notifyDataSetChanged();
+                    messagesRecyclerView.scrollToPosition(messagesRecyclerViewAdapter.getItemCount() -1);
                 }
             });
 
@@ -327,6 +378,9 @@ public class GroupRunMembersFragment extends Fragment {
     }
 
     public void createSocket() {
+
+        final SharedPreferences authPref = MainActivity.appContext.getSharedPreferences("AuthPreferences", Context.MODE_PRIVATE);
+
         ActionCableSocket.OnSocketConnection socketConnection = new ActionCableSocket.OnSocketConnection() {
             @Override
             public void onConnected() {
@@ -421,6 +475,8 @@ public class GroupRunMembersFragment extends Fragment {
         //add whatever jsonObject.
         //First find the group_membership with a jsonobject user_id remove it and
         //replace it with the new one.
+        SharedPreferences authPref = MainActivity.appContext.getSharedPreferences("AuthPreferences", Context.MODE_PRIVATE);
+        int currentUserId = authPref.getInt("userId", 0);
 
         boolean isJogging = false;
         try {
@@ -435,21 +491,34 @@ public class GroupRunMembersFragment extends Fragment {
                 JSONObject object = new JSONObject(obj.toString());
                 if (object.getInt("user_id") == jsonObject.getInt("user_id")) {
                     //The group Membership is already in the list
-                    groupMembers.remove(i);
-                    notifyItemRemoved(i, "groupMembers");
-
-                    if (isJogging) {
-                        //if jogging true, move to front of the list after currentuser
-                        groupMembers.add(1, jsonObject);
-
-                        notifyDatasetChanged("groupMembers");
-                        return; //Exit the function
+                    if (object.getInt("user_id") == currentUserId) {
+                        //it is current User's so it should be first on list
+                        if (groupMembers.size() > 0) {
+                            groupMembers.remove(0);
+                            notifyDatasetChanged("groupMembers");
+                            groupMembers.add(0, jsonObject);
+                            notifyDatasetChanged("groupMembers");
+                        } else {
+                            groupMembers.add(0, jsonObject);
+                            notifyDatasetChanged("groupMembers");
+                        }
                     } else {
-                        groupMembers.add(i, jsonObject);
+                        groupMembers.remove(i);
+                        notifyItemRemoved(i, "groupMembers");
 
-                        notifyDatasetChanged("groupMembers");
-                        return;
+                        if (isJogging) {
+                            //if jogging true, move to front of the list after currentuser
+                            groupMembers.add(1, jsonObject);
+
+                            notifyDatasetChanged("groupMembers");
+                        } else {
+                            groupMembers.add(i, jsonObject);
+
+                            notifyDatasetChanged("groupMembers");
+                        }
                     }
+
+                    return; //Exit the for loop
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -482,32 +551,44 @@ public class GroupRunMembersFragment extends Fragment {
 
     public void updateJoggerCountChart() {
         int joggers = 0;
-        for (int i = 0; i < groupMembers.size(); i++) {
-            JSONObject obj = groupMembers.get(i);
-            try {
+        int totalMeters = 0;
+        try {
+            totalMeters = GroupRunActivity.groupObject.getInt("total_distance");
+            for (int i = 0; i < groupMembers.size(); i++) {
+                JSONObject obj = groupMembers.get(i);
+
                 boolean isAJogger = obj.getBoolean("jogging");
+                int currentDistance = obj.getInt("current_distance");
+                totalMeters += currentDistance;
                 if (isAJogger) {
                     joggers++;
                 }
-            } catch (JSONException e) {
-                e.printStackTrace();
             }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
 
         float percentage = joggers > 0 ? ((joggers / (float)groupMembers.size()) * 100f) : 0f;
         Log.i("percentage got", Float.toString(percentage));
+
         joggerCountChart.setValue(percentage);
+        joggerTotalMembersChart.setValue(100f);
 
-        String jogPhrase = joggers > 1 ? " Joggers " : " Jogger ";
+        String active = Integer.toString(joggers);
+        String totalMembers = Integer.toString(groupMembers.size());
+        String totalKm = Conversions.displayKilometres(totalMeters);
 
-        String active = Integer.toString(joggers) + jogPhrase + "active now";
-        String all = "out of " + Integer.toString(groupMembers.size()) + " Joggers in group";
         joggerActiveCountText.setText(active);
-        joggerAllCountText.setText(all);
+        joggerTotalMembersText.setText(totalMembers);
+        joggerActiveTotalKmText.setText(totalKm);
     }
 
 
     public void notifyOthersThatUSerHasStarted() {
+
+        SharedPreferences authPref = MainActivity.appContext.getSharedPreferences("AuthPreferences", Context.MODE_PRIVATE);
+
         int groupId = GroupRunActivity.groupId;
 
         String userName = authPref.getString("name", "user");
@@ -519,10 +600,11 @@ public class GroupRunMembersFragment extends Fragment {
             payload.put("message_type", "text");
             payload.put("system", true);
             payload.put("group_id", groupId);
-            payload.put("user_id", groupId);
+            payload.put("user_id", userId);
 
             String payloatStr = payload.toString();
             String url = getString(R.string.root_url) + "v1/group_messages";
+            send(url, payloatStr);
 
         } catch (JSONException e) {
 
@@ -532,7 +614,7 @@ public class GroupRunMembersFragment extends Fragment {
 
 
     /// NETWORK REQUESTS
-    public void send(String payload, String url) {
+    public void send(String url, String payload) {
 
         //Send Stuffs to backend: Stats, Message etc
         //All we are sending here is in real time though so I expect action cable to receive

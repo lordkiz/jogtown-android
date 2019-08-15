@@ -1,14 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
     tools:context=".subfragments.SearchGroupsListFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
 
-</FrameLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@color/silver"
+        android:layout_marginRight="5dp"
+        android:layout_marginLeft="5dp"
+        >
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:layout_margin="1dp">
+
+            <EditText
+                android:id="@+id/searchGroupsEditText"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:inputType="text"
+                android:hint="Enter a name or invite code"
+                android:background="@color/transparent"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:layout_weight="3"
+                />
+
+            <Button
+                android:id="@+id/searchGroupsButton"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="search"
+                android:background="@drawable/purple_linear_background"
+                android:layout_weight="1"
+                android:textColor="@color/snow"
+                />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/search_groups_fragment_progressbar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/search_groups_fragment_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_marginTop="10dp"
+        android:layout_height="200dp"
+        android:minHeight="100dp"/>
+
+</LinearLayout>

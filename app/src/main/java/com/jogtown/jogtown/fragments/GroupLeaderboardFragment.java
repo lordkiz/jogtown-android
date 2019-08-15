@@ -5,12 +5,26 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.jogtown.jogtown.R;
+import com.jogtown.jogtown.activities.GroupActivity;
+import com.jogtown.jogtown.utils.adapters.GroupInfoMemberListRecyclerViewAdapter;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -31,6 +45,14 @@ public class GroupLeaderboardFragment extends Fragment {
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+
+    List<JSONObject> sortedGroupMembers;
+
+    RecyclerView recyclerView;
+    RecyclerView.LayoutManager layoutManager;
+    RecyclerView.Adapter adapter;
+
+    TextView groupLeaderboardMembersPrivateNotAMemberText;
 
     public GroupLeaderboardFragment() {
         // Required empty public constructor
@@ -67,7 +89,25 @@ public class GroupLeaderboardFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_group_leaderboard, container, false);
+        View view = inflater.inflate(R.layout.fragment_group_leaderboard, container, false);
+        groupLeaderboardMembersPrivateNotAMemberText = view.findViewById(R.id.groupLeaderboardMembersPrivateNotAMemberText);
+        recyclerView = view.findViewById(R.id.groupLeaderboardRecyclerView);
+
+        boolean isAPublicGroup = false;
+
+        try {
+            isAPublicGroup = GroupActivity.groupObject.getBoolean("public");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        if (!GroupActivity.userIsAMember() && !isAPublicGroup) {
+            groupLeaderboardMembersPrivateNotAMemberText.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.INVISIBLE);
+        }
+
+        sortGroupMembers();
+        setUpAdapter();
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -108,4 +148,48 @@ public class GroupLeaderboardFragment extends Fragment {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
+
+
+
+    private void sortGroupMembers() {
+        List<JSONObject> groupMembers = new ArrayList<>();
+        try {
+            JSONArray jsonArray = GroupActivity.groupObject.getJSONArray("group_memberships");
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = new JSONObject(jsonArray.get(i).toString());
+                groupMembers.add(jsonObject);
+            }
+            Collections.sort(groupMembers, new Comparator<JSONObject>() {
+                @Override
+                public int compare(JSONObject objectOne, JSONObject objectTwo) {
+                    try {
+                        int objOneTotalDistance = objectOne.getInt("total_distance");
+                        int objTwoTotalDistance = objectTwo.getInt("total_distance");
+                        //in reverse (descending)
+                        return Integer.compare(objTwoTotalDistance, objOneTotalDistance);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    return 0;
+                }
+            });
+
+            sortedGroupMembers = groupMembers;
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private void setUpAdapter() {
+        layoutManager = new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false);
+        recyclerView.setLayoutManager(layoutManager);
+        adapter = new GroupInfoMemberListRecyclerViewAdapter(this.sortedGroupMembers, true);
+
+        recyclerView.setAdapter(adapter);
+    }
+
+
+
 }

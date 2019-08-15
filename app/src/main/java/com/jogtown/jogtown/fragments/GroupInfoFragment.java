@@ -72,6 +72,7 @@ public class GroupInfoFragment extends Fragment {
     TextView groupInfoJoggersCount;
     TextView groupInfoDistanceCount;
     TextView groupInfoDurationCount;
+    TextView groupInfoMembersPrivateNotAMemberText;
 
     RecyclerView recyclerView;
     RecyclerView.LayoutManager layoutManager;
@@ -154,6 +155,7 @@ public class GroupInfoFragment extends Fragment {
         groupInfoJoggersCount = view.findViewById(R.id.groupInfoJoggersCount);
         groupInfoDistanceCount = view.findViewById(R.id.groupInfoDistanceCount);
         groupInfoDurationCount = view.findViewById(R.id.groupInfoDurationCount);
+        groupInfoMembersPrivateNotAMemberText = view.findViewById(R.id.groupInfoMembersPrivateNotAMemberText);
 
         recyclerView = view.findViewById(R.id.groupInfoMembersRecyclerView);
 
@@ -202,6 +204,8 @@ public class GroupInfoFragment extends Fragment {
             if (GroupActivity.groupObject.getBoolean("public") || GroupActivity.userIsAMember()) {
                 groupInfoShareContainer.setVisibility(View.VISIBLE);
                 recyclerView.setVisibility(View.VISIBLE);
+            } else {
+                groupInfoMembersPrivateNotAMemberText.setVisibility(View.VISIBLE);
             }
 
         } catch (JSONException e) {
@@ -296,7 +300,7 @@ public class GroupInfoFragment extends Fragment {
     public void setUpMemberListRecyclerView() {
         layoutManager = new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
-        adapter = new GroupInfoMemberListRecyclerViewAdapter(this.groupMembers);
+        adapter = new GroupInfoMemberListRecyclerViewAdapter(this.groupMembers, false);
 
         recyclerView.setAdapter(adapter);
     }

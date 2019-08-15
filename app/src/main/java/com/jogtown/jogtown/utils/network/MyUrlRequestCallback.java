@@ -114,14 +114,13 @@ public class MyUrlRequestCallback extends UrlRequest.Callback {
 
     @Override
     public void onFailed(UrlRequest request, UrlResponseInfo info, CronetException error) {
-        String inform = "CronetExceptionError: failed with status code - " + Integer.toString(info.getHttpStatusCode()) +
-                ". Caused by: " + error.getLocalizedMessage() + " (" + info.getHttpStatusText()+ ").";
 
+        String inform = error.getLocalizedMessage();
         JSONObject results = new JSONObject();
         try {
-            results.put("headers", createHeaders(info.getAllHeaders()));
+            results.put("headers", new JSONObject().toString());
             results.put("body", inform);
-            results.put("statusCode", info.getHttpStatusCode());
+            results.put("statusCode", 503);
         } catch (JSONException e ) {
             e.printStackTrace();
         }

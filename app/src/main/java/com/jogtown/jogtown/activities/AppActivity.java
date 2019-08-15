@@ -12,6 +12,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.widget.TabHost;
 import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -22,6 +23,8 @@ import com.jogtown.jogtown.fragments.InboxFragment;
 import com.jogtown.jogtown.fragments.ProfileFragment;
 import com.jogtown.jogtown.fragments.StartFragment;
 import com.jogtown.jogtown.subfragments.MyGroupsListFragment;
+import com.jogtown.jogtown.subfragments.MyGroupsListInDialogFragment;
+import com.jogtown.jogtown.subfragments.SearchGroupsListFragment;
 import com.jogtown.jogtown.subfragments.SingleRunStatsFragment;
 import com.jogtown.jogtown.utils.services.JogStatsService;
 import com.jogtown.jogtown.utils.services.LocationService;
@@ -37,12 +40,14 @@ public class AppActivity extends AppCompatActivity implements
 
         //SUBFRAGMENTS THAT MAKE UP THE FRAGMENTS ABOVE
         SingleRunStatsFragment.OnFragmentInteractionListener,
-        MyGroupsListFragment.OnFragmentInteractionListener
+        MyGroupsListFragment.OnFragmentInteractionListener,
+        SearchGroupsListFragment.OnFragmentInteractionListener,
+        MyGroupsListInDialogFragment.OnFragmentInteractionListener
 
 {
 
 
-    BottomNavigationView bottomNavigation;
+    private static BottomNavigationView bottomNavigation;
     ActionBar actionBar;
     SharedPreferences sharedPreferences;
 
@@ -55,15 +60,15 @@ public class AppActivity extends AppCompatActivity implements
         boolean jogIsOn = sharedPreferences.getBoolean("jogIsOn", false);
         String jogType = sharedPreferences.getString("jogType", "n/a");
 
-        if (jogIsOn) {
-            if (jogType.equals("single")) {
-                Toast.makeText(this, "You have a jog ongoing", Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(this, SingleRunActivity.class));
-            } else if (jogType.equals("group")) {
-                startActivity(new Intent(this, GroupRunActivity.class));
-                Toast.makeText(this, "You have a group jog ongoing", Toast.LENGTH_SHORT).show();
-            }
-        }
+//        if (jogIsOn) {
+//            if (jogType.equals("single")) {
+//                Toast.makeText(this, "You have a jog ongoing", Toast.LENGTH_SHORT).show();
+//                startActivity(new Intent(this, SingleRunActivity.class));
+//            } else if (jogType.equals("group")) {
+//                startActivity(new Intent(this, GroupRunActivity.class));
+//                Toast.makeText(this, "You have a group jog ongoing", Toast.LENGTH_SHORT).show();
+//            }
+//        }
 
 
         actionBar = getSupportActionBar();
@@ -137,6 +142,10 @@ public class AppActivity extends AppCompatActivity implements
         transaction.commit();
     }
 
+
+    public static void switchToMyGroupsTab() {
+        bottomNavigation.setSelectedItemId(R.id.groupsTab);
+    }
 
 
 

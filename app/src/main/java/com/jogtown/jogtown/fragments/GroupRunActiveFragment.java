@@ -217,12 +217,14 @@ public class GroupRunActiveFragment extends Fragment implements OnMapReadyCallba
 
 
     public void updateMap(LatLng coordinates) {
-        mMap.clear();
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 15));
-        polylineOptions.add(coordinates);
-        polylineOptions.color(Color.GREEN);
-        polylineOptions.width(5);
-        mMap.addPolyline(polylineOptions);
+        if (mMap != null) {
+            mMap.clear();
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 15));
+            polylineOptions.add(coordinates);
+            polylineOptions.color(Color.GREEN);
+            polylineOptions.width(5);
+            mMap.addPolyline(polylineOptions);
+        }
     }
 
 

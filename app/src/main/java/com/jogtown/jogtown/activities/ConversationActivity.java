@@ -167,10 +167,11 @@ public class ConversationActivity extends AppCompatActivity {
 
                     Message message = buildMessage(jsonObject);
                     messageListAdapter.addToStart(message, true);
+                    return true;
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                return true;
+                return false;
             }
         });
     }

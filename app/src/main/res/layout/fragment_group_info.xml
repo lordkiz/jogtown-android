@@ -323,6 +323,17 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:visibility="gone"/>
+
+                <TextView
+                    android:id="@+id/groupInfoMembersPrivateNotAMemberText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="This is a private group. You have to join to view group members."
+                    android:textColor="@color/red"
+                    android:textSize="16sp"
+                    android:padding="10dp"
+                    android:visibility="gone"
+                    />
             </LinearLayout>
 
 

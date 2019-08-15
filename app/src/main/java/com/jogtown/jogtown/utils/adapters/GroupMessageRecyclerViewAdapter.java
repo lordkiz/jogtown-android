@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.jogtown.jogtown.R;
 import com.jogtown.jogtown.activities.MainActivity;
+import com.jogtown.jogtown.utils.Conversions;
 import com.jogtown.jogtown.utils.ui.PicassoCircle;
 import com.squareup.picasso.Picasso;
 
@@ -23,9 +24,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class GroupMessageRecyclerViewAdapter extends RecyclerView.Adapter<GroupMessageRecyclerViewAdapter.MyViewHolder>{
     public List<Object> groupMessages;
+    boolean lightBackground;
 
-    public GroupMessageRecyclerViewAdapter(List groupMessages) {
+    public GroupMessageRecyclerViewAdapter(List groupMessages, boolean lightBackground) {
         this.groupMessages = groupMessages;
+        this.lightBackground = lightBackground;
     }
 
 
@@ -34,6 +37,7 @@ public class GroupMessageRecyclerViewAdapter extends RecyclerView.Adapter<GroupM
         ImageView userAvatar;
         TextView userName;
         TextView messageText;
+        TextView messageDate;
 
         public MyViewHolder(View view) {
             super(view);
@@ -41,6 +45,7 @@ public class GroupMessageRecyclerViewAdapter extends RecyclerView.Adapter<GroupM
             userAvatar = view.findViewById(R.id.group_message_user_avatar);
             userName = view.findViewById(R.id.group_message_user_name);
             messageText = view.findViewById(R.id.group_message_text);
+            messageDate = view.findViewById(R.id.group_message_date);
 
         }
     }
@@ -90,7 +95,15 @@ public class GroupMessageRecyclerViewAdapter extends RecyclerView.Adapter<GroupM
 
                 String messageText = msg.getString("message_text");
                 holder.messageText.setText(messageText);
-                holder.messageText.setTextColor(MainActivity.appContext.getResources().getColor(R.color.snow));
+                String date = Conversions.formatDateTime(msg.getString("created_at"));
+                holder.messageDate.setText(date);
+                if (this.lightBackground) {
+                    holder.messageText.setTextColor(MainActivity.appContext.getResources().getColor(R.color.silver));
+                    holder.messageDate.setTextColor(MainActivity.appContext.getResources().getColor(R.color.silver));
+                } else {
+                    holder.messageText.setTextColor(MainActivity.appContext.getResources().getColor(R.color.darkSmoke));
+                    holder.messageDate.setTextColor(MainActivity.appContext.getResources().getColor(R.color.darkSmoke));
+                }
             }
 
 

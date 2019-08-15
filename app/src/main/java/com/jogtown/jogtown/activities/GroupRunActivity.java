@@ -59,6 +59,7 @@ public class GroupRunActivity extends AppCompatActivity implements
     ViewPager viewPager;
 
     public static int groupId; //Group you are running with
+    public static JSONObject groupObject; //Group you are running with
 
     Boolean mapIsReady = false; //We need to know the map in GroupRunActiveFragment is ready before starting services.
     private final int LOCATION_REQUEST_CODE = 101;
@@ -85,7 +86,7 @@ public class GroupRunActivity extends AppCompatActivity implements
 
         Intent intent = getIntent();
         try {
-            JSONObject groupObject = new JSONObject(intent.getStringExtra("group"));
+            groupObject = new JSONObject(intent.getStringExtra("group"));
             groupId = groupObject.getInt("id");
         } catch (JSONException e) {
             groupId = 0;

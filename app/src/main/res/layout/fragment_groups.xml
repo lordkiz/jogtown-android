@@ -1,30 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
 
-    <TextView
-        android:id="@+id/myGroupsHeaderText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:layout_margin="10dp"
-        android:text="My Groups"
-        android:textColor="@color/lightGreen"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        />
-
-    <fragment
-        android:id="@+id/myGroupsListFragmentInGroupsFragment"
-        android:name="com.jogtown.jogtown.subfragments.MyGroupsListFragment"
+    <LinearLayout
+        android:id="@+id/myglayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/myGroupsHeaderText" />
+        android:orientation="vertical"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/seglayout"
+        >
+
+        <fragment
+            android:id="@+id/myGroupsListFragmentInGroupsFragment"
+            android:name="com.jogtown.jogtown.subfragments.MyGroupsListFragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/seglayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_gravity="end"
+        android:layout_marginTop="20dp"
+        app:layout_constraintBottom_toTopOf="@id/createGroupButton"
+        app:layout_constraintTop_toBottomOf="@id/myglayout">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="Find Groups To Join"
+            android:textColor="@color/mediumOrange"
+            />
+
+        <fragment
+            android:id="@+id/searchGroupsListFragmentInGroupsFragment"
+            android:name="com.jogtown.jogtown.subfragments.SearchGroupsListFragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/createGroupButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Create A Group"
+        android:background="@drawable/green_linear_gradient"
+        android:textColor="@color/snow"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

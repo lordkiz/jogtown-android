@@ -88,8 +88,8 @@ public class GroupRunMembersRecyclerAdapter extends RecyclerView.Adapter<GroupRu
                 holder.jogging.setTextColor(MainActivity.appContext.getResources().getColor(R.color.extraDarkSmoke));
             }
 
-            int distance = jsonObject.getInt("distance");
-            int duration = jsonObject.getInt("duration");
+            int distance = jsonObject.getInt("current_distance");
+            int duration = jsonObject.getInt("current_duration");
 
             holder.userDistance.setText(" " + Conversions.displayKilometres(distance) + "km  ");
 

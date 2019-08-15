@@ -113,25 +113,27 @@ public class MyGroupsListRecyclerAdapter extends RecyclerView.Adapter<MyGroupsLi
 
             LayoutInflater layoutInflater = LayoutInflater.from(MainActivity.appContext);
 
-            switch (jsonObject.getInt("rating")) {
-                case 5:
-                    layoutInflater.inflate(R.layout.five_star_small_layout, holder.ratingsPlaceholder);
-                    break;
-                case 4:
-                    layoutInflater.inflate(R.layout.four_star_small_layout, holder.ratingsPlaceholder);
-                    break;
-                case 3:
-                    layoutInflater.inflate(R.layout.three_star_small_layout, holder.ratingsPlaceholder);
-                    break;
-                case 2:
-                    layoutInflater.inflate(R.layout.two_star_small_layout, holder.ratingsPlaceholder);
-                    break;
-                case 1:
-                    layoutInflater.inflate(R.layout.one_star_small_layout, holder.ratingsPlaceholder);
-                    break;
-                default:
-                    layoutInflater.inflate(R.layout.zero_star_small_layout, holder.ratingsPlaceholder);
+            if (holder.ratingsPlaceholder.getChildCount() == 0) {
+                switch (jsonObject.getInt("rating")) {
+                    case 5:
+                        layoutInflater.inflate(R.layout.five_star_small_layout, holder.ratingsPlaceholder);
+                        break;
+                    case 4:
+                        layoutInflater.inflate(R.layout.four_star_small_layout, holder.ratingsPlaceholder);
+                        break;
+                    case 3:
+                        layoutInflater.inflate(R.layout.three_star_small_layout, holder.ratingsPlaceholder);
+                        break;
+                    case 2:
+                        layoutInflater.inflate(R.layout.two_star_small_layout, holder.ratingsPlaceholder);
+                        break;
+                    case 1:
+                        layoutInflater.inflate(R.layout.one_star_small_layout, holder.ratingsPlaceholder);
+                        break;
+                    default:
+                        layoutInflater.inflate(R.layout.zero_star_small_layout, holder.ratingsPlaceholder);
 
+                }
             }
 
 

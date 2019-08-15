@@ -1,5 +1,6 @@
 package com.jogtown.jogtown.subfragments;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
@@ -10,14 +11,18 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 
 import com.jogtown.jogtown.R;
 import com.jogtown.jogtown.activities.GroupActivity;
 import com.jogtown.jogtown.utils.adapters.MyGroupsListRecyclerAdapter;
+import com.jogtown.jogtown.utils.adapters.SearchGroupsListRecyclerAdapter;
 import com.jogtown.jogtown.utils.network.MyUrlRequestCallback;
 import com.jogtown.jogtown.utils.network.NetworkRequest;
 
@@ -54,10 +59,13 @@ public class SearchGroupsListFragment extends Fragment {
     RecyclerView.LayoutManager layoutManager;
     RecyclerView.Adapter adapter;
 
-    List<Object> myGroups;
+    List<Object> groupsResult;
 
     boolean loading;
+    EditText searchGroupsEditText;
+    Button searchGroupsButton;
 
+    int page = 1;
 
     public SearchGroupsListFragment() {
         // Required empty public constructor
@@ -95,11 +103,26 @@ public class SearchGroupsListFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_search_groups_list, container, false);
-        progressBar = view.findViewById(R.id.my_groups_fragment_progressbar);
-        recyclerView = view.findViewById(R.id.my_groups_fragment_recyclerview);
-        myGroups = new ArrayList<>();
+        progressBar = view.findViewById(R.id.search_groups_fragment_progressbar);
+        recyclerView = view.findViewById(R.id.search_groups_fragment_recycler_view);
+        searchGroupsEditText = view.findViewById(R.id.searchGroupsEditText);
+        searchGroupsButton = view.findViewById(R.id.searchGroupsButton);
+
+        searchGroupsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String query = searchGroupsEditText.getText().toString();
+                if (query.length() > 0) {
+                    getGroups(query);
+                } else {
+                    getGroups(null);
+                }
+            }
+        });
+
+        groupsResult = new ArrayList<>();
         setUpRecyclerView();
-        getGroups();
+        getGroups(null);
         return view;
 
     }
@@ -152,7 +175,7 @@ public class SearchGroupsListFragment extends Fragment {
         //when clicked.
         //There are two possible Activities: GroupRunActivity or GroupActivity
 
-        adapter = new MyGroupsListRecyclerAdapter(new GroupActivity(), myGroups);
+        adapter = new SearchGroupsListRecyclerAdapter(groupsResult);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
     }
@@ -173,44 +196,79 @@ public class SearchGroupsListFragment extends Fragment {
 
 
 
-    public void getGroups() {
+    public void getGroups(String query) {
+        groupsResult.clear();
         loading = true;
         showActivity();
 
-        String url = R.string.root_url + "v1/search_groups";
+        String url = getString(R.string.root_url) + "v1/search_groups";
+
+        if (query != null) {
+            url = url += "/?q=" + query;
+        }
+        Log.i("search url", url);
         MyUrlRequestCallback.OnFinishRequest onFinishRequest = new MyUrlRequestCallback.OnFinishRequest() {
             @Override
             public void onFinishRequest(Object result) {
-                loading = false;
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        showActivity();
-                    }
-                });
                 try {
-                    JSONObject res = new JSONObject(result.toString());
-                    JSONArray resArr = new JSONArray(res.get("body"));
-                    if (resArr.length() > 0) {
-                        //Also check if we are getting the right kind of results
-                        JSONObject testObj = new JSONObject(resArr.get(0).toString());
-                        if (testObj.has("group_id")) {
-                            //Good. the right result
-                            for (int i = 0; i < resArr.length(); i++) {
-                                myGroups.add(resArr.get(i));
+                    JSONObject data = new JSONObject(result.toString());
+                    final String responseBody = data.getString("body");
+                    String headers = data.getString("headers");
+                    int statusCode = data.getInt("statusCode");
+                    if (statusCode == 200) { //Some kind of success
+                        loading = false;
+                        new Handler(Looper.getMainLooper()).post(new Runnable() {
+                            @Override
+                            public void run() {
+                                showActivity();
                             }
-                            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    adapter.notifyDataSetChanged();
-                                }
-                            });
+                        });
+                        JSONArray jsonArray = new JSONArray(responseBody);
+                        List<Object> resList = new ArrayList<>();
+                        if (jsonArray.length() > 0) {
+
+                            for (int i = 0; i < jsonArray.length(); i++) {
+                                resList.add(jsonArray.get(i));
+                            }
                         }
+                        groupsResult.addAll(resList);
+                        new Handler(Looper.getMainLooper()).post(new Runnable() {
+                            @Override
+                            public void run() {
+                                //showButton();
+                                adapter.notifyDataSetChanged();
+                                page++;
+
+                            }
+                        });
+
+                    } else if (statusCode > 399) { //400 and above errors
+                        loading = false;
+                        new Handler(Looper.getMainLooper()).post(new Runnable() {
+                            @Override
+                            public void run() {
+                                showActivity();
+                                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+                                alertDialogBuilder
+                                        .setCancelable(true)
+                                        .setMessage(responseBody)
+                                        .setTitle("Error!");
+                                alertDialogBuilder.create().show();
+
+                            }
+                        });
+
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
                     loading = false;
-                    showActivity();
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            showActivity();
+
+                        }
+                    });
                 }
             }
         };

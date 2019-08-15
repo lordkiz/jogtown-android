@@ -33,6 +33,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.jogtown.jogtown.R;
 import com.jogtown.jogtown.activities.GroupRunActivity;
 import com.jogtown.jogtown.activities.SingleRunActivity;
+import com.jogtown.jogtown.subfragments.MyGroupsListInDialogFragment;
 import com.jogtown.jogtown.utils.services.LocationService;
 
 /**
@@ -182,9 +183,11 @@ public class StartFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void updateMap(LatLng coordinates) {
-        mMap.clear();
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 15));
-        mMap.addMarker(new MarkerOptions().position(coordinates).title(""));
+        if (mMap != null) {
+            mMap.clear();
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 15));
+            mMap.addMarker(new MarkerOptions().position(coordinates).title(""));
+        }
     }
 
     /**
@@ -210,10 +213,11 @@ public class StartFragment extends Fragment implements OnMapReadyCallback {
     }
 
     public void startGroupRun() {
-        getActivity().stopService(locationServiceIntent);
+        showMyGroupDialog();
+        /*getActivity().stopService(locationServiceIntent);
 
         Intent intent = new Intent(this.getContext(), GroupRunActivity.class);
-        this.startActivity(intent);
+        this.startActivity(intent);*/
 
     }
 
@@ -264,6 +268,14 @@ public class StartFragment extends Fragment implements OnMapReadyCallback {
                     }
                 }, new IntentFilter(LocationService.BROADCAST_ACTION)
         );
+    }
+
+
+    public void showMyGroupDialog() {
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        MyGroupsListInDialogFragment groupsListInDialogFragment = new MyGroupsListInDialogFragment();
+        groupsListInDialogFragment.show(fragmentManager, "MyGroupsListInDialog");
+
     }
 
 }

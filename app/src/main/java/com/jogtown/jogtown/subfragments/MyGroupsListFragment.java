@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.jogtown.jogtown.R;
 import com.jogtown.jogtown.activities.GroupActivity;
@@ -55,6 +56,8 @@ public class MyGroupsListFragment extends Fragment {
 
     RecyclerView.LayoutManager layoutManager;
     RecyclerView.Adapter adapter;
+
+    TextView myGroupsHeaderText;
 
     List<Object> myGroups;
 
@@ -101,6 +104,7 @@ public class MyGroupsListFragment extends Fragment {
         progressBar = view.findViewById(R.id.my_groups_fragment_progressbar);
         recyclerView = view.findViewById(R.id.my_groups_fragment_recyclerview);
         myGroups = new ArrayList<>();
+        myGroupsHeaderText = view.findViewById(R.id.myGroupsHeaderText);
         setUpRecyclerView();
         getMyGroups();
         return view;
@@ -175,6 +179,7 @@ public class MyGroupsListFragment extends Fragment {
 
 
     public void getMyGroups() {
+        myGroups.clear();
         loading = true;
         showActivity();
 
@@ -198,6 +203,7 @@ public class MyGroupsListFragment extends Fragment {
                         JSONArray jsonArray = new JSONArray(responseBody);
                         List<Object> resList = new ArrayList<>();
                         if (jsonArray.length() > 0) {
+
                             for (int i = 0; i < jsonArray.length(); i++) {
                                 resList.add(jsonArray.get(i));
                             }
@@ -209,6 +215,9 @@ public class MyGroupsListFragment extends Fragment {
                                 //showButton();
                                 adapter.notifyDataSetChanged();
                                 page++;
+                                if (myGroups.size() > 0) {
+                                    myGroupsHeaderText.setVisibility(View.VISIBLE);
+                                }
                             }
                         });
 

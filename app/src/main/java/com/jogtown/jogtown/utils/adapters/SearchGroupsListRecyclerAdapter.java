@@ -1,5 +1,6 @@
 package com.jogtown.jogtown.utils.adapters;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -8,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.jogtown.jogtown.R;
@@ -37,14 +39,17 @@ public class SearchGroupsListRecyclerAdapter extends RecyclerView.Adapter<Search
         ImageView groupAvatar;
         TextView groupName;
         TextView groupTagline;
+        TextView joggersHeaderText;
+        LinearLayout ratingsPlaceholder;
 
-        public MyViewHolder (View view) {
-            super(view);
+        public MyViewHolder (View view) {super(view);
             layout = view;
             joggersCount = view.findViewById(R.id.group_list_joggers_count);
+            joggersHeaderText = view.findViewById(R.id.group_list_joggers_text);
             groupAvatar = view.findViewById(R.id.group_list_group_avatar);
             groupName = view.findViewById(R.id.group_list_group_name);
             groupTagline = view.findViewById(R.id.group_list_group_tagline);
+            ratingsPlaceholder = view.findViewById(R.id.group_list_ratings_placeholder);
         }
     }
 
@@ -69,37 +74,59 @@ public class SearchGroupsListRecyclerAdapter extends RecyclerView.Adapter<Search
                 //TODO: Show something on layout to signify I am admin
             }
 
-
-            holder.layout.setBackgroundColor(MainActivity.appContext.getResources().getColor(R.color.white));
-
             String joggersCount = Integer.toString(jsonObject.getInt("members_count"));
             holder.joggersCount.setText(joggersCount);
-            holder.joggersCount.setTextColor(MainActivity.appContext.getResources().getColor(R.color.darkOrange));
+
+            if (jsonObject.getInt("members_count") == 1) {
+                holder.joggersHeaderText.setText("JOGGER");
+            }
 
             Uri uri = Uri.parse(jsonObject.getString("group_avatar"));
             Picasso.get().load(uri)
-                    .resize(60,60)
+                    .resize(100,100)
                     .into(holder.groupAvatar);
 
             final String groupName = jsonObject.getString("name");
             holder.groupName.setText(groupName);
-            holder.groupName.setTextColor(MainActivity.appContext.getResources().getColor(R.color.extraDarkSmoke));
 
 
             String tagLine = jsonObject.getString("tagline");
             holder.groupTagline.setText(tagLine);
-            holder.groupTagline.setTextColor(MainActivity.appContext.getResources().getColor(R.color.extraDarkSnow));
 
             holder.layout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
                     Intent intent = new Intent(MainActivity.appContext, GroupActivity.class);
                     intent.putExtra("group", jsonObject.toString());
                     MainActivity.appContext.startActivity(intent);
-                }
 
+                }
             });
+
+            LayoutInflater layoutInflater = LayoutInflater.from(MainActivity.appContext);
+
+            if (holder.ratingsPlaceholder.getChildCount() == 0) {
+                switch (jsonObject.getInt("rating")) {
+                    case 5:
+                        layoutInflater.inflate(R.layout.five_star_small_layout, holder.ratingsPlaceholder);
+                        break;
+                    case 4:
+                        layoutInflater.inflate(R.layout.four_star_small_layout, holder.ratingsPlaceholder);
+                        break;
+                    case 3:
+                        layoutInflater.inflate(R.layout.three_star_small_layout, holder.ratingsPlaceholder);
+                        break;
+                    case 2:
+                        layoutInflater.inflate(R.layout.two_star_small_layout, holder.ratingsPlaceholder);
+                        break;
+                    case 1:
+                        layoutInflater.inflate(R.layout.one_star_small_layout, holder.ratingsPlaceholder);
+                        break;
+                    default:
+                        layoutInflater.inflate(R.layout.zero_star_small_layout, holder.ratingsPlaceholder);
+
+                }
+            }
 
 
         }catch (JSONException e) {

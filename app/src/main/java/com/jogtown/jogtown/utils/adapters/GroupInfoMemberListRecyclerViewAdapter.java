@@ -39,17 +39,20 @@ import androidx.recyclerview.widget.RecyclerView;
 public class GroupInfoMemberListRecyclerViewAdapter extends RecyclerView.Adapter<GroupInfoMemberListRecyclerViewAdapter.MyViewHolder>{
 
     List<Object> groupMembers;
+    boolean showItemPosition;
     SharedPreferences authPref = MainActivity.appContext.getSharedPreferences("AuthPreferences", Context.MODE_PRIVATE);
     int myUserId = authPref.getInt("userId", 0);
 
-    public GroupInfoMemberListRecyclerViewAdapter(List groupMembers) {
+    public GroupInfoMemberListRecyclerViewAdapter(List groupMembers, boolean showItemPosition) {
         this.groupMembers = groupMembers;
+        this.showItemPosition = showItemPosition;
     }
 
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
 
         View layout;
+        TextView groupInfoMemberListPosition;
         ImageView groupInfoMemberListAvatar;
         TextView groupInfoMemberListName;
         TextView groupInfoMemberListJoinDate;
@@ -60,6 +63,7 @@ public class GroupInfoMemberListRecyclerViewAdapter extends RecyclerView.Adapter
             super(view);
             layout = view;
             groupInfoMemberListAvatar = view.findViewById(R.id.groupInfoMemberListAvatar);
+            groupInfoMemberListPosition = view.findViewById(R.id.groupInfoMemberListPosition);
             groupInfoMemberListName = view.findViewById(R.id.groupInfoMemberListName);
             groupInfoMemberListJoinDate = view.findViewById(R.id.groupInfoMemberListJoinDate);
             groupInfoMemberListDistance = view.findViewById(R.id.groupInfoMemberListDistance);
@@ -96,6 +100,11 @@ public class GroupInfoMemberListRecyclerViewAdapter extends RecyclerView.Adapter
             holder.groupInfoMemberListJoinDate.setText(joinDate);
             holder.groupInfoMemberListDistance.setText(distance);
             holder.groupInfoMemberListDuration.setText(duration);
+
+            if (this.showItemPosition) {
+                holder.groupInfoMemberListPosition.setVisibility(View.VISIBLE);
+                holder.groupInfoMemberListPosition.setText(Integer.toString(position + 1));
+            }
 
             boolean isMyLayout = this.myUserId == jsonObject.getInt("user_id");
             if (!isMyLayout) {
