@@ -38,12 +38,12 @@ import com.jogtown.jogtown.utils.services.LocationService;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link GroupRunActiveFragment.OnFragmentInteractionListener} interface
+ * {@link GroupJogActiveFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link GroupRunActiveFragment#newInstance} factory method to
+ * Use the {@link GroupJogActiveFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class GroupRunActiveFragment extends Fragment implements OnMapReadyCallback {
+public class GroupJogActiveFragment extends Fragment implements OnMapReadyCallback {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -65,7 +65,7 @@ public class GroupRunActiveFragment extends Fragment implements OnMapReadyCallba
 
     SharedPreferences sharedPreferences;
 
-    public GroupRunActiveFragment() {
+    public GroupJogActiveFragment() {
         // Required empty public constructor
     }
 
@@ -75,11 +75,11 @@ public class GroupRunActiveFragment extends Fragment implements OnMapReadyCallba
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment GroupRunActiveFragment.
+     * @return A new instance of fragment GroupJogActiveFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static GroupRunActiveFragment newInstance(String param1, String param2) {
-        GroupRunActiveFragment fragment = new GroupRunActiveFragment();
+    public static GroupJogActiveFragment newInstance(String param1, String param2) {
+        GroupJogActiveFragment fragment = new GroupJogActiveFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -100,7 +100,7 @@ public class GroupRunActiveFragment extends Fragment implements OnMapReadyCallba
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_group_run_active, container, false);
+        View view = inflater.inflate(R.layout.fragment_group_jog_active, container, false);
 
         SupportMapFragment mMapFragment = SupportMapFragment.newInstance();
         mMapFragment.getMapAsync(this);

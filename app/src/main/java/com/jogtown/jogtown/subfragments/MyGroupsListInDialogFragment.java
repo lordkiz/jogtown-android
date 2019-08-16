@@ -18,7 +18,7 @@ import android.widget.ProgressBar;
 
 import com.jogtown.jogtown.R;
 import com.jogtown.jogtown.activities.AppActivity;
-import com.jogtown.jogtown.activities.GroupRunActivity;
+import com.jogtown.jogtown.activities.GroupJogActivity;
 import com.jogtown.jogtown.utils.adapters.MyGroupsListRecyclerAdapter;
 import com.jogtown.jogtown.utils.network.MyUrlRequestCallback;
 import com.jogtown.jogtown.utils.network.NetworkRequest;
@@ -203,9 +203,9 @@ public class MyGroupsListInDialogFragment extends DialogFragment {
 
         //Need the layout in MyGroupsListRecyclerAdapter know which activity to navigate to
         //when clicked.
-        //There are two possible Activities: GroupRunActivity or GroupActivity
+        //There are two possible Activities: GroupJogActivity or GroupActivity
 
-        adapter = new MyGroupsListRecyclerAdapter(new GroupRunActivity(), myGroups);
+        adapter = new MyGroupsListRecyclerAdapter(new GroupJogActivity(), myGroups);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
     }

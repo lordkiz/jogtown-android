@@ -29,9 +29,9 @@ import android.widget.Toast;
 
 import com.google.android.material.tabs.TabLayout;
 import com.jogtown.jogtown.R;
-import com.jogtown.jogtown.fragments.GroupRunActiveFragment;
-import com.jogtown.jogtown.fragments.GroupRunMembersFragment;
-import com.jogtown.jogtown.subfragments.SingleRunStatsFragment;
+import com.jogtown.jogtown.fragments.GroupJogActiveFragment;
+import com.jogtown.jogtown.fragments.GroupJogMembersFragment;
+import com.jogtown.jogtown.subfragments.JogStatsFragment;
 import com.jogtown.jogtown.utils.services.JogStatsService;
 import com.jogtown.jogtown.utils.services.LocationService;
 import com.jogtown.jogtown.utils.adapters.ViewPagerAdapter;
@@ -40,10 +40,10 @@ import com.jogtown.jogtown.utils.ui.ZoomOutPageTransformer;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class GroupRunActivity extends AppCompatActivity implements
-        GroupRunActiveFragment.OnFragmentInteractionListener,
-        GroupRunMembersFragment.OnFragmentInteractionListener,
-        SingleRunStatsFragment.OnFragmentInteractionListener
+public class GroupJogActivity extends AppCompatActivity implements
+        GroupJogActiveFragment.OnFragmentInteractionListener,
+        GroupJogMembersFragment.OnFragmentInteractionListener,
+        JogStatsFragment.OnFragmentInteractionListener
 {
 
     final Handler handler = new Handler();
@@ -61,7 +61,7 @@ public class GroupRunActivity extends AppCompatActivity implements
     public static int groupId; //Group you are running with
     public static JSONObject groupObject; //Group you are running with
 
-    Boolean mapIsReady = false; //We need to know the map in GroupRunActiveFragment is ready before starting services.
+    Boolean mapIsReady = false; //We need to know the map in GroupJogActiveFragment is ready before starting services.
     private final int LOCATION_REQUEST_CODE = 101;
 
     private FrameLayout playStopLayout;
@@ -82,7 +82,7 @@ public class GroupRunActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_group_run);
+        setContentView(R.layout.activity_group_jog);
 
         Intent intent = getIntent();
         try {
@@ -104,7 +104,7 @@ public class GroupRunActivity extends AppCompatActivity implements
 
         sharedPreferences = MainActivity.appContext.getSharedPreferences("JogPreferences", Context.MODE_PRIVATE);
 
-        //We dont want to start reading duration in GroupRunActivity Or SingleRunActivity
+        //We dont want to start reading duration in GroupJogActivity Or SingleJogActivity
         //So we keep intents separate
         locationServiceIntent = new Intent(this, LocationService.class);
         jogStatsServiceIntent = new Intent(this, JogStatsService.class);
@@ -121,8 +121,8 @@ public class GroupRunActivity extends AppCompatActivity implements
 
     public void addTabsToTabLayout(ViewPager viewPager) {
         ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
-        viewPagerAdapter.addFragmentAndTitle(new GroupRunActiveFragment(), "Your Jog");
-        viewPagerAdapter.addFragmentAndTitle(new GroupRunMembersFragment(), "Group Info");
+        viewPagerAdapter.addFragmentAndTitle(new GroupJogActiveFragment(), "Your Jog");
+        viewPagerAdapter.addFragmentAndTitle(new GroupJogMembersFragment(), "Group Info");
         viewPager.setAdapter(viewPagerAdapter);
     }
 
@@ -132,7 +132,7 @@ public class GroupRunActivity extends AppCompatActivity implements
         Log.i("msg received", msg);
         switch (msg) {
             case "map is ready":
-                //GroupRunActiveFragment must tell this parent activity that map is ready
+                //GroupJogActiveFragment must tell this parent activity that map is ready
                 mapIsReady = true;
                 startAllServices();
                 setUpControlJogButtons();

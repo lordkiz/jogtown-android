@@ -1,7 +1,6 @@
 package com.jogtown.jogtown.fragments;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
@@ -16,22 +15,19 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ProgressBar;
 
 import com.hosopy.actioncable.Subscription;
 import com.jogtown.jogtown.R;
 import com.jogtown.jogtown.activities.GroupActivity;
-import com.jogtown.jogtown.activities.GroupRunActivity;
 import com.jogtown.jogtown.activities.MainActivity;
-import com.jogtown.jogtown.models.Message;
 import com.jogtown.jogtown.utils.adapters.GroupMessageRecyclerViewAdapter;
 import com.jogtown.jogtown.utils.network.ActionCableSocket;
 import com.jogtown.jogtown.utils.network.MyUrlRequestCallback;
 import com.jogtown.jogtown.utils.network.NetworkRequest;
 import com.jogtown.jogtown.utils.ui.LinearLayoutManagerWrapper;
 import com.stfalcon.chatkit.messages.MessageInput;
-import com.stfalcon.chatkit.messages.MessagesList;
-import com.stfalcon.chatkit.messages.MessagesListAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -39,8 +35,6 @@ import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -308,11 +302,17 @@ public class GroupChatFragment extends Fragment {
                     groupMessages.add(jsonObject);
                     notifyDatasetChanged();
 
+
+                    InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    inputMethodManager.hideSoftInputFromWindow(messageInput.getWindowToken(), 0);
+
                     String payload = jsonObject.toString();
                     //then send to backend
                     sendMessage(payload);
                     return true;
                 } catch (JSONException e) {
+                    e.printStackTrace();
+                } catch (NullPointerException e) {
                     e.printStackTrace();
                 }
                 return false;

@@ -18,8 +18,10 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
+import com.hosopy.actioncable.Subscription;
 import com.jogtown.jogtown.R;
 import com.jogtown.jogtown.activities.MainActivity;
+import com.jogtown.jogtown.fragments.GroupJogMembersFragment;
 import com.jogtown.jogtown.utils.Conversions;
 import com.jogtown.jogtown.utils.services.JogStatsService;
 import com.jogtown.jogtown.utils.services.LocationService;
@@ -32,12 +34,12 @@ import java.util.List;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link SingleRunStatsFragment.OnFragmentInteractionListener} interface
+ * {@link JogStatsFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link SingleRunStatsFragment#newInstance} factory method to
+ * Use the {@link JogStatsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class SingleRunStatsFragment extends Fragment {
+public class JogStatsFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -67,7 +69,12 @@ public class SingleRunStatsFragment extends Fragment {
     List<Float> speeds = new ArrayList<>();
 
     SharedPreferences sharedPreferences;
+    public Boolean jogIsOn = false;
+    public Boolean jogIsPaused = false;
 
+    String jogType;
+
+    Subscription subscription;
 
     public BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -118,14 +125,19 @@ public class SingleRunStatsFragment extends Fragment {
                     paceText.setText(paceString);
                     caloriesText.setText(caloriesString);
                 }
+
+                if (jogType.equals("group")) {
+                    if (duration % 60 == 0) {
+                        //broadcast every min - whenever we update groupMembership, it will be
+                        //broadcasted to the group
+                        saveGroupMembershipStats();
+                    }
+                }
             }
         }
     };
 
-    public Boolean jogIsOn = false;
-    public Boolean jogIsPaused = false;
-
-    public SingleRunStatsFragment() {
+    public JogStatsFragment() {
         // Required empty public constructor
     }
 
@@ -135,11 +147,11 @@ public class SingleRunStatsFragment extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment SingleRunStatsFragment.
+     * @return A new instance of fragment JogStatsFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static SingleRunStatsFragment newInstance(String param1, String param2) {
-        SingleRunStatsFragment fragment = new SingleRunStatsFragment();
+    public static JogStatsFragment newInstance(String param1, String param2) {
+        JogStatsFragment fragment = new JogStatsFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -162,12 +174,12 @@ public class SingleRunStatsFragment extends Fragment {
         // Inflate the layout for this fragment
 
 
-        View view = inflater.inflate(R.layout.fragment_single_run_stats, container, false);
+        View view = inflater.inflate(R.layout.fragment_jog_stats, container, false);
 
-        durationText = (TextView) view.findViewById(R.id.singleRunStatsDuration);
-        distanceText = (TextView) view.findViewById(R.id.singleRunStatsDistance);
-        paceText = (TextView) view.findViewById(R.id.singleRunStatsPace);
-        caloriesText = (TextView) view.findViewById(R.id.singleRunStatsCalories);
+        durationText = (TextView) view.findViewById(R.id.jogStatsDuration);
+        distanceText = (TextView) view.findViewById(R.id.jogStatsDistance);
+        paceText = (TextView) view.findViewById(R.id.jogStatsPace);
+        caloriesText = (TextView) view.findViewById(R.id.jogStatsCalories);
 
         registerJogStatsBroadcastReceiver();
         registerLocationBroadcastReceiver();
@@ -175,7 +187,7 @@ public class SingleRunStatsFragment extends Fragment {
         sharedPreferences = MainActivity.appContext.getSharedPreferences("JogPreferences", Context.MODE_PRIVATE);
         jogIsOn = sharedPreferences.getBoolean("jogIsOn", false);
         jogIsPaused = sharedPreferences.getBoolean("jogIsPaused", false);
-
+        jogType = sharedPreferences.getString("jogType", "");
 
         return view;
     }
@@ -248,6 +260,12 @@ public class SingleRunStatsFragment extends Fragment {
     public void unRegisterLocationBroadcastReceiver() {
         LocalBroadcastManager.getInstance(this.getContext()).unregisterReceiver(broadcastReceiver);
     }
+
+
+    public void saveGroupMembershipStats() {
+        GroupJogMembersFragment.saveGroupMembershipStats(totalDistance, duration);
+    }
+
 
     public void saveJogStats() {
         SharedPreferences.Editor editor = sharedPreferences.edit();

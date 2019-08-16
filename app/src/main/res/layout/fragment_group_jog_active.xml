@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.GroupRunActivity">
+    tools:context=".activities.GroupJogActivity">
 
 
     <FrameLayout
@@ -27,7 +27,7 @@
 
         <fragment
             android:id="@+id/group_run_activity_single_run_stats_fragment"
-            android:name="com.jogtown.jogtown.subfragments.SingleRunStatsFragment"
+            android:name="com.jogtown.jogtown.subfragments.JogStatsFragment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
 

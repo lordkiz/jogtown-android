@@ -1,7 +1,6 @@
 package com.jogtown.jogtown.fragments;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
@@ -16,12 +15,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
 import com.hosopy.actioncable.Subscription;
 import com.jogtown.jogtown.R;
-import com.jogtown.jogtown.activities.GroupActivity;
-import com.jogtown.jogtown.activities.GroupRunActivity;
+import com.jogtown.jogtown.activities.GroupJogActivity;
 import com.jogtown.jogtown.activities.MainActivity;
 import com.jogtown.jogtown.utils.Conversions;
 import com.jogtown.jogtown.utils.adapters.GroupMessageRecyclerViewAdapter;
@@ -30,24 +29,27 @@ import com.jogtown.jogtown.utils.adapters.GroupRunMembersRecyclerAdapter;
 import com.jogtown.jogtown.utils.network.MyUrlRequestCallback;
 import com.jogtown.jogtown.utils.network.NetworkRequest;
 import com.jogtown.jogtown.utils.ui.LinearLayoutManagerWrapper;
+import com.stfalcon.chatkit.messages.MessageInput;
 import com.txusballesteros.widgets.FitChart;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link GroupRunMembersFragment.OnFragmentInteractionListener} interface
+ * {@link GroupJogMembersFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link GroupRunMembersFragment#newInstance} factory method to
+ * Use the {@link GroupJogMembersFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class GroupRunMembersFragment extends Fragment {
+public class GroupJogMembersFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -62,6 +64,7 @@ public class GroupRunMembersFragment extends Fragment {
     Subscription subscription;
 
     List<JSONObject> groupMembers;
+    static JSONObject currentUserMembershipObject;
 
     RecyclerView membersRecyclerView;
     RecyclerView.LayoutManager membersLayoutManager;
@@ -82,6 +85,8 @@ public class GroupRunMembersFragment extends Fragment {
     TextView joggerTotalMembersText;
     TextView joggerActiveTotalKmText;
 
+    MessageInput messageInput;
+
     private Handler handler = new Handler();
     private Runnable joggerCountUpdaterRunnable = new Runnable() {
         @Override
@@ -101,7 +106,7 @@ public class GroupRunMembersFragment extends Fragment {
     };
 
 
-    public GroupRunMembersFragment() {
+    public GroupJogMembersFragment() {
         // Required empty public constructor
     }
 
@@ -111,11 +116,11 @@ public class GroupRunMembersFragment extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment GroupRunMembersFragment.
+     * @return A new instance of fragment GroupJogMembersFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static GroupRunMembersFragment newInstance(String param1, String param2) {
-        GroupRunMembersFragment fragment = new GroupRunMembersFragment();
+    public static GroupJogMembersFragment newInstance(String param1, String param2) {
+        GroupJogMembersFragment fragment = new GroupJogMembersFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -136,7 +141,7 @@ public class GroupRunMembersFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view =  inflater.inflate(R.layout.fragment_group_run_members, container, false);
+        View view =  inflater.inflate(R.layout.fragment_group_jog_members, container, false);
 
         membersRecyclerView = view.findViewById(R.id.group_run_members_fragment_recycler_view);
         messagesRecyclerView = view.findViewById(R.id.group_run_fragment_messages_recycler_view);
@@ -149,7 +154,7 @@ public class GroupRunMembersFragment extends Fragment {
         joggerTotalMembersChart = view.findViewById(R.id.group_run_members_fragment_total_members_chart);
         joggerTotalKmChart = view.findViewById(R.id.group_run_members_fragment_total_km_chart);
 
-
+        messageInput = view.findViewById(R.id.group_run_fragment_message_input);
 
         joggerCountChart.setMinValue(0f);
         joggerCountChart.setMaxValue(100f);
@@ -167,6 +172,8 @@ public class GroupRunMembersFragment extends Fragment {
 
         setupGroupMembersRecyclerAdapter();
         setupGroupMessagesRecyclerAdapter();
+
+        setupMessageInput();
 
         createSocket();
 
@@ -225,7 +232,7 @@ public class GroupRunMembersFragment extends Fragment {
     private void setUpGroupMessages() {
         groupMessages = new ArrayList<>();
         try {
-            JSONArray jsonArray = GroupRunActivity.groupObject.getJSONArray("group_messages");
+            JSONArray jsonArray = GroupJogActivity.groupObject.getJSONArray("group_messages");
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jsonObject = new JSONObject(jsonArray.get(i).toString());
                 groupMessages.add(jsonObject);
@@ -237,12 +244,19 @@ public class GroupRunMembersFragment extends Fragment {
     }
 
     private void setUpGroupMembers() {
+
+        SharedPreferences authPref = MainActivity.appContext.getSharedPreferences("AuthPreferences", Context.MODE_PRIVATE);
+        int currentUserId = authPref.getInt("userId", 0);
+
         groupMembers = new ArrayList<>();
         try {
-            JSONArray jsonArray = GroupRunActivity.groupObject.getJSONArray("group_memberships");
+            JSONArray jsonArray = GroupJogActivity.groupObject.getJSONArray("group_memberships");
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jsonObject = new JSONObject(jsonArray.get(i).toString());
                 groupMembers.add(jsonObject);
+                if (jsonObject.getInt("user_id") == currentUserId) {
+                    currentUserMembershipObject = jsonObject;
+                }
             }
 
         } catch (JSONException e) {
@@ -253,35 +267,52 @@ public class GroupRunMembersFragment extends Fragment {
 
 
     public void streamCurrentUserJog() {
-
-        SharedPreferences authPref = MainActivity.appContext.getSharedPreferences("AuthPreferences", Context.MODE_PRIVATE);
         SharedPreferences jogPref = MainActivity.appContext.getSharedPreferences("JogPreferences", Context.MODE_PRIVATE);
-
-        String avatar = authPref.getString("profilePicture", getString(R.string.default_profile_picture));
-        String userName = authPref.getString("name", "-");
-        int userId = authPref.getInt("userId", 0);
 
         int distance = jogPref.getInt("distance", 0);
         int duration = jogPref.getInt("duration", 0);
 
-        JSONObject currentUserJog = new JSONObject();
-        try {
-            currentUserJog.put("user_name", userName);
-            currentUserJog.put("user_id", userId);
-            currentUserJog.put("user_avatar", avatar);
-            currentUserJog.put("current_distance", distance);
-            currentUserJog.put("current_duration", duration);
-            currentUserJog.put("jogging", true);
+        JSONObject currentUserJog = currentUserMembershipObject;
+        if (currentUserJog != null) {
+            try {
+                currentUserJog.remove("current_distance");
+                currentUserJog.remove("current_duration");
+                currentUserJog.remove("jogging");
 
-            addGroupMembershipItem(currentUserJog);
+                currentUserJog.put("current_distance", distance);
+                currentUserJog.put("current_duration", duration);
+                currentUserJog.put("jogging", true);
 
-        } catch (JSONException e) {
-            e.printStackTrace();
+                addGroupMembershipItem(currentUserJog);
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
+    }
 
 
+    public static void saveGroupMembershipStats(int distance, int duration) {
+        String method = "PUT";
+        String url = MainActivity.appContext.getResources().getString(R.string.root_url) + "/v1/group_memberships";
+        JSONObject jsonObject = currentUserMembershipObject;
+        if (jsonObject != null) {
+            try {
+                jsonObject.remove("current_distance");
+                jsonObject.remove("current_duration");
+                jsonObject.remove("jogging");
 
-        //TODO stream jog to other users
+                jsonObject.put("current_distance", distance);
+                jsonObject.put("current_duration", duration);
+                jsonObject.put("jogging", true);
+
+                String payload = jsonObject.toString();
+                send(url, payload, method);
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
 
     }
 
@@ -433,7 +464,7 @@ public class GroupRunMembersFragment extends Fragment {
 
         ActionCableSocket actionCableSocket = new ActionCableSocket(
                 "GroupChannel",
-                Integer.toString(GroupRunActivity.groupId),
+                Integer.toString(GroupJogActivity.groupId),
                 socketConnection
         );
 
@@ -553,7 +584,7 @@ public class GroupRunMembersFragment extends Fragment {
         int joggers = 0;
         int totalMeters = 0;
         try {
-            totalMeters = GroupRunActivity.groupObject.getInt("total_distance");
+            totalMeters = GroupJogActivity.groupObject.getInt("total_distance");
             for (int i = 0; i < groupMembers.size(); i++) {
                 JSONObject obj = groupMembers.get(i);
 
@@ -589,7 +620,7 @@ public class GroupRunMembersFragment extends Fragment {
 
         SharedPreferences authPref = MainActivity.appContext.getSharedPreferences("AuthPreferences", Context.MODE_PRIVATE);
 
-        int groupId = GroupRunActivity.groupId;
+        int groupId = GroupJogActivity.groupId;
 
         String userName = authPref.getString("name", "user");
         int userId = authPref.getInt("userId", 0);
@@ -604,7 +635,7 @@ public class GroupRunMembersFragment extends Fragment {
 
             String payloatStr = payload.toString();
             String url = getString(R.string.root_url) + "v1/group_messages";
-            send(url, payloatStr);
+            send(url, payloatStr, "POST");
 
         } catch (JSONException e) {
 
@@ -612,9 +643,53 @@ public class GroupRunMembersFragment extends Fragment {
 
     }
 
+    public void setupMessageInput() {
+        messageInput.setInputListener(new MessageInput.InputListener() {
+            @Override
+            public boolean onSubmit(CharSequence input) {
+                try {
+                    SharedPreferences authPref = getActivity().getSharedPreferences("AuthPreferences", Context.MODE_PRIVATE);
+                    //Build the Message Object
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("id", Math.round(Math.random() * 10000000));
+                    jsonObject.put("message_type", "text");
+                    jsonObject.put("message_text", input);
+                    jsonObject.put("system", false);
+                    jsonObject.put("group_id", GroupJogActivity.groupId);
+                    jsonObject.put("user_id", authPref.getInt("userId", 0));
+                    jsonObject.put("sender_name", authPref.getString("name", "system"));
+                    jsonObject.put("sender_avatar", authPref.getString("profilePicture", MainActivity.appContext.getResources().getString(R.string.default_profile_picture)));
+                    jsonObject.put("image", null);
+                    jsonObject.put("voice", null);
+                    jsonObject.put("updated_at", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(new Date()));
+                    jsonObject.put("created_at", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(new Date()));
+
+                    //Add this object to group Messages
+                    groupMessages.add(jsonObject);
+                    notifyDatasetChanged("groupMessages");
+
+
+                    InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    inputMethodManager.hideSoftInputFromWindow(messageInput.getWindowToken(), 0);
+
+                    String payload = jsonObject.toString();
+                    String url = getString(R.string.root_url) + "/v1/group_messages";
+                    send(url, payload, "POST");
+                    return true;
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                return false;
+            }
+        });
+    }
+
 
     /// NETWORK REQUESTS
-    public void send(String url, String payload) {
+    private static void send(String url, String payload, String method) {
 
         //Send Stuffs to backend: Stats, Message etc
         //All we are sending here is in real time though so I expect action cable to receive
@@ -626,7 +701,12 @@ public class GroupRunMembersFragment extends Fragment {
             }
         };
 
-        NetworkRequest.post(url, payload, new MyUrlRequestCallback(onFinishRequest));
+        if (method.equals("POST")) {
+            NetworkRequest.post(url, payload, new MyUrlRequestCallback(onFinishRequest));
+        } else if (method.equals("PUT")) {
+            NetworkRequest.put(url, payload, new MyUrlRequestCallback(onFinishRequest));
+        }
     }
+
 
 }

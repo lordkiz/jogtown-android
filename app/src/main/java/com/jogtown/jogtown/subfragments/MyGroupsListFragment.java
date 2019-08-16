@@ -155,7 +155,7 @@ public class MyGroupsListFragment extends Fragment {
 
         //Need the layout in MyGroupsListRecyclerAdapter know which activity to navigate to
         //when clicked.
-        //There are two possible Activities: GroupRunActivity or GroupActivity
+        //There are two possible Activities: GroupJogActivity or GroupActivity
 
         adapter = new MyGroupsListRecyclerAdapter(new GroupActivity(), myGroups);
         recyclerView.setLayoutManager(layoutManager);

@@ -42,13 +42,13 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.jogtown.jogtown.R;
-import com.jogtown.jogtown.subfragments.SingleRunStatsFragment;
+import com.jogtown.jogtown.subfragments.JogStatsFragment;
 import com.jogtown.jogtown.utils.services.JogStatsService;
 import com.jogtown.jogtown.utils.services.LocationService;
 
 
-public class SingleRunActivity extends AppCompatActivity implements
-        SingleRunStatsFragment.OnFragmentInteractionListener,
+public class SingleJogActivity extends AppCompatActivity implements
+        JogStatsFragment.OnFragmentInteractionListener,
         OnMapReadyCallback
 {
 
@@ -90,7 +90,7 @@ public class SingleRunActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_single_run);
+        setContentView(R.layout.activity_single_jog);
 
         // *** IMPORTANT ***
         // MapView requires that the Bundle you pass contain _ONLY_ MapView SDK

@@ -12,8 +12,6 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.widget.TabHost;
-import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.jogtown.jogtown.R;
@@ -25,7 +23,7 @@ import com.jogtown.jogtown.fragments.StartFragment;
 import com.jogtown.jogtown.subfragments.MyGroupsListFragment;
 import com.jogtown.jogtown.subfragments.MyGroupsListInDialogFragment;
 import com.jogtown.jogtown.subfragments.SearchGroupsListFragment;
-import com.jogtown.jogtown.subfragments.SingleRunStatsFragment;
+import com.jogtown.jogtown.subfragments.JogStatsFragment;
 import com.jogtown.jogtown.utils.services.JogStatsService;
 import com.jogtown.jogtown.utils.services.LocationService;
 
@@ -39,7 +37,7 @@ public class AppActivity extends AppCompatActivity implements
         ProfileFragment.OnFragmentInteractionListener,
 
         //SUBFRAGMENTS THAT MAKE UP THE FRAGMENTS ABOVE
-        SingleRunStatsFragment.OnFragmentInteractionListener,
+        JogStatsFragment.OnFragmentInteractionListener,
         MyGroupsListFragment.OnFragmentInteractionListener,
         SearchGroupsListFragment.OnFragmentInteractionListener,
         MyGroupsListInDialogFragment.OnFragmentInteractionListener
@@ -63,9 +61,9 @@ public class AppActivity extends AppCompatActivity implements
 //        if (jogIsOn) {
 //            if (jogType.equals("single")) {
 //                Toast.makeText(this, "You have a jog ongoing", Toast.LENGTH_SHORT).show();
-//                startActivity(new Intent(this, SingleRunActivity.class));
+//                startActivity(new Intent(this, SingleJogActivity.class));
 //            } else if (jogType.equals("group")) {
-//                startActivity(new Intent(this, GroupRunActivity.class));
+//                startActivity(new Intent(this, GroupJogActivity.class));
 //                Toast.makeText(this, "You have a group jog ongoing", Toast.LENGTH_SHORT).show();
 //            }
 //        }

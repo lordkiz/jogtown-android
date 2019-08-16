@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/smoke"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".fragments.GroupRunMembersFragment">
+    tools:context=".fragments.GroupJogMembersFragment">
 
 
     <androidx.recyclerview.widget.RecyclerView

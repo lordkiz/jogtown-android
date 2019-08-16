@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -117,6 +118,12 @@ public class SearchGroupsListFragment extends Fragment {
                 } else {
                     getGroups(null);
                 }
+                try {
+                    InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    inputMethodManager.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -173,7 +180,7 @@ public class SearchGroupsListFragment extends Fragment {
 
         //Need the layout in MyGroupsListRecyclerAdapter know which activity to navigate to
         //when clicked.
-        //There are two possible Activities: GroupRunActivity or GroupActivity
+        //There are two possible Activities: GroupJogActivity or GroupActivity
 
         adapter = new SearchGroupsListRecyclerAdapter(groupsResult);
         recyclerView.setLayoutManager(layoutManager);

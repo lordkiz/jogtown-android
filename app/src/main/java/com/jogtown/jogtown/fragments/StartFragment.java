@@ -31,8 +31,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.jogtown.jogtown.R;
-import com.jogtown.jogtown.activities.GroupRunActivity;
-import com.jogtown.jogtown.activities.SingleRunActivity;
+import com.jogtown.jogtown.activities.SingleJogActivity;
 import com.jogtown.jogtown.subfragments.MyGroupsListInDialogFragment;
 import com.jogtown.jogtown.utils.services.LocationService;
 
@@ -208,7 +207,7 @@ public class StartFragment extends Fragment implements OnMapReadyCallback {
     public void startSingleRun() {
         getActivity().stopService(locationServiceIntent);
 
-        Intent intent = new Intent(this.getContext(), SingleRunActivity.class);
+        Intent intent = new Intent(this.getContext(), SingleJogActivity.class);
         this.startActivity(intent);
     }
 
@@ -216,7 +215,7 @@ public class StartFragment extends Fragment implements OnMapReadyCallback {
         showMyGroupDialog();
         /*getActivity().stopService(locationServiceIntent);
 
-        Intent intent = new Intent(this.getContext(), GroupRunActivity.class);
+        Intent intent = new Intent(this.getContext(), GroupJogActivity.class);
         this.startActivity(intent);*/
 
     }
