@@ -91,45 +91,8 @@ public class HistoryRecyclerAdapter extends RecyclerView.Adapter<HistoryRecycler
 
                 try {
                     JSONObject jsonObj = new JSONObject(jogs.get(position).toString());
-                    int duration = jsonObj.getInt("duration");
-                    int distance = jsonObj.getInt("distance");
-                    float calories = jsonObj.getInt("calories");
-                    float startLatitude = jsonObj.getInt("start_latitude");
-                    float endLatitude = jsonObj.getInt("end_latitude");
-                    float startLongitude = jsonObj.getInt("start_longitude");
-                    float endLongitude = jsonObj.getInt("end_longitude");
-                    float averageSpeed = jsonObj.getInt("average_speed");
-                    float maxSpeed = jsonObj.getInt("max_speed");
-                    int averagePace = jsonObj.getInt("average_pace");
-                    int maxPace = jsonObj.getInt("max_pace");
-                    int hydration = jsonObj.getInt("hydration");
-                    float maxAltitude = jsonObj.getInt("max_altitude");
-                    float minAltitude = jsonObj.getInt("min_altitude");
-                    int totalAscent = jsonObj.getInt("total_ascent");
-                    int totalDescent = jsonObj.getInt("total_descent");
-                    String coordinates = jsonObj.getString("coordinates");
-                    String paces = jsonObj.getJSONArray("paces").toString();
-                    String speeds = jsonObj.getJSONArray("speeds").toString();
 
-                    intent.putExtra("duration", duration);
-                    intent.putExtra("distance", distance);
-                    intent.putExtra("calories", calories);
-                    intent.putExtra("startLatitude", startLatitude);
-                    intent.putExtra("endLatitude", endLatitude);
-                    intent.putExtra("startLongitude", startLongitude);
-                    intent.putExtra("endLongitude", endLongitude);
-                    intent.putExtra("averageSpeed", averageSpeed);
-                    intent.putExtra("maxSpeed", maxSpeed);
-                    intent.putExtra("averagePace", averagePace);
-                    intent.putExtra("maxPace", maxPace);
-                    intent.putExtra("coordinates", coordinates);
-                    intent.putExtra("speeds", speeds);
-                    intent.putExtra("paces", paces);
-                    intent.putExtra("hydration", hydration);
-                    intent.putExtra("maxAltitude", maxAltitude);
-                    intent.putExtra("minAltitude", minAltitude);
-                    intent.putExtra("totalAscent", totalAscent);
-                    intent.putExtra("totalDescent", totalDescent);
+                    intent.putExtra("jog", jsonObj.toString());
 
                     intent.putExtra("canGoBack", true);
                     intent.putExtra("shouldSave", false);

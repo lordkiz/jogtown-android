@@ -12,6 +12,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.jogtown.jogtown.R;
@@ -26,6 +27,9 @@ import com.jogtown.jogtown.subfragments.SearchGroupsListFragment;
 import com.jogtown.jogtown.subfragments.JogStatsFragment;
 import com.jogtown.jogtown.utils.services.JogStatsService;
 import com.jogtown.jogtown.utils.services.LocationService;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class AppActivity extends AppCompatActivity implements
 
@@ -58,15 +62,26 @@ public class AppActivity extends AppCompatActivity implements
         boolean jogIsOn = sharedPreferences.getBoolean("jogIsOn", false);
         String jogType = sharedPreferences.getString("jogType", "n/a");
 
-//        if (jogIsOn) {
-//            if (jogType.equals("single")) {
-//                Toast.makeText(this, "You have a jog ongoing", Toast.LENGTH_SHORT).show();
-//                startActivity(new Intent(this, SingleJogActivity.class));
-//            } else if (jogType.equals("group")) {
-//                startActivity(new Intent(this, GroupJogActivity.class));
-//                Toast.makeText(this, "You have a group jog ongoing", Toast.LENGTH_SHORT).show();
-//            }
-//        }
+        if (jogIsOn) {
+            if (jogType.equals("single")) {
+                Toast.makeText(this, "You have a jog ongoing", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(this, SingleJogActivity.class));
+            } else if (jogType.equals("group")) {
+                String group = sharedPreferences.getString("group", "");
+                //check if we have the right group pls
+                try {
+                    JSONObject obj = new JSONObject(group);
+                    if (obj.getInt("id") > 0) {
+                        Intent intent = new Intent(this, GroupJogActivity.class);
+                        intent.putExtra("group", group);
+                        startActivity(intent);
+                        Toast.makeText(this, "You have a group jog ongoing", Toast.LENGTH_SHORT).show();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
 
 
         actionBar = getSupportActionBar();

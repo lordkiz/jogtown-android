@@ -1,5 +1,6 @@
 package com.jogtown.jogtown.subfragments;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.net.Uri;
@@ -20,6 +21,7 @@ import android.widget.TextView;
 
 import com.jogtown.jogtown.R;
 import com.jogtown.jogtown.activities.GroupActivity;
+import com.jogtown.jogtown.activities.MainActivity;
 import com.jogtown.jogtown.utils.adapters.MyGroupsListRecyclerAdapter;
 import com.jogtown.jogtown.utils.network.MyUrlRequestCallback;
 import com.jogtown.jogtown.utils.network.NetworkRequest;
@@ -49,21 +51,23 @@ public class MyGroupsListFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
+    private static Activity instance;
+
     private OnFragmentInteractionListener mListener;
 
-    ProgressBar progressBar;
+    private static ProgressBar progressBar;
     RecyclerView recyclerView;
 
     RecyclerView.LayoutManager layoutManager;
-    RecyclerView.Adapter adapter;
+    private static RecyclerView.Adapter adapter;
 
-    TextView myGroupsHeaderText;
+    private static TextView myGroupsHeaderText;
 
-    List<Object> myGroups;
+    private static List<Object> myGroups;
 
-    boolean loading;
+    private static boolean loading;
 
-    int page = 1;
+    private static int page = 1;
 
     public MyGroupsListFragment() {
         // Required empty public constructor
@@ -90,6 +94,7 @@ public class MyGroupsListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        instance = this.getActivity();
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
@@ -164,7 +169,7 @@ public class MyGroupsListFragment extends Fragment {
 
 
 
-    public void showActivity() {
+    private static void showActivity() {
 
         if (loading) {
             progressBar.setVisibility(View.VISIBLE);
@@ -178,12 +183,12 @@ public class MyGroupsListFragment extends Fragment {
 
 
 
-    public void getMyGroups() {
+    public static void getMyGroups() {
         myGroups.clear();
         loading = true;
         showActivity();
 
-        String url = getString(R.string.root_url) + "v1/user_groups/?" + "page=" + Integer.toString(page);
+        String url = MainActivity.appContext.getResources().getString(R.string.root_url) + "v1/user_groups/?" + "page=" + Integer.toString(page);
         MyUrlRequestCallback.OnFinishRequest onFinishRequest = new MyUrlRequestCallback.OnFinishRequest() {
             @Override
             public void onFinishRequest(Object result) {
@@ -227,7 +232,7 @@ public class MyGroupsListFragment extends Fragment {
                             @Override
                             public void run() {
                                 showActivity();
-                                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+                                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(instance);
                                 alertDialogBuilder
                                         .setCancelable(true)
                                         .setMessage(responseBody)

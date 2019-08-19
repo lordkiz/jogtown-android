@@ -1,5 +1,6 @@
 package com.jogtown.jogtown.subfragments;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.net.Uri;
@@ -22,6 +23,7 @@ import android.widget.ProgressBar;
 
 import com.jogtown.jogtown.R;
 import com.jogtown.jogtown.activities.GroupActivity;
+import com.jogtown.jogtown.activities.MainActivity;
 import com.jogtown.jogtown.utils.adapters.MyGroupsListRecyclerAdapter;
 import com.jogtown.jogtown.utils.adapters.SearchGroupsListRecyclerAdapter;
 import com.jogtown.jogtown.utils.network.MyUrlRequestCallback;
@@ -52,21 +54,22 @@ public class SearchGroupsListFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
+    private static Activity instance;
     private OnFragmentInteractionListener mListener;
 
-    ProgressBar progressBar;
+    private static ProgressBar progressBar;
     RecyclerView recyclerView;
 
     RecyclerView.LayoutManager layoutManager;
-    RecyclerView.Adapter adapter;
+    private static RecyclerView.Adapter adapter;
 
-    List<Object> groupsResult;
+    private static List<Object> groupsResult;
 
-    boolean loading;
+    private static boolean loading;
     EditText searchGroupsEditText;
     Button searchGroupsButton;
 
-    int page = 1;
+    private static int page = 1;
 
     public SearchGroupsListFragment() {
         // Required empty public constructor
@@ -93,6 +96,7 @@ public class SearchGroupsListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        instance = this.getActivity();
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
@@ -189,7 +193,7 @@ public class SearchGroupsListFragment extends Fragment {
 
 
 
-    public void showActivity() {
+    private static void showActivity() {
 
         if (loading) {
             progressBar.setVisibility(View.VISIBLE);
@@ -203,17 +207,16 @@ public class SearchGroupsListFragment extends Fragment {
 
 
 
-    public void getGroups(String query) {
+    public static void getGroups(String query) {
         groupsResult.clear();
         loading = true;
         showActivity();
 
-        String url = getString(R.string.root_url) + "v1/search_groups";
+        String url = MainActivity.appContext.getResources().getString(R.string.root_url) + "v1/search_groups";
 
         if (query != null) {
             url = url += "/?q=" + query;
         }
-        Log.i("search url", url);
         MyUrlRequestCallback.OnFinishRequest onFinishRequest = new MyUrlRequestCallback.OnFinishRequest() {
             @Override
             public void onFinishRequest(Object result) {
@@ -255,7 +258,7 @@ public class SearchGroupsListFragment extends Fragment {
                             @Override
                             public void run() {
                                 showActivity();
-                                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+                                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(instance);
                                 alertDialogBuilder
                                         .setCancelable(true)
                                         .setMessage(responseBody)

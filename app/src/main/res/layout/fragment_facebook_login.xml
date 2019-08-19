@@ -15,7 +15,7 @@
         android:layout_marginRight="5dp"
         android:layout_marginBottom="5dp"
         android:backgroundTint="#3B5998"
-        android:drawableStart="@drawable/com_facebook_button_icon_blue"
+        android:drawableStart="@drawable/com_facebook_button_icon"
         android:onClick="onFBButtonClick"
         android:text="Login With Facebook"
         android:textColor="#FFF"

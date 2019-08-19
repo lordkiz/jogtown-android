@@ -5,6 +5,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
 
+import android.animation.Animator;
+import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -13,8 +15,10 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -28,6 +32,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.tabs.TabLayout;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.jogtown.jogtown.R;
 import com.jogtown.jogtown.fragments.GroupJogActiveFragment;
 import com.jogtown.jogtown.fragments.GroupJogMembersFragment;
@@ -37,8 +43,14 @@ import com.jogtown.jogtown.utils.services.LocationService;
 import com.jogtown.jogtown.utils.adapters.ViewPagerAdapter;
 import com.jogtown.jogtown.utils.ui.ZoomOutPageTransformer;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.lang.reflect.Type;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 
 public class GroupJogActivity extends AppCompatActivity implements
         GroupJogActiveFragment.OnFragmentInteractionListener,
@@ -175,9 +187,40 @@ public class GroupJogActivity extends AppCompatActivity implements
 
         sharedPrefEditor.putBoolean("jogIsPaused", true);
         sharedPrefEditor.apply();
+        ObjectAnimator animator = ObjectAnimator.ofFloat(pauseButton, "translationX", -205f);
+        animator.setDuration(500);
+        animator.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
 
-        pauseButton.setVisibility(View.GONE);
-        playStopLayout.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        pauseButton.setVisibility(View.GONE);
+                        playStopLayout.setVisibility(View.VISIBLE);
+                    }
+                });
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
+        animator.start();
+
+
+        //pauseButton.setVisibility(View.GONE);
+        //playStopLayout.setVisibility(View.VISIBLE);
 
         if (stopJogButton == null) {
             final AlertDialog eventDurationDialog = eventDurationDialog();
@@ -219,6 +262,12 @@ public class GroupJogActivity extends AppCompatActivity implements
 
         pauseButton.setVisibility(View.VISIBLE);
         playStopLayout.setVisibility(View.GONE);
+
+        ObjectAnimator animator = ObjectAnimator.ofFloat(pauseButton, "translationX", 0f);
+        animator.setDuration(500);
+
+        animator.start();
+
 
     }
 
@@ -269,7 +318,9 @@ public class GroupJogActivity extends AppCompatActivity implements
         TextView topText = new TextView(this);
         topText.setText("");
         topText.setCompoundDrawablesWithIntrinsicBounds(null, runIcon, null, null);
-        topText.setCompoundDrawableTintList(ColorStateList.valueOf(Color.parseColor(getString(R.color.colorPrimary))));
+        if (Build.VERSION.SDK_INT > 22) {
+            topText.setCompoundDrawableTintList(ColorStateList.valueOf(Color.parseColor("#592DEA")));
+        }
         topText.setScaleX(2);
         topText.setScaleY(2);
         topText.setPadding(0, 50, 0, 0);
@@ -293,7 +344,7 @@ public class GroupJogActivity extends AppCompatActivity implements
         progressBar.setMinimumWidth(200);
         progressBar.setMax(1000);
         progressBar.setProgress(0);
-        progressBar.setProgressTintList(ColorStateList.valueOf(Color.parseColor(getString(R.color.colorPrimary))));
+        progressBar.setProgressTintList(ColorStateList.valueOf(Color.parseColor("#592DEA")));
 
         return progressBar;
     }
@@ -309,11 +360,19 @@ public class GroupJogActivity extends AppCompatActivity implements
     }
 
     public void redirectToJogDetail() {
+        Gson gson = new Gson();
+        Type coordType = new TypeToken<List<List<Double>>>() {}.getType();
+        Type pacesType = new TypeToken<List<Integer>>() {}.getType();
+        Type speedsType = new TypeToken<List<Float>>() {}.getType();
+
         SharedPreferences.Editor sharedPrefEditor = sharedPreferences.edit();
         sharedPrefEditor.putBoolean("jogIsPaused", false);
         sharedPrefEditor.putBoolean("jogIsOn", false);
         sharedPrefEditor.apply();
 
+        SharedPreferences authPref = MainActivity.appContext.getSharedPreferences("AuthPreferences", MODE_PRIVATE);
+
+        int userId = authPref.getInt("userId", 0);
         int duration = sharedPreferences.getInt("duration", 0);
         int distance = sharedPreferences.getInt("distance", 0);
         Float calories = sharedPreferences.getFloat("calories", 0);
@@ -332,34 +391,68 @@ public class GroupJogActivity extends AppCompatActivity implements
         int totalDescent = sharedPreferences.getInt("totalDescent", 0);
 
         String coordinates = sharedPreferences.getString("coordinates", "[]");
-        String speeds = sharedPreferences.getString("speeds", "");
-        String paces = sharedPreferences.getString("paces", "");
+        String spds = sharedPreferences.getString("speeds", "");
+        String pcs = sharedPreferences.getString("paces", "");
 
-        Intent intent = new Intent(this, JogDetailActivity.class);
-        intent.putExtra("duration", duration);
-        intent.putExtra("distance", distance);
-        intent.putExtra("calories", calories);
-        intent.putExtra("startLatitude", startLatitude);
-        intent.putExtra("endLatitude", endLatitude);
-        intent.putExtra("startLongitude", startLongitude);
-        intent.putExtra("endLongitude", endLongitude);
-        intent.putExtra("averageSpeed", averageSpeed);
-        intent.putExtra("maxSpeed", maxSpeed);
-        intent.putExtra("averagePace", averagePace);
-        intent.putExtra("maxPace", maxPace);
-        intent.putExtra("coordinates", coordinates);
-        intent.putExtra("speeds", speeds);
-        intent.putExtra("paces", paces);
-        intent.putExtra("hydration", hydration);
-        intent.putExtra("maxAltitude", maxAltitude);
-        intent.putExtra("minAltitude", minAltitude);
-        intent.putExtra("totalAscent", totalAscent);
-        intent.putExtra("totalDescent", totalDescent);
+        List<Integer> paces = gson.fromJson(pcs, pacesType);
+        List<Float> speeds = gson.fromJson(spds, speedsType);
 
-        intent.putExtra("canGoBack", false);
-        intent.putExtra("shouldSave", true);
-        startActivity(intent);
-        finish();
+
+        String DATE_FORMAT_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+
+        try {
+            JSONObject jog = new JSONObject();
+            jog.put("name", makeName());
+            jog.put("user_id", userId);
+            jog.put("duration", duration);
+            jog.put("distance", distance);
+            jog.put("calories", calories);
+            jog.put("start_latitude", startLatitude);
+            jog.put("end_latitude", endLatitude);
+            jog.put("start_longitude", startLongitude);
+            jog.put("end_longitude", endLongitude);
+            jog.put("average_speed", averageSpeed);
+            jog.put("max_speed", maxSpeed);
+            jog.put("average_pace", averagePace);
+            jog.put("max_pace", maxPace);
+            jog.put("coordinates", coordinates);
+            jog.put("speeds", new JSONArray(speeds));
+            jog.put("paces", new JSONArray(paces));
+            jog.put("hydration", hydration);
+            jog.put("max_altitude", maxAltitude);
+            jog.put("min_altitude", minAltitude);
+            jog.put("total_ascent", totalAscent);
+            jog.put("total_descent", totalDescent);
+            jog.put("created_at", new SimpleDateFormat(DATE_FORMAT_PATTERN).format(new Date()));
+
+
+            Intent intent = new Intent(this, JogDetailActivity.class);
+            intent.putExtra("jog", jog.toString());
+            intent.putExtra("canGoBack", false);
+            intent.putExtra("shouldSave", true);
+            startActivity(intent);
+            finish();
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
+    public String makeName() {
+        String[] adjectives = {"Beautiful", "Serene", "Cool", "Exciting", "Fine", "Lovely", "Splendid", "Great", "Pleasant", "Nice"};
+        int index = (int) Math.floor(Math.random() * adjectives.length);
+        return adjectives[index] + " Jog";
+    }
+
+    @Override
+    public void onBackPressed() {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        String groupObj = groupObject.toString();
+        editor.putString("group", groupObj);
+        editor.apply();
+        super.onBackPressed();
     }
 
 }

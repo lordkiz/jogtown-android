@@ -60,6 +60,7 @@ public class Auth {
                     data.getString("weight")
                     : "null";
             String deviceId = MainActivity.deviceId;
+            int coins = data.getInt("coins");
 
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putLong("dateOfLastLogin", dateOfLastLogin);
@@ -74,6 +75,7 @@ public class Auth {
             editor.putString("profilePicture", profilePicture);
             editor.putString("provider", provider);
             editor.putString("weight", weight);
+            editor.putInt("coins", coins);
 
             editor.putBoolean("authKey", true);
 

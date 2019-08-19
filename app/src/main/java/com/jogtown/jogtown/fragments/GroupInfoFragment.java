@@ -2,6 +2,7 @@ package com.jogtown.jogtown.fragments;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -12,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.text.Layout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,11 +21,15 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.jogtown.jogtown.R;
 import com.jogtown.jogtown.activities.GroupActivity;
 import com.jogtown.jogtown.activities.MainActivity;
+import com.jogtown.jogtown.subfragments.MyGroupsListFragment;
+import com.jogtown.jogtown.subfragments.SearchGroupsListFragment;
 import com.jogtown.jogtown.utils.Conversions;
 import com.jogtown.jogtown.utils.adapters.GroupInfoMemberListRecyclerViewAdapter;
 import com.jogtown.jogtown.utils.network.MyUrlRequestCallback;
@@ -35,6 +41,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -56,6 +63,9 @@ public class GroupInfoFragment extends Fragment {
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+
+    LinearLayout groupInfoButtonGroupLayout;
+    ProgressBar groupInfoButtonGroupProgressBar;
 
     Button joinGroupButton;
     Button editGroupButton;
@@ -119,7 +129,16 @@ public class GroupInfoFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_group_info, container, false);
 
+        groupInfoButtonGroupLayout = view.findViewById(R.id.groupInfoButtonGroupLayout);
+        groupInfoButtonGroupProgressBar = view.findViewById(R.id.groupInfoButtonGroupProgressBar);
+
         joinGroupButton = view.findViewById(R.id.joinGroupButton);
+        try {
+            if (GroupActivity.groupObject.getInt("required_coins") > 0) {
+                String joinText = "JOIN (" + Integer.toString(GroupActivity.groupObject.getInt("required_coins")) + " coins)";
+                joinGroupButton.setText(joinText);
+            }
+        } catch ( JSONException e) { }
         leaveGroupButton = view.findViewById(R.id.leaveGroupButton);
         editGroupButton = view.findViewById(R.id.editGroupButton);
 
@@ -272,13 +291,135 @@ public class GroupInfoFragment extends Fragment {
 
 
     public void joinGroup() {
+        try {
+            groupInfoButtonGroupProgressBar.setVisibility(View.VISIBLE);
+            groupInfoButtonGroupLayout.setVisibility(View.GONE);
+
+            final SharedPreferences authPref = MainActivity.appContext.getSharedPreferences("AuthPreferences", Context.MODE_PRIVATE);
+            final int requiredCoins = GroupActivity.groupObject.getInt("required_coins");
+            final int userCoins = authPref.getInt("coins", 0);
+            int userId = authPref.getInt("userId", 0);
+
+            if (userCoins >= requiredCoins) {
+                JSONObject groupMembershipObj = new JSONObject();
+                groupMembershipObj.put("user_id", userId);
+                groupMembershipObj.put("group_id", GroupActivity.groupId);
+
+                String payload = groupMembershipObj.toString();
+                String url = getString(R.string.root_url) + "/v1/group_memberships";
+
+                MyUrlRequestCallback.OnFinishRequest onFinishRequest = new MyUrlRequestCallback.OnFinishRequest() {
+                    @Override
+                    public void onFinishRequest(Object result) {
+                        try {
+                            JSONObject resultObj = new JSONObject(result.toString());
+                            int statusCode = resultObj.getInt("statusCode");
+                            if (statusCode == 200) {
+                                GroupActivity.refreshGroup();
+                                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        joinGroupButton.setVisibility(View.GONE);
+                                        groupInfoButtonGroupProgressBar.setVisibility(View.GONE);
+                                        groupInfoButtonGroupLayout.setVisibility(View.VISIBLE);
+
+                                        int currentCoinsForUser = userCoins - requiredCoins;
+                                        SharedPreferences.Editor editor = authPref.edit();
+                                        editor.putInt("coins", currentCoinsForUser);
+                                        editor.apply();
+                                        Toast.makeText(getContext(), "Successfully joined group", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    groupInfoButtonGroupProgressBar.setVisibility(View.GONE);
+                                    groupInfoButtonGroupLayout.setVisibility(View.VISIBLE);
+
+                                }
+                            });
+                        }
+                    }
+                };
+
+                NetworkRequest.post(url, payload, new MyUrlRequestCallback(onFinishRequest));
+            }
+        } catch (JSONException e) {
+            groupInfoButtonGroupProgressBar.setVisibility(View.GONE);
+            groupInfoButtonGroupLayout.setVisibility(View.VISIBLE);
+
+        } catch (NullPointerException e) {
+            groupInfoButtonGroupProgressBar.setVisibility(View.GONE);
+            groupInfoButtonGroupLayout.setVisibility(View.VISIBLE);
+
+        }
     }
 
     public void editGroup() {
-        Log.i("editGroup", "true");
     }
 
     public void leaveGroup() {
+        groupInfoButtonGroupProgressBar.setVisibility(View.VISIBLE);
+        groupInfoButtonGroupLayout.setVisibility(View.GONE);
+
+        SharedPreferences authPref = MainActivity.appContext.getSharedPreferences("AuthPreferences", Context.MODE_PRIVATE);
+        int userId = authPref.getInt("userId", 0);
+
+        MyUrlRequestCallback.OnFinishRequest onFinishRequest = new MyUrlRequestCallback.OnFinishRequest() {
+            @Override
+            public void onFinishRequest(Object result) {
+                try {
+                    JSONObject resultObj = new JSONObject(result.toString());
+                    int statusCode = resultObj.getInt("statusCode");
+                    if (statusCode < 399) {
+                        //Whatever
+                        new Handler(Looper.getMainLooper()).post(new Runnable() {
+                            @Override
+                            public void run() {
+                                GroupActivity.refreshGroup();
+                                leaveGroupButton.setVisibility(View.GONE);
+                                groupInfoButtonGroupProgressBar.setVisibility(View.GONE);
+                                groupInfoButtonGroupLayout.setVisibility(View.VISIBLE);
+                                SearchGroupsListFragment.getGroups("");
+                                MyGroupsListFragment.getMyGroups();
+                                try {
+                                    getActivity().onBackPressed();
+                                } catch (NullPointerException e) {
+                                    e.printStackTrace();
+                                }
+
+                            }
+                        });
+                    } else {
+                        groupInfoButtonGroupProgressBar.setVisibility(View.GONE);
+                        groupInfoButtonGroupLayout.setVisibility(View.VISIBLE);
+
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        try {
+            String url = getString(R.string.root_url) + "/v1/leave_group";
+            JSONObject payloadObj = new JSONObject();
+            payloadObj.put("group_id", GroupActivity.groupId);
+            payloadObj.put("user_id", userId);
+
+            String payload = payloadObj.toString();
+
+            NetworkRequest.post(url, payload, new MyUrlRequestCallback(onFinishRequest));
+        } catch (JSONException e) {
+            groupInfoButtonGroupProgressBar.setVisibility(View.GONE);
+            groupInfoButtonGroupLayout.setVisibility(View.VISIBLE);
+
+        }
 
     }
 

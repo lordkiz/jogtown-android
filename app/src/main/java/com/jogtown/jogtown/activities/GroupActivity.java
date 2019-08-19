@@ -167,4 +167,25 @@ public class GroupActivity extends AppCompatActivity implements
     }
 
 
+    public static void refreshGroup() {
+        MyUrlRequestCallback.OnFinishRequest onFinishRequest = new MyUrlRequestCallback.OnFinishRequest() {
+            @Override
+            public void onFinishRequest(Object result) {
+                try {
+                    JSONObject resultsObj = new JSONObject(result.toString());
+                    int statusCode = resultsObj.getInt("statusCode");
+                    if (statusCode == 200) {
+                        groupObject = resultsObj.getJSONObject("body");
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        String url = MainActivity.appContext.getResources().getString(R.string.root_url) + "/v1/groups/?id=" + Integer.toString(groupId);
+        NetworkRequest.get(url, new MyUrlRequestCallback(onFinishRequest));
+    }
+
 }

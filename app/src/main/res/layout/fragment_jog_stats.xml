@@ -5,113 +5,125 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#FFF"
-    android:backgroundTint="#FFF"
-    android:foregroundTint="#FFF"
+    android:background="@color/extraLightGhostWhite"
     android:paddingTop="20dp"
     android:paddingBottom="20dp">
 
 
-    <!-- TODO: Update blank fragment layout -->
-
-
-    <TextView
-        android:id="@+id/jogStatsDuration"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/jogStatsDurationLayout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="00:00"
-        android:textAlignment="center"
-        android:textColor="#000"
-        android:textSize="36sp"
-        android:textStyle="bold"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_marginBottom="5dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
 
-    <TextView
-        android:id="@+id/jogStatsDurationTitle"
-        android:layout_width="wrap_content"
+        <TextView
+            android:id="@+id/jogStatsDuration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="00:00"
+            android:textAlignment="center"
+            android:textColor="#000"
+            android:textSize="36sp"
+            android:textStyle="bold"
+            />
+
+        <TextView
+            android:id="@+id/jogStatsDurationTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="DURATION" />
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="DURATION"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/jogStatsDuration" />
+        app:layout_constraintTop_toBottomOf="@id/jogStatsDurationLayout">
 
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_weight="1">
 
-    <TextView
-        android:id="@+id/jogStatsDistance"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
-        android:text="0.00"
-        android:textAlignment="center"
-        android:textColor="#000"
-        android:textSize="30sp"
-        android:textStyle="bold"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@+id/jogStatsPace"
-        app:layout_constraintTop_toBottomOf="@+id/jogStatsDurationTitle" />
+            <TextView
+                android:id="@+id/jogStatsDistance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0.00"
+                android:textAlignment="center"
+                android:textColor="#000"
+                android:textSize="30sp"
+                android:textStyle="bold" />
 
-    <TextView
-        android:id="@+id/jogStatsDistanceTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="DISTANCE"
-        android:textAlignment="center"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@+id/jogStatsPace"
-        app:layout_constraintTop_toBottomOf="@+id/jogStatsDistance" />
+            <TextView
+                android:id="@+id/jogStatsDistanceTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="DISTANCE"
+                android:textAlignment="center" />
+        </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_weight="1">
+            <TextView
+                android:id="@+id/jogStatsPace"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="00:00"
+                android:textAlignment="center"
+                android:textColor="#000"
+                android:textSize="30sp"
+                android:textStyle="bold" />
 
-    <TextView
-        android:id="@+id/jogStatsPace"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
-        android:text="00:00"
-        android:textAlignment="center"
-        android:textColor="#000"
-        android:textSize="30sp"
-        android:textStyle="bold"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/jogStatsDurationTitle" />
+            <TextView
+                android:id="@+id/jogStatsPaceTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="PACE"
+                android:textAlignment="center" />
 
-    <TextView
-        android:id="@+id/jogStatsPaceTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
-        android:text="PACE"
-        android:textAlignment="center"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/jogStatsPace" />
+        </LinearLayout>
 
-    <TextView
-        android:id="@+id/jogStatsCalories"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
-        android:text="0"
-        android:textAlignment="center"
-        android:textColor="#000"
-        android:textSize="30sp"
-        android:textStyle="bold"
-        app:layout_constraintLeft_toRightOf="@id/jogStatsPace"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/jogStatsDurationTitle" />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_weight="1">
+            <TextView
+                android:id="@+id/jogStatsCalories"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textAlignment="center"
+                android:textColor="#000"
+                android:textSize="30sp"
+                android:textStyle="bold" />
 
-    <TextView
-        android:id="@+id/jogStatsCaloriesTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
-        android:text="CALORIES"
-        android:textAlignment="center"
-        app:layout_constraintLeft_toRightOf="@+id/jogStatsPace"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/jogStatsCalories" />
+            <TextView
+                android:id="@+id/jogStatsCaloriesTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CALORIES"
+                android:textAlignment="center" />
+
+        </LinearLayout>
+
+    </LinearLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

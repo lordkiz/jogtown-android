@@ -267,14 +267,14 @@ public class GroupJogMembersFragment extends Fragment {
 
 
     public void streamCurrentUserJog() {
-        SharedPreferences jogPref = MainActivity.appContext.getSharedPreferences("JogPreferences", Context.MODE_PRIVATE);
-
-        int distance = jogPref.getInt("distance", 0);
-        int duration = jogPref.getInt("duration", 0);
-
         JSONObject currentUserJog = currentUserMembershipObject;
         if (currentUserJog != null) {
             try {
+                SharedPreferences jogPref = MainActivity.appContext.getSharedPreferences("JogPreferences", Context.MODE_PRIVATE);
+
+                int distance = jogPref.getInt("distance", 0);
+                int duration = jogPref.getInt("duration", 0);
+
                 currentUserJog.remove("current_distance");
                 currentUserJog.remove("current_duration");
                 currentUserJog.remove("jogging");
@@ -286,6 +286,8 @@ public class GroupJogMembersFragment extends Fragment {
                 addGroupMembershipItem(currentUserJog);
 
             } catch (JSONException e) {
+                e.printStackTrace();
+            } catch (NullPointerException e) {
                 e.printStackTrace();
             }
         }
