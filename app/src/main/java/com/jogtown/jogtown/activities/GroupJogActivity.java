@@ -106,7 +106,10 @@ public class GroupJogActivity extends AppCompatActivity implements
         }
 
         ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) actionBar.setElevation(0);
+        if (actionBar != null) {
+            actionBar.setElevation(0);
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
 
         tabLayout = (TabLayout) findViewById(R.id.group_run_activity_tabs);
         viewPager = (ViewPager) findViewById(R.id.group_run_activity_view_pager);
@@ -400,6 +403,9 @@ public class GroupJogActivity extends AppCompatActivity implements
 
         String DATE_FORMAT_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
+        //This next line should be done only when it is a group jog. Don't add elsewhere you are using this block of code.
+        GroupJogMembersFragment.saveGroupMembershipStats(distance, duration, false);
+
         try {
             JSONObject jog = new JSONObject();
             jog.put("name", makeName());
@@ -454,5 +460,12 @@ public class GroupJogActivity extends AppCompatActivity implements
         editor.apply();
         super.onBackPressed();
     }
+
+    @Override
+    public boolean onSupportNavigateUp(){
+        onBackPressed();
+        return true;
+    }
+
 
 }

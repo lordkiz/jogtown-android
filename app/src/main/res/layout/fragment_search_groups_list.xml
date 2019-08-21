@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:paddingTop="60dp"
     android:orientation="vertical"
     tools:context=".subfragments.SearchGroupsListFragment">
 
@@ -60,8 +61,8 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/search_groups_fragment_recycler_view"
         android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_marginTop="10dp"
-        android:layout_height="200dp"
         android:minHeight="100dp"/>
 
 </LinearLayout>

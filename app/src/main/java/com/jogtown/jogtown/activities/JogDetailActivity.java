@@ -101,6 +101,7 @@ public class JogDetailActivity extends AppCompatActivity implements OnMapReadyCa
         if (actionBar != null) {
             actionBar.setElevation(0);
             actionBar.setTitle("Jog Details");
+            actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
         SupportMapFragment mMapFragment = SupportMapFragment.newInstance();
@@ -482,4 +483,12 @@ public class JogDetailActivity extends AppCompatActivity implements OnMapReadyCa
             finish();
         }
     }
+
+
+    @Override
+    public boolean onSupportNavigateUp(){
+        onBackPressed();
+        return true;
+    }
+
 }

@@ -61,11 +61,12 @@
             android:background="@color/extraDarkSmoke"
             android:layout_marginTop="-30dp"
             android:layout_marginLeft="20dp"
+            android:padding="5dp"
             >
             <ImageView
                 android:id="@+id/group_avatar_selected_image_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_width="95dp"
+                android:layout_height="95dp" />
 
             <Button
                 android:layout_width="wrap_content"
@@ -81,7 +82,7 @@
                 android:layout_gravity="center"
                 android:layout_marginTop="10dp"
                 android:textSize="12sp"
-                android:textColor="@color/smoke"
+                android:textColor="@color/snow"
                 android:text="Choose a group image"/>
         </FrameLayout>
 

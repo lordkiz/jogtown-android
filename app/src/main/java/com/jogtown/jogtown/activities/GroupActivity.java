@@ -67,6 +67,7 @@ public class GroupActivity extends AppCompatActivity implements
         if (actionBar != null) {
             actionBar.setElevation(0);
             actionBar.setTitle(groupName);
+            actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
         authPref = getSharedPreferences("AuthPreferences", MODE_PRIVATE);
@@ -97,6 +98,7 @@ public class GroupActivity extends AppCompatActivity implements
 
         viewPager.setAdapter(viewPagerAdapter);
     }
+
 
     public static boolean userIsAMember() {
         try {
@@ -176,6 +178,7 @@ public class GroupActivity extends AppCompatActivity implements
                     int statusCode = resultsObj.getInt("statusCode");
                     if (statusCode == 200) {
                         groupObject = resultsObj.getJSONObject("body");
+
                     }
 
                 } catch (JSONException e) {
@@ -187,5 +190,51 @@ public class GroupActivity extends AppCompatActivity implements
         String url = MainActivity.appContext.getResources().getString(R.string.root_url) + "/v1/groups/?id=" + Integer.toString(groupId);
         NetworkRequest.get(url, new MyUrlRequestCallback(onFinishRequest));
     }
+
+
+
+
+    public static JSONObject groupObjectAfterUserLeft(int userId) {
+        try {
+            JSONArray groupMembers = groupObject.getJSONArray("group_memberships");
+            for (int i = 0; i < groupMembers.length(); i++) {
+                JSONObject member = groupMembers.getJSONObject(i);
+                if (member.getInt("user_id") == userId) {
+                    groupMembers.remove(i);
+                    break;
+                }
+            }
+            groupObject.remove("group_memberships");
+            groupObject.put("group_memberships", groupMembers);
+            return groupObject;
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return groupObject;
+    }
+
+
+    public static JSONObject groupObjectAfterUserJoined(JSONObject userMembership) {
+        try {
+            JSONArray groupMembers = groupObject.getJSONArray("group_memberships");
+            groupMembers.put(userMembership);
+
+            groupObject.remove("group_memberships");
+            groupObject.put("group_memberships", groupMembers);
+            groupObject.put("members_count", groupObject.getInt("members_count") + 1);
+            return groupObject;
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return groupObject;
+    }
+
+
+    @Override
+    public boolean onSupportNavigateUp(){
+        finish();
+        return true;
+    }
+
 
 }

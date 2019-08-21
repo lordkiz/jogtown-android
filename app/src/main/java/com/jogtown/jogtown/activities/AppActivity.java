@@ -11,6 +11,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -52,11 +54,14 @@ public class AppActivity extends AppCompatActivity implements
     private static BottomNavigationView bottomNavigation;
     ActionBar actionBar;
     SharedPreferences sharedPreferences;
+    boolean canClose = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_app);
+
+        canClose = false;
 
         sharedPreferences = getSharedPreferences("JogPreferences", MODE_PRIVATE);
         boolean jogIsOn = sharedPreferences.getBoolean("jogIsOn", false);
@@ -85,7 +90,7 @@ public class AppActivity extends AppCompatActivity implements
 
 
         actionBar = getSupportActionBar();
-        bottomNavigation = (BottomNavigationView) findViewById(R.id.bottomBarNavigation);
+        bottomNavigation = findViewById(R.id.bottomBarNavigation);
         if (actionBar != null) {
             actionBar.setTitle("Start");
             //actionBar.setDisplayHomeAsUpEnabled(true);
@@ -160,6 +165,11 @@ public class AppActivity extends AppCompatActivity implements
         bottomNavigation.setSelectedItemId(R.id.groupsTab);
     }
 
+    public static void switchToInboxTab() {
+        bottomNavigation.setSelectedItemId(R.id.inboxTab);
+    }
+
+
 
 
     @Override
@@ -169,17 +179,29 @@ public class AppActivity extends AppCompatActivity implements
 
     @Override
     public void onBackPressed() {
-        boolean jogIsOn = sharedPreferences.getBoolean("jogIsOn", false);
-        if (!jogIsOn) {
-            // if jog is NOT on
-            Intent locationServiceIntent = new Intent(this, LocationService.class);
-            Intent jogStatsServiceIntent = new Intent(this, JogStatsService.class);
-            stopService(locationServiceIntent);
-            stopService(jogStatsServiceIntent);
+        if (canClose) {
+            boolean jogIsOn = sharedPreferences.getBoolean("jogIsOn", false);
+            if (!jogIsOn) {
+                // if jog is NOT on
+                Intent locationServiceIntent = new Intent(this, LocationService.class);
+                Intent jogStatsServiceIntent = new Intent(this, JogStatsService.class);
+                stopService(locationServiceIntent);
+                stopService(jogStatsServiceIntent);
 
+            }
+
+            super.onBackPressed();
+            finish();
+        } else {
+            canClose = true;
+            Toast.makeText(this, "Press back again to exit", Toast.LENGTH_SHORT).show();
+            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    canClose = false;
+                }
+            }, 3000);
         }
-        super.onBackPressed();
-        finish();
     }
 
 

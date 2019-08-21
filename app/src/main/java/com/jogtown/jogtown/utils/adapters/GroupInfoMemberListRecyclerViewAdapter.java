@@ -13,8 +13,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.jogtown.jogtown.R;
+import com.jogtown.jogtown.activities.AppActivity;
 import com.jogtown.jogtown.activities.GroupActivity;
 import com.jogtown.jogtown.activities.MainActivity;
 import com.jogtown.jogtown.fragments.GroupInfoFragment;
@@ -146,7 +148,7 @@ public class GroupInfoMemberListRecyclerViewAdapter extends RecyclerView.Adapter
         });
 
         if (GroupActivity.userIsAMember()) {
-            builder.setNeutralButton("Chat", new DialogInterface.OnClickListener() {
+            builder.setNeutralButton("Private Chat", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     dialog.dismiss();
@@ -217,7 +219,7 @@ public class GroupInfoMemberListRecyclerViewAdapter extends RecyclerView.Adapter
                         JSONObject jsonObject = new JSONObject();
                         jsonObject.put("message_type", "text");
                         jsonObject.put("message_text", input);
-                        jsonObject.put("user_id", recipientId);
+                        jsonObject.put("user_id", authPref.getInt("userId", 0));
                         jsonObject.put("sender_name", authPref.getString("name", ""));
                         jsonObject.put("sender_avatar",
                                 authPref.getString("profilePicture",
@@ -229,6 +231,7 @@ public class GroupInfoMemberListRecyclerViewAdapter extends RecyclerView.Adapter
 
                         sendMessage(payload);
                         dialog.dismiss();
+                        Toast.makeText(MainActivity.appContext, "Sent. Continue chat in your inbox", Toast.LENGTH_SHORT).show();
                     } catch (JSONException e) {
 
                     }

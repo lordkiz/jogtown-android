@@ -145,6 +145,7 @@ public class SingleJogActivity extends AppCompatActivity implements
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setTitle("Single Jog");
+            actionBar.setDisplayHomeAsUpEnabled(true);
         }
     }
 
@@ -578,5 +579,12 @@ public class SingleJogActivity extends AppCompatActivity implements
     public void onLowMemory() {
         mMapView.onLowMemory();
         super.onLowMemory();
+    }
+
+
+    @Override
+    public boolean onSupportNavigateUp(){
+        finish();
+        return true;
     }
 }

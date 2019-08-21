@@ -89,7 +89,6 @@ public class ConversationActivity extends AppCompatActivity {
         if (actionBar != null) {
             actionBar.setTitle("  " + chatName);
             actionBar.setSubtitle("  online");
-            actionBar.setDisplayShowHomeEnabled(true);
             actionBar.setDisplayHomeAsUpEnabled(true);
             try {
                 Picasso.get().load(chatAvatar)
@@ -449,5 +448,14 @@ public class ConversationActivity extends AppCompatActivity {
 
         NetworkRequest.post(url, payload, new MyUrlRequestCallback(onFinishRequest));
     }
+
+
+
+    @Override
+    public boolean onSupportNavigateUp(){
+        finish();
+        return true;
+    }
+
 
 }

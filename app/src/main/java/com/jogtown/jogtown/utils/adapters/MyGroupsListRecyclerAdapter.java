@@ -90,11 +90,17 @@ public class MyGroupsListRecyclerAdapter extends RecyclerView.Adapter<MyGroupsLi
                     .resize(100,100)
                     .into(holder.groupAvatar);
 
-            final String groupName = jsonObject.getString("name");
+            String groupName = jsonObject.getString("name");
+            if (groupName.length() >= 16) {
+                groupName = groupName.substring(0, 15) + "...";
+            }
             holder.groupName.setText(groupName);
 
 
             String tagLine = jsonObject.getString("tagline");
+            if (tagLine.length() >= 16) {
+                tagLine = tagLine.substring(0, 15) + "...";
+            }
             holder.groupTagline.setText(tagLine);
 
             final Activity activity = this.activityToNavigateTo;
@@ -105,6 +111,7 @@ public class MyGroupsListRecyclerAdapter extends RecyclerView.Adapter<MyGroupsLi
                     if (activity != null) {
                         Intent intent = new Intent(MainActivity.appContext, activity.getClass());
                         intent.putExtra("group", jsonObject.toString());
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         MainActivity.appContext.startActivity(intent);
                     }
 

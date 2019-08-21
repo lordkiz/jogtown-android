@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
 import com.jogtown.jogtown.R;
@@ -70,6 +71,8 @@ public class InboxFragment extends Fragment {
     Boolean loading = false;
     int page = 1;
 
+    LinearLayout inboxFragmentEmptyLayout;
+
     private OnFragmentInteractionListener mListener;
 
     public InboxFragment() {
@@ -108,6 +111,9 @@ public class InboxFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_inbox, container, false);
+
+        inboxFragmentEmptyLayout = view.findViewById(R.id.inbox_fragment_empty_layout);
+
         inboxList = view.findViewById(R.id.inboxList);
         progressBar = view.findViewById(R.id.inboxFragmentProgressBar);
         loadMoreButton = view.findViewById(R.id.inboxFragmentLoadMoreButton);
@@ -223,6 +229,18 @@ public class InboxFragment extends Fragment {
         }
     }
 
+    private void showEmptyLayout() {
+        if (!dialogsListAdapter.isEmpty()) {
+            inboxFragmentEmptyLayout.setVisibility(View.GONE);
+        } else {
+            inboxFragmentEmptyLayout.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void hideEmptyLayout() {
+        inboxFragmentEmptyLayout.setVisibility(View.GONE);
+    }
+
 
     public void showButton() {
         /*new Handler(Looper.getMainLooper()).post(new Runnable() {
@@ -240,6 +258,7 @@ public class InboxFragment extends Fragment {
     public void getUserChats() {
         loading = true;
         showActivity();
+        hideEmptyLayout();
 
         String url = getString(R.string.root_url) + "v1/user_chats?page=" + page;
 
@@ -322,11 +341,14 @@ public class InboxFragment extends Fragment {
                                     page++;
 
                                     showButton();
+                                    showEmptyLayout();
 
                                 } catch (JSONException e) {
                                     e.printStackTrace();
+                                    showEmptyLayout();
                                 } catch (ParseException e) {
                                     e.printStackTrace();
+                                    showEmptyLayout();
                                 }
                             }
                         });
@@ -339,6 +361,7 @@ public class InboxFragment extends Fragment {
                             public void run() {
                                 showActivity();
                                 showButton();
+                                showEmptyLayout();
 
                                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
                                 alertDialogBuilder
@@ -357,6 +380,7 @@ public class InboxFragment extends Fragment {
                         @Override
                         public void run() {
                             showActivity();
+                            showEmptyLayout();
                         }
                     });
                 }

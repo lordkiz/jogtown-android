@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
 import com.jogtown.jogtown.R;
@@ -65,6 +66,8 @@ public class HistoryFragment extends Fragment {
     ProgressBar progressBar;
     Button loadMoreButton;
 
+    LinearLayout historyFragmentEmptyLayout;
+
     public HistoryFragment() {
         // Required empty public constructor
     }
@@ -102,6 +105,8 @@ public class HistoryFragment extends Fragment {
         // Inflate the layout for this fragment
 
         View view = inflater.inflate(R.layout.fragment_history, container, false);
+
+        historyFragmentEmptyLayout = view.findViewById(R.id.history_fragment_empty_layout);
 
         progressBar = view.findViewById(R.id.history_fragment_progess_bar);
         progressBar.setVisibility(View.INVISIBLE);
@@ -168,6 +173,7 @@ public class HistoryFragment extends Fragment {
     //My fxns
     public void getUserJogs() {
         loading = true;
+        hideEmptyLayout();
         showActivity();
 
         String url = getString(R.string.root_url) + "v1/user_runs?page=" + page;
@@ -192,6 +198,18 @@ public class HistoryFragment extends Fragment {
             progressBar.setVisibility(View.INVISIBLE);
 
         }
+    }
+
+    private void showEmptyLayout() {
+        if (jogs.size() > 0) {
+            historyFragmentEmptyLayout.setVisibility(View.GONE);
+        } else {
+            historyFragmentEmptyLayout.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void hideEmptyLayout() {
+        historyFragmentEmptyLayout.setVisibility(View.GONE);
     }
 
     public void notifyDatasetChanged() {
@@ -266,6 +284,8 @@ public class HistoryFragment extends Fragment {
                             @Override
                             public void run() {
                                 showButton();
+
+                                showEmptyLayout();
                             }
                         });
 
@@ -275,12 +295,17 @@ public class HistoryFragment extends Fragment {
                             @Override
                             public void run() {
                                 showActivity();
-                                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-                                alertDialogBuilder
-                                        .setCancelable(true)
-                                        .setMessage(responseBody)
-                                        .setTitle("Error!");
-                                alertDialogBuilder.create().show();
+                                showEmptyLayout();
+                                try {
+                                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+                                    alertDialogBuilder
+                                            .setCancelable(true)
+                                            .setMessage(responseBody)
+                                            .setTitle("Error!");
+                                    alertDialogBuilder.create().show();
+                                }catch (NullPointerException e) {
+                                    e.printStackTrace();
+                                }
 
                             }
                         });
@@ -293,6 +318,7 @@ public class HistoryFragment extends Fragment {
                         @Override
                         public void run() {
                             showActivity();
+                            showEmptyLayout();
                         }
                     });
                 }

@@ -234,14 +234,12 @@ public class SearchGroupsListFragment extends Fragment {
                             }
                         });
                         JSONArray jsonArray = new JSONArray(responseBody);
-                        List<Object> resList = new ArrayList<>();
                         if (jsonArray.length() > 0) {
 
                             for (int i = 0; i < jsonArray.length(); i++) {
-                                resList.add(jsonArray.get(i));
+                                groupsResult.add(new JSONObject(jsonArray.get(i).toString()));
                             }
                         }
-                        groupsResult.addAll(resList);
                         new Handler(Looper.getMainLooper()).post(new Runnable() {
                             @Override
                             public void run() {

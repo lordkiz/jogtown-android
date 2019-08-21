@@ -256,6 +256,16 @@ public class GroupJogMembersFragment extends Fragment {
                 groupMembers.add(jsonObject);
                 if (jsonObject.getInt("user_id") == currentUserId) {
                     currentUserMembershipObject = jsonObject;
+
+                    //toggle jogging to true in the backend
+                    JSONObject obj = new JSONObject();
+                    obj.put("jogging", true);
+                    String payload = obj.toString();
+                    String url = MainActivity.appContext.getResources().getString(R.string.root_url) +
+                            "v1/group_memberships/" +
+                            Integer.toString(currentUserMembershipObject.getInt("id"));
+                    send(url, payload, "PUT");
+
                 }
             }
 
@@ -275,6 +285,8 @@ public class GroupJogMembersFragment extends Fragment {
                 int distance = jogPref.getInt("distance", 0);
                 int duration = jogPref.getInt("duration", 0);
 
+                int currentUserMembershipId = currentUserJog.getInt("id");
+
                 currentUserJog.remove("current_distance");
                 currentUserJog.remove("current_duration");
                 currentUserJog.remove("jogging");
@@ -285,6 +297,10 @@ public class GroupJogMembersFragment extends Fragment {
 
                 addGroupMembershipItem(currentUserJog);
 
+                String url = MainActivity.appContext.getResources().getString(R.string.root_url) + "v1/group_memberships/" + Integer.toString(currentUserMembershipId);
+                String payload = currentUserJog.toString();
+                send(url, payload, "PUT");
+
             } catch (JSONException e) {
                 e.printStackTrace();
             } catch (NullPointerException e) {
@@ -294,9 +310,15 @@ public class GroupJogMembersFragment extends Fragment {
     }
 
 
-    public static void saveGroupMembershipStats(int distance, int duration) {
+    public static void saveGroupMembershipStats(int distance, int duration, boolean jogStatus ) {
         String method = "PUT";
-        String url = MainActivity.appContext.getResources().getString(R.string.root_url) + "/v1/group_memberships";
+        int currentUserMembershipId = 0;
+        try {
+            currentUserMembershipId = currentUserMembershipObject.getInt("id");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        String url = MainActivity.appContext.getResources().getString(R.string.root_url) + "v1/group_memberships/" + Integer.toString(currentUserMembershipId);
         JSONObject jsonObject = currentUserMembershipObject;
         if (jsonObject != null) {
             try {
@@ -306,7 +328,7 @@ public class GroupJogMembersFragment extends Fragment {
 
                 jsonObject.put("current_distance", distance);
                 jsonObject.put("current_duration", duration);
-                jsonObject.put("jogging", true);
+                jsonObject.put("jogging", jogStatus);
 
                 String payload = jsonObject.toString();
                 send(url, payload, method);

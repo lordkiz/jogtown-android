@@ -86,11 +86,17 @@ public class SearchGroupsListRecyclerAdapter extends RecyclerView.Adapter<Search
                     .resize(100,100)
                     .into(holder.groupAvatar);
 
-            final String groupName = jsonObject.getString("name");
+            String groupName = jsonObject.getString("name");
+            if (groupName.length() >= 16) {
+                groupName = groupName.substring(0, 15) + "...";
+            }
             holder.groupName.setText(groupName);
 
 
             String tagLine = jsonObject.getString("tagline");
+            if (tagLine.length() >= 16) {
+                tagLine = tagLine.substring(0, 15) + "...";
+            }
             holder.groupTagline.setText(tagLine);
 
             holder.layout.setOnClickListener(new View.OnClickListener() {
@@ -98,6 +104,7 @@ public class SearchGroupsListRecyclerAdapter extends RecyclerView.Adapter<Search
                 public void onClick(View v) {
                     Intent intent = new Intent(MainActivity.appContext, GroupActivity.class);
                     intent.putExtra("group", jsonObject.toString());
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     MainActivity.appContext.startActivity(intent);
 
                 }

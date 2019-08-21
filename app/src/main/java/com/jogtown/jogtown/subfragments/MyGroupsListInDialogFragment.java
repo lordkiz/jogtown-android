@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -68,7 +69,6 @@ public class MyGroupsListInDialogFragment extends DialogFragment {
     List<Object> myGroups;
 
     boolean loading;
-    int page = 1;
 
     public MyGroupsListInDialogFragment() {
         // Required empty public constructor
@@ -114,8 +114,8 @@ public class MyGroupsListInDialogFragment extends DialogFragment {
                 }
             }
         });
-        progressBar = view.findViewById(R.id.my_groups_fragment_progressbar);
-        recyclerView = view.findViewById(R.id.my_groups_fragment_recyclerview);
+        progressBar = view.findViewById(R.id.choose_group_for_jog_progress_bar);
+        recyclerView = view.findViewById(R.id.choose_group_for_jog_recycler_view);
 
         chooseGroupCreateANewGroupButton = view.findViewById(R.id.chooseGroupCreateANewGroupButton);
 
@@ -211,14 +211,14 @@ public class MyGroupsListInDialogFragment extends DialogFragment {
     }
 
 
-    public void setUpButton() {
+    private void setUpButton() {
         chooseGroupCreateANewGroupButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.i("create clicked", "");
                 if (rootDialog != null) {
                     rootDialog.dismiss();
                 }
-
                 AppActivity.switchToMyGroupsTab();
             }
         });
@@ -227,7 +227,6 @@ public class MyGroupsListInDialogFragment extends DialogFragment {
 
 
     public void showActivity() {
-
         if (loading) {
             progressBar.setVisibility(View.VISIBLE);
         } else {
@@ -244,7 +243,7 @@ public class MyGroupsListInDialogFragment extends DialogFragment {
         loading = true;
         showActivity();
 
-        String url = getString(R.string.root_url) + "v1/user_groups/?" + "page=" + Integer.toString(page);
+        String url = getString(R.string.root_url) + "v1/user_groups";
         MyUrlRequestCallback.OnFinishRequest onFinishRequest = new MyUrlRequestCallback.OnFinishRequest() {
             @Override
             public void onFinishRequest(Object result) {
@@ -274,7 +273,6 @@ public class MyGroupsListInDialogFragment extends DialogFragment {
                             public void run() {
                                 //showButton();
                                 adapter.notifyDataSetChanged();
-                                page++;
                             }
                         });
 

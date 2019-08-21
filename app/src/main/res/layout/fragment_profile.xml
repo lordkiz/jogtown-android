@@ -27,18 +27,31 @@
                 android:elevation="1dp"
                 android:orientation="vertical">
 
-                <View
-                    android:id="@+id/metaBackground"
+                <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="140dp"
-                    android:background="@drawable/purple_linear_background" />
+                    android:layout_height="wrap_content"
+                    >
+
+                    <View
+                        android:id="@+id/metaBackground"
+                        android:layout_width="match_parent"
+                        android:layout_height="140dp"
+                        android:background="@drawable/purple_linear_background" />
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/light_wool"
+                        android:scaleType="centerCrop"
+                        />
+                </FrameLayout>
 
                 <ImageView
                     xmlns:app="http://schemas.android.com/apk/res-auto"
                     android:id="@+id/profile_picture"
                     android:layout_width="100dp"
                     android:layout_height="100dp"
-                    android:layout_marginTop="-60dp"
+                    android:layout_marginTop="-100dp"
                     android:layout_gravity="center"
                     android:src="@drawable/com_facebook_profile_picture_blank_portrait"
                     />
@@ -73,7 +86,7 @@
                     xmlns:tools="http://schemas.android.com/tools"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_marginBottom="60dp">
+                    android:layout_marginBottom="30dp">
 
                     <LinearLayout
                         android:id="@+id/profile_stats_item_linear_layout_distance"
@@ -104,7 +117,7 @@
                             android:text="- km"
                             android:textAlignment="center"
                             android:textColor="#000"
-                            android:textSize="14sp"
+                            android:textSize="18sp"
                             android:textStyle="bold"
                             app:layout_constraintTop_toBottomOf="@+id/profile_stats_header_distance_text" />
                     </LinearLayout>
@@ -138,7 +151,7 @@
                             android:text="00:00"
                             android:textAlignment="center"
                             android:textColor="#000"
-                            android:textSize="14sp"
+                            android:textSize="18sp"
                             android:textStyle="bold"
                             app:layout_constraintTop_toBottomOf="@+id/profile_stats_header_total_time_text" />
                     </LinearLayout>
@@ -172,7 +185,7 @@
                             android:text="0"
                             android:textAlignment="center"
                             android:textColor="#000"
-                            android:textSize="14sp"
+                            android:textSize="18sp"
                             android:textStyle="bold"
                             app:layout_constraintTop_toBottomOf="@+id/profile_stats_header_jogs_text" />
                     </LinearLayout>
@@ -206,7 +219,7 @@
                             android:text="0"
                             android:textAlignment="center"
                             android:textColor="#000"
-                            android:textSize="14sp"
+                            android:textSize="18sp"
                             android:textStyle="bold"
                             app:layout_constraintTop_toBottomOf="@+id/profile_stats_header_calorie_text" />
                     </LinearLayout>

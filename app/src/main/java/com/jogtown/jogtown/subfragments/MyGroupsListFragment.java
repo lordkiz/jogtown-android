@@ -1,14 +1,25 @@
 package com.jogtown.jogtown.subfragments;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import io.reactivex.Observable;
+import io.reactivex.functions.Function;
+import io.reactivex.functions.Function3;
+import io.reactivex.observers.DisposableObserver;
 
 import android.os.Handler;
 import android.os.Looper;
@@ -16,22 +27,38 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.jakewharton.rxbinding2.widget.RxTextView;
 import com.jogtown.jogtown.R;
 import com.jogtown.jogtown.activities.GroupActivity;
 import com.jogtown.jogtown.activities.MainActivity;
 import com.jogtown.jogtown.utils.adapters.MyGroupsListRecyclerAdapter;
 import com.jogtown.jogtown.utils.network.MyUrlRequestCallback;
 import com.jogtown.jogtown.utils.network.NetworkRequest;
+import com.jogtown.jogtown.utils.network.PathUtils;
+import com.jogtown.jogtown.utils.network.S3Uploader;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+
+import static android.app.Activity.RESULT_OK;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -55,19 +82,21 @@ public class MyGroupsListFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
+    TextView myGroupsHeaderText;
+    private static Button createGroupButton;
+
+
     private static ProgressBar progressBar;
     RecyclerView recyclerView;
 
     RecyclerView.LayoutManager layoutManager;
     private static RecyclerView.Adapter adapter;
 
-    private static TextView myGroupsHeaderText;
-
     private static List<Object> myGroups;
 
     private static boolean loading;
 
-    private static int page = 1;
+    static LinearLayout myGroupsListFragmentEmptyLayout;
 
     public MyGroupsListFragment() {
         // Required empty public constructor
@@ -106,10 +135,23 @@ public class MyGroupsListFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_my_groups_list, container, false);
+
+        createGroupButton = view.findViewById(R.id.createGroupButton);
+
+        myGroupsListFragmentEmptyLayout = view.findViewById(R.id.my_groups_list_fragment_empty_layout);
+
+
+        createGroupButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showCreateGroupDialog(v);
+
+            }
+        });
+
         progressBar = view.findViewById(R.id.my_groups_fragment_progressbar);
         recyclerView = view.findViewById(R.id.my_groups_fragment_recyclerview);
         myGroups = new ArrayList<>();
-        myGroupsHeaderText = view.findViewById(R.id.myGroupsHeaderText);
         setUpRecyclerView();
         getMyGroups();
         return view;
@@ -168,17 +210,31 @@ public class MyGroupsListFragment extends Fragment {
     }
 
 
-
     private static void showActivity() {
 
         if (loading) {
             progressBar.setVisibility(View.VISIBLE);
+            createGroupButton.setVisibility(View.GONE);
+
         } else {
             progressBar.setVisibility(View.GONE);
+            createGroupButton.setVisibility(View.VISIBLE);
         }
 
     }
 
+
+    private static void showEmptyLayout() {
+        if (myGroups.size() > 0) {
+            myGroupsListFragmentEmptyLayout.setVisibility(View.GONE);
+        } else {
+            myGroupsListFragmentEmptyLayout.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private static void hideEmptyLayout() {
+        myGroupsListFragmentEmptyLayout.setVisibility(View.GONE);
+    }
 
 
 
@@ -187,8 +243,9 @@ public class MyGroupsListFragment extends Fragment {
         myGroups.clear();
         loading = true;
         showActivity();
+        hideEmptyLayout();
 
-        String url = MainActivity.appContext.getResources().getString(R.string.root_url) + "v1/user_groups/?" + "page=" + Integer.toString(page);
+        String url = MainActivity.appContext.getResources().getString(R.string.root_url) + "v1/user_groups";
         MyUrlRequestCallback.OnFinishRequest onFinishRequest = new MyUrlRequestCallback.OnFinishRequest() {
             @Override
             public void onFinishRequest(Object result) {
@@ -206,23 +263,18 @@ public class MyGroupsListFragment extends Fragment {
                             }
                         });
                         JSONArray jsonArray = new JSONArray(responseBody);
-                        List<Object> resList = new ArrayList<>();
                         if (jsonArray.length() > 0) {
 
                             for (int i = 0; i < jsonArray.length(); i++) {
-                                resList.add(jsonArray.get(i));
+                                myGroups.add(new JSONObject(jsonArray.get(i).toString()));
                             }
                         }
-                        myGroups.addAll(resList);
                         new Handler(Looper.getMainLooper()).post(new Runnable() {
                             @Override
                             public void run() {
                                 //showButton();
                                 adapter.notifyDataSetChanged();
-                                page++;
-                                if (myGroups.size() > 0) {
-                                    myGroupsHeaderText.setVisibility(View.VISIBLE);
-                                }
+                                showEmptyLayout();
                             }
                         });
 
@@ -232,6 +284,7 @@ public class MyGroupsListFragment extends Fragment {
                             @Override
                             public void run() {
                                 showActivity();
+                                showEmptyLayout();
                                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(instance);
                                 alertDialogBuilder
                                         .setCancelable(true)
@@ -250,6 +303,7 @@ public class MyGroupsListFragment extends Fragment {
                         @Override
                         public void run() {
                             showActivity();
+                            showEmptyLayout();
                         }
                     });
                 }
@@ -258,5 +312,504 @@ public class MyGroupsListFragment extends Fragment {
 
         NetworkRequest.get(url, new MyUrlRequestCallback(onFinishRequest));
     }
+
+    /*
+
+    Everything beneath has to do with creating a group.
+     */
+
+
+    String groupAvatarStr;
+    Uri groupAvatarUri;
+    String backgroundImageStr;
+    Uri backgroundImageUri;
+    int totalFilesToUpload = 0;
+    int uploaded = 0;
+
+    Dialog createGroupDialog;
+
+    FrameLayout backgroundImageLayout;
+    FrameLayout groupAvatarLayout;
+    ImageView backgroundImageView;
+    ImageView groupAvatarImageView;
+    EditText groupNameEditText;
+    EditText groupTagLineEditText;
+    EditText requiredCoinsEditText;
+    RadioGroup radioGroup;
+    RadioButton publicRadioButton;
+    RadioButton privateRadioButton;
+    Button saveGroupButton;
+
+    boolean groupAvatarClicked = false; //Just to track with picture field was clicked
+
+
+
+
+    public void showCreateGroupDialog(View v) {
+        Dialog dialog = new Dialog(v.getContext(), android.R.style.Theme_NoTitleBar);
+        dialog.setContentView(R.layout.create_group_layout);
+        backgroundImageLayout = dialog.findViewById(R.id.create_group_choose_background_image_layout);
+        groupAvatarLayout = dialog.findViewById(R.id.create_group_choose_group_avatar_layout);
+        groupNameEditText = dialog.findViewById(R.id.create_group_name);
+        groupTagLineEditText = dialog.findViewById(R.id.create_group_tagline);
+        requiredCoinsEditText = dialog.findViewById(R.id.create_group_required_coins);
+        radioGroup = dialog.findViewById(R.id.create_group_radio_group);
+        publicRadioButton = dialog.findViewById(R.id.create_group_public_radio_button);
+        privateRadioButton = dialog.findViewById(R.id.create_group_private_radio_button);
+        saveGroupButton = dialog.findViewById(R.id.save_group_button);
+        progressBar = dialog.findViewById(R.id.create_group_progress_bar);
+
+        backgroundImageView = dialog.findViewById(R.id.background_selected_image_view);
+        groupAvatarImageView = dialog.findViewById(R.id.group_avatar_selected_image_view);
+
+
+
+        backgroundImageLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                groupAvatarClicked = false;
+                attemptToGetImage("backgroundImage");
+            }
+        });
+
+        groupAvatarLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                groupAvatarClicked = true;
+                attemptToGetImage("groupAvatar");
+
+            }
+        });
+
+        saveGroupButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                String groupName = groupNameEditText.getText().toString();
+                String tagline = groupTagLineEditText.getText().toString();
+                String reqCoins = requiredCoinsEditText.getText().toString();
+
+                if (isValidForm(groupName, tagline, reqCoins)) {
+                    HashMap<String, Uri> forS3 = new HashMap<>();
+                    if (backgroundImageUri != null) {
+                        forS3.put("background_image_uri", backgroundImageUri);
+                    }
+                    if (groupAvatarUri != null) {
+                        forS3.put("group_avatar_uri", groupAvatarUri);
+                    }
+
+                    if (forS3.size() > 0) {
+                        totalFilesToUpload = forS3.size();
+                        saveToS3(forS3);
+                    } else {
+                        //just save to backend directly
+                        saveCreatedGroup();
+                    }
+
+                }
+            }
+        });
+
+        //Will be using RxJava, RxAndroid and Jake Wharton's binding for form validation
+        //Create all observables on the required form fields
+        Observable<Boolean> observable;
+
+        Observable<String> groupNameObservable = RxTextView.textChanges(groupNameEditText)
+                .skip(1).map(new Function<CharSequence, String>() {
+
+                    @Override
+                    public String apply(CharSequence charSequence) throws Exception {
+                        return charSequence.toString();
+                    }
+                });
+
+        Observable<String> groupTaglineObservable = RxTextView.textChanges(groupTagLineEditText)
+                .skip(1).map(new Function<CharSequence, String>() {
+
+                    @Override
+                    public String apply(CharSequence charSequence) throws Exception {
+                        return charSequence.toString();
+                    }
+                });
+
+        Observable<String> requiredCoinsObservable = RxTextView.textChanges(requiredCoinsEditText)
+                .map(new Function<CharSequence, String>() {
+
+                    @Override
+                    public String apply(CharSequence charSequence) throws Exception {
+                        return charSequence.toString();
+                    }
+                });
+
+
+        observable = Observable.combineLatest(
+                groupNameObservable, groupTaglineObservable, requiredCoinsObservable,
+                new Function3<String, String, String, Boolean>() {
+                    @Override
+                    public Boolean apply(String s, String s2, String s3) throws Exception {
+
+                        return isValidForm(s, s2, s3);
+                    }
+                });
+
+        observable.subscribe(new DisposableObserver<Boolean>() {
+            @Override
+            public void onNext(Boolean aBoolean) {
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+
+
+        dialog.setCancelable(true);
+        dialog.show();
+
+        createGroupDialog = dialog;
+
+    }
+
+
+
+
+    boolean isValidForm(String groupName, String tagline, String requiredCoinsStr) {
+
+        boolean groupNameIsValid = !groupName.isEmpty() && groupName.trim().length() > 2;
+
+        if (!groupNameIsValid) {
+            try {
+                groupNameEditText.setError("Group name should be atleast 3 letters long");
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+            }
+        }
+
+        boolean taglineIsValid = !tagline.isEmpty() && tagline.trim().length() > 5;
+
+        if (!taglineIsValid) {
+            try {
+                groupTagLineEditText.setError("Group tagline should be at least 5 letters long");
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+            }
+        }
+        int reqCoins = -1;
+        try {
+            reqCoins = Integer.parseInt(requiredCoinsStr);
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
+
+        boolean requiredCoinsIsValid = reqCoins >= 0;
+        if (!requiredCoinsIsValid) {
+            try {
+                requiredCoinsEditText.setError("Fee should be a number, atleast 0");
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return groupNameIsValid && taglineIsValid && requiredCoinsIsValid;
+    }
+
+
+
+
+
+    public void saveToS3(HashMap<String, Uri> hashMap) {
+        progressBar.setVisibility(View.VISIBLE);
+        saveGroupButton.setVisibility(View.GONE);
+
+
+        if (hashMap.containsKey("background_image_uri")) {
+            final String bgImagePath = getFilePathfromURI(hashMap.get("background_image_uri"));
+
+            S3Uploader.s3UploadInterface bgUploadInterface = new S3Uploader.s3UploadInterface() {
+                @Override
+                public void onUploadSuccess(String response) {
+                    String[] resArr = response.split(" ");
+                    if (resArr[0].equals("success")) {
+                        backgroundImageStr = resArr[1];
+                        Log.i("backgroundImageStr str", backgroundImageStr);
+                        uploaded++;
+                        if (totalFilesToUpload == 1 && totalFilesToUpload % uploaded == 0) {
+                            saveCreatedGroup();
+                        } else if (totalFilesToUpload > 1 && uploaded > 1 && totalFilesToUpload % uploaded == 0)  {
+                            saveCreatedGroup();
+                        }
+
+
+                    }
+                }
+
+                @Override
+                public void onUploadError(String response) {
+                    uploaded++;
+                    if (totalFilesToUpload == 1 && totalFilesToUpload % uploaded == 0) {
+                        saveCreatedGroup();
+                    } else if (totalFilesToUpload > 1 && uploaded > 1 && totalFilesToUpload % uploaded == 0)  {
+                        saveCreatedGroup();
+                    }
+
+                }
+            };
+
+            S3Uploader bgImageUploader = new S3Uploader(getContext(), "group-background-images/", bgUploadInterface);
+            bgImageUploader.upload(bgImagePath);
+        }
+
+        if (hashMap.containsKey("group_avatar_uri")) {
+            final String grpImagePath = getFilePathfromURI(hashMap.get("group_avatar_uri"));
+
+            S3Uploader.s3UploadInterface groupAvatarUploadInterface = new S3Uploader.s3UploadInterface() {
+                @Override
+                public void onUploadSuccess(String response) {
+                    String[] resArr = response.split(" ");
+                    if (resArr[0].equals("success")) {
+                        groupAvatarStr = resArr[1];
+                        uploaded++;
+                        if (totalFilesToUpload == 1 && totalFilesToUpload % uploaded == 0) {
+                            saveCreatedGroup();
+                        } else if (totalFilesToUpload > 1 && uploaded > 1 && totalFilesToUpload % uploaded == 0)  {
+                            saveCreatedGroup();
+                        }
+
+                    }
+                }
+
+                @Override
+                public void onUploadError(String response) {
+                    uploaded++;
+                    if (totalFilesToUpload == 1 && totalFilesToUpload % uploaded == 0) {
+                        saveCreatedGroup();
+                    } else if (totalFilesToUpload > 1 && uploaded > 1 && totalFilesToUpload % uploaded == 0)  {
+                        saveCreatedGroup();
+                    }
+                }
+            };
+
+            S3Uploader groupAvatarUploader = new S3Uploader(getContext(), "group-avatars/", groupAvatarUploadInterface);
+            groupAvatarUploader.upload(grpImagePath);
+        }
+
+    }
+
+
+
+
+
+
+    public void saveCreatedGroup() {
+        progressBar.setVisibility(View.VISIBLE);
+        saveGroupButton.setVisibility(View.GONE);
+
+        String url = getString(R.string.root_url) + "/v1/groups";
+        JSONObject jsonObject = new JSONObject();
+
+        try {
+            SharedPreferences authPref = getActivity().getSharedPreferences("AuthPreferences",Context.MODE_PRIVATE);
+
+            String groupName = groupNameEditText.getText().toString();
+            String tagline = groupTagLineEditText.getText().toString();
+            int reqCoins = Integer.parseInt(requiredCoinsEditText.getText().toString());
+            boolean isPublic = publicRadioButton.isChecked();
+            int userId = authPref.getInt("userId", 0);
+            String groupAvatarString = null;
+            String backgroundImageString = null;
+
+            if (backgroundImageStr != null)  { backgroundImageString = backgroundImageStr; }
+            if (groupAvatarStr == null) {
+                String countryFlagRootDir = "https://jogtown-s3.s3.amazonaws.com/group-avatars/country/";
+                String displayCountry = getActivity().getResources().getConfiguration().locale.getDisplayCountry();
+                String[] countryArr = displayCountry.split(" ");
+                String country = "";
+                for (int i = 0; i < countryArr.length; i++) {
+                    //This can easily be done with String.join. But hey we are targeting low APIs.
+                    if (i == 0) {
+                        //start of arr
+                        country += countryArr[i].toLowerCase();
+                    } else {
+                        country += "-" + countryArr[i].toLowerCase();
+                    }
+                }
+                groupAvatarString = countryFlagRootDir + country + ".png";
+
+            } else { groupAvatarString = groupAvatarStr; }
+
+            jsonObject.put("name", groupName);
+            jsonObject.put("tagline", tagline);
+            jsonObject.put("required_coins", reqCoins);
+            jsonObject.put("public", isPublic);
+            jsonObject.put("user_id", userId);
+            jsonObject.put("group_avatar", groupAvatarString);
+            jsonObject.put("background_image", backgroundImageString);
+
+            String payload = jsonObject.toString();
+
+            MyUrlRequestCallback.OnFinishRequest onFinishRequest = new MyUrlRequestCallback.OnFinishRequest() {
+                @Override
+                public void onFinishRequest(Object result) {
+                    try {
+                        JSONObject resultsObj = new JSONObject(result.toString());
+                        final JSONObject groupObj = resultsObj.getJSONObject("body");
+                        int statusCode = resultsObj.getInt("statusCode");
+
+                        if (statusCode == 200) {
+                            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    progressBar.setVisibility(View.GONE);
+                                    saveGroupButton.setVisibility(View.VISIBLE);
+
+                                    createGroupDialog.dismiss();
+                                    Toast.makeText(getContext(), "Successfully created Group", Toast.LENGTH_SHORT).show();
+
+                                    Intent intent = new Intent(getContext(), GroupActivity.class);
+                                    intent.putExtra("group", groupObj.toString());
+                                    startActivity(intent);
+                                }
+                            });
+
+                        } else {
+                            new  Handler(Looper.getMainLooper()).post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    progressBar.setVisibility(View.GONE);
+                                    saveGroupButton.setVisibility(View.VISIBLE);
+                                    createGroupDialog.dismiss();
+                                    Toast.makeText(getContext(), "Failed to create group", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        new Handler(Looper.getMainLooper()).post(new Runnable() {
+                            @Override
+                            public void run() {
+                                progressBar.setVisibility(View.GONE);
+                                saveGroupButton.setVisibility(View.VISIBLE);
+                            }
+                        });
+                    }
+                }
+            };
+
+            NetworkRequest.post(url, payload, new MyUrlRequestCallback(onFinishRequest));
+
+        } catch (JSONException e) {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    progressBar.setVisibility(View.GONE);
+                    saveGroupButton.setVisibility(View.VISIBLE);
+                }
+            });
+        } catch (NullPointerException e) {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    progressBar.setVisibility(View.GONE);
+                    saveGroupButton.setVisibility(View.VISIBLE);
+                }
+            });
+        }
+
+    }
+
+
+
+
+
+    public void attemptToGetImage(String container) {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (getActivity().checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_GRANTED) {
+                chooseImage();
+            } else {
+                Log.v("", "Permission is revoked");
+                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+
+            }
+        } else { //permission is automatically granted on sdk<23 upon installation
+            Log.v("", "Permission is granted");
+            chooseImage();
+        }
+    }
+
+    private void chooseImage() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Pick A Picture"), 50);
+    }
+
+
+
+    public void onPictureSelect(Intent data) {
+        Uri imageUri = data.getData();
+        if (groupAvatarClicked) {
+            //load image into group avatar
+            groupAvatarUri = imageUri;
+            Picasso.get().load(imageUri).fit().into(groupAvatarImageView);
+        } else {
+            backgroundImageUri = imageUri;
+            Picasso.get().load(imageUri).fit().into(backgroundImageView);
+        }
+    }
+
+    private String getFilePathfromURI(Uri selectedImageUri) {
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            File file = new File(selectedImageUri.getPath());//create path from uri
+            final String[] split = file.getPath().split(":");//split the path.
+            String filePath = split[1];//assign it to a string(your choice).
+            return filePath;
+        } else {
+            try {
+                return PathUtils.getPath(getContext(), selectedImageUri);
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+
+            }
+        }*/
+        //return selectedImageUri.toString();
+        try {
+            return PathUtils.getPath(getContext(), selectedImageUri);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            return selectedImageUri.toString();
+        }
+
+    }
+
+
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 50) {
+            if (resultCode == RESULT_OK) {
+                onPictureSelect(data);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            chooseImage();
+        }
+    }
+
 
 }
