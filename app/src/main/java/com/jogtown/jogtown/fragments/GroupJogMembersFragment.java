@@ -297,9 +297,6 @@ public class GroupJogMembersFragment extends Fragment {
 
                 addGroupMembershipItem(currentUserJog);
 
-                String url = MainActivity.appContext.getResources().getString(R.string.root_url) + "v1/group_memberships/" + Integer.toString(currentUserMembershipId);
-                String payload = currentUserJog.toString();
-                send(url, payload, "PUT");
 
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -311,6 +308,7 @@ public class GroupJogMembersFragment extends Fragment {
 
 
     public static void saveGroupMembershipStats(int distance, int duration, boolean jogStatus ) {
+        //This is constantly called every minute from JogStatsFragment (in subfragments)
         String method = "PUT";
         int currentUserMembershipId = 0;
         try {

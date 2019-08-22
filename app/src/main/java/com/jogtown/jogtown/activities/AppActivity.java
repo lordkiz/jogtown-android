@@ -7,13 +7,20 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.NumberPicker;
 import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -27,6 +34,8 @@ import com.jogtown.jogtown.subfragments.MyGroupsListFragment;
 import com.jogtown.jogtown.subfragments.MyGroupsListInDialogFragment;
 import com.jogtown.jogtown.subfragments.SearchGroupsListFragment;
 import com.jogtown.jogtown.subfragments.JogStatsFragment;
+import com.jogtown.jogtown.utils.network.MyUrlRequestCallback;
+import com.jogtown.jogtown.utils.network.NetworkRequest;
 import com.jogtown.jogtown.utils.services.JogStatsService;
 import com.jogtown.jogtown.utils.services.LocationService;
 
@@ -53,7 +62,8 @@ public class AppActivity extends AppCompatActivity implements
 
     private static BottomNavigationView bottomNavigation;
     ActionBar actionBar;
-    SharedPreferences sharedPreferences;
+    SharedPreferences jogPref;
+    SharedPreferences authPref;
     boolean canClose = false;
 
     @Override
@@ -63,16 +73,23 @@ public class AppActivity extends AppCompatActivity implements
 
         canClose = false;
 
-        sharedPreferences = getSharedPreferences("JogPreferences", MODE_PRIVATE);
-        boolean jogIsOn = sharedPreferences.getBoolean("jogIsOn", false);
-        String jogType = sharedPreferences.getString("jogType", "n/a");
+        jogPref = getSharedPreferences("JogPreferences", MODE_PRIVATE);
+        authPref = getSharedPreferences("AuthPreferences", MODE_PRIVATE);
+
+        boolean jogIsOn = jogPref.getBoolean("jogIsOn", false);
+        String jogType = jogPref.getString("jogType", "n/a");
+
+        int weight = authPref.getInt("weight", 0);
+        Log.i("weight", Integer.toString(weight));
+        String gender = authPref.getString("gender", "null");
 
         if (jogIsOn) {
+            //jog is more important
             if (jogType.equals("single")) {
                 Toast.makeText(this, "You have a jog ongoing", Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(this, SingleJogActivity.class));
             } else if (jogType.equals("group")) {
-                String group = sharedPreferences.getString("group", "");
+                String group = jogPref.getString("group", "");
                 //check if we have the right group pls
                 try {
                     JSONObject obj = new JSONObject(group);
@@ -86,6 +103,11 @@ public class AppActivity extends AppCompatActivity implements
                     e.printStackTrace();
                 }
             }
+        } else if (weight == 0) {
+            //Weight is second in priority
+            selectWeight();
+        } else if (gender.equals("null")) {
+            selectGender();
         }
 
 
@@ -172,6 +194,189 @@ public class AppActivity extends AppCompatActivity implements
 
 
 
+    public void selectWeight() {
+        final Dialog weightDialog = new Dialog(this, android.R.style.Theme_NoTitleBar);
+        weightDialog.setContentView(R.layout.weight_select_layout);
+        weightDialog.getWindow().setBackgroundDrawableResource(R.color.transparent);
+        weightDialog.setCanceledOnTouchOutside(true);
+
+        final NumberPicker weightPicker = weightDialog.findViewById(R.id.weightNumberPicker);
+
+        final CheckBox doNotAskAgain = weightDialog.findViewById(R.id.weightDoNotAskAgainCheckBox);
+        Button negativeButton = weightDialog.findViewById(R.id.weightDialogDismissButton);
+        Button positiveButton = weightDialog.findViewById(R.id.weightDialogSetButton);
+
+        SharedPreferences settingsPref = getSharedPreferences("SettingsPreferences", MODE_PRIVATE);
+        SharedPreferences authPref = getSharedPreferences("AuthPreferences", MODE_PRIVATE);
+        final int userId = authPref.getInt("userId", 0);
+        final SharedPreferences.Editor settingsEditor = settingsPref.edit();
+        final SharedPreferences.Editor authEditor = authPref.edit();
+
+        weightPicker.setMaxValue(250);
+        weightPicker.setMinValue(20);
+        weightPicker.setValue(70);
+
+        String[] displayedValues = new String[232];
+        for (int i = 0; i < 232; i++) {
+            displayedValues[i] = Integer.toString(i + 20) + " kg";
+        }
+
+        //weightPicker.setDisplayedValues(displayedValues);
+
+        weightDialog.setCancelable(true);
+
+        negativeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (doNotAskAgain.isChecked()) {
+                    settingsEditor.putBoolean("promptForWeight", false);
+                    settingsEditor.apply();
+                }
+                weightDialog.dismiss();
+            }
+        });
+
+        positiveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Log.i("weightPickerValue: ", Integer.toString(weightPicker.getValue()));
+
+                String url = getString(R.string.root_url) + "v1/users/" + Integer.toString(userId);
+                JSONObject jsonObject = new JSONObject();
+                try {
+                    jsonObject.put("weight", weightPicker.getValue());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                String payload = jsonObject.toString();
+
+                authEditor.putInt("weight", weightPicker.getValue());
+                authEditor.apply();
+
+                NetworkRequest.put(url, payload, new MyUrlRequestCallback(new MyUrlRequestCallback.OnFinishRequest<JSONObject>() {
+                    @Override
+                    public void onFinishRequest(JSONObject result) {
+                        try {
+                            if (result.getInt("statusCode") < 300) {
+                                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(getApplicationContext(), "Weight Saved", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }));
+                weightDialog.dismiss();
+            }
+        });
+
+        weightDialog.show();
+
+    }
+
+
+
+
+
+    public void selectGender() {
+        final Dialog genderDialog = new Dialog(this, android.R.style.Theme_NoTitleBar);
+        genderDialog.setContentView(R.layout.gender_select_layout);
+        genderDialog.getWindow().setBackgroundDrawableResource(R.color.transparent);
+        genderDialog.setCanceledOnTouchOutside(true);
+        genderDialog.setCancelable(true);
+
+        final NumberPicker genderPicker = genderDialog.findViewById(R.id.genderPicker);
+
+        final CheckBox doNotAskAgain = genderDialog.findViewById(R.id.genderDoNotAskAgainCheckBox);
+        Button negativeButton = genderDialog.findViewById(R.id.genderDialogDismissButton);
+        Button positiveButton = genderDialog.findViewById(R.id.genderDialogSetButton);
+
+        SharedPreferences settingsPref = getSharedPreferences("SettingsPreferences", MODE_PRIVATE);
+        SharedPreferences authPref = getSharedPreferences("AuthPreferences", MODE_PRIVATE);
+        final int userId = authPref.getInt("userId", 0);
+        final SharedPreferences.Editor settingsEditor = settingsPref.edit();
+        final SharedPreferences.Editor authEditor = authPref.edit();
+
+        genderPicker.setMaxValue(1);
+        genderPicker.setMinValue(0);
+        genderPicker.setValue(0);
+
+        final String[] displayedValues = {"male", "female"};
+        genderPicker.setDisplayedValues(displayedValues);
+        genderPicker.setFormatter(new NumberPicker.Formatter() {
+            @Override
+            public String format(int value) {
+                return displayedValues[value];
+            }
+        });
+        genderPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+
+        negativeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (doNotAskAgain.isChecked()) {
+                    settingsEditor.putBoolean("promptForWeight", false);
+                    settingsEditor.apply();
+                }
+                genderDialog.dismiss();
+            }
+        });
+
+        positiveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Log.i("genderPickerValue: ", displayedValues[genderPicker.getValue()]);
+
+                String url = getString(R.string.root_url) + "v1/users/" + Integer.toString(userId);
+                JSONObject jsonObject = new JSONObject();
+                try {
+                    jsonObject.put("gender", genderPicker.getValue());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                String payload = jsonObject.toString();
+
+                authEditor.putString("gender", displayedValues[genderPicker.getValue()]);
+                authEditor.apply();
+
+                NetworkRequest.put(url, payload, new MyUrlRequestCallback(new MyUrlRequestCallback.OnFinishRequest<JSONObject>() {
+                    @Override
+                    public void onFinishRequest(JSONObject result) {
+                        try {
+                            if (result.getInt("statusCode") < 300) {
+                                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(getApplicationContext(), "Gender Saved", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }));
+                genderDialog.dismiss();
+            }
+        });
+
+        genderDialog.show();
+
+    }
+
+
+
+
+
+
+
+
     @Override
     public void onFragmentInteraction(Uri uri) {
 
@@ -180,7 +385,7 @@ public class AppActivity extends AppCompatActivity implements
     @Override
     public void onBackPressed() {
         if (canClose) {
-            boolean jogIsOn = sharedPreferences.getBoolean("jogIsOn", false);
+            boolean jogIsOn = jogPref.getBoolean("jogIsOn", false);
             if (!jogIsOn) {
                 // if jog is NOT on
                 Intent locationServiceIntent = new Intent(this, LocationService.class);

@@ -1,37 +1,60 @@
 package com.jogtown.jogtown.fragments;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
-import de.hdodenhof.circleimageview.CircleImageView;
+import io.reactivex.Observable;
+import io.reactivex.functions.BiFunction;
+import io.reactivex.functions.Function;
+import io.reactivex.observers.DisposableObserver;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.jakewharton.rxbinding2.widget.RxTextView;
 import com.jogtown.jogtown.R;
 import com.jogtown.jogtown.activities.MainActivity;
+import com.jogtown.jogtown.subfragments.MyGroupsListFragment;
+import com.jogtown.jogtown.subfragments.SearchGroupsListFragment;
 import com.jogtown.jogtown.utils.Auth;
 import com.jogtown.jogtown.utils.Conversions;
 import com.jogtown.jogtown.utils.network.MyUrlRequestCallback;
 import com.jogtown.jogtown.utils.network.NetworkRequest;
+import com.jogtown.jogtown.utils.network.PathUtils;
+import com.jogtown.jogtown.utils.network.S3Uploader;
 import com.jogtown.jogtown.utils.ui.PicassoCircle;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.net.URISyntaxException;
+
+import static android.app.Activity.RESULT_OK;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -58,6 +81,7 @@ public class ProfileFragment extends Fragment {
     Boolean loading = false;
 
     ImageView profilePicture;
+    TextView nameText;
     TextView oneKmDoneText;
     TextView threeKmDoneText;
     TextView fiveKmDoneText;
@@ -72,7 +96,7 @@ public class ProfileFragment extends Fragment {
     FrameLayout fiveKmRecordView;
     FrameLayout tenKmRecordView;
 
-    SharedPreferences sharedPreferences;
+    SharedPreferences authPref;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -111,27 +135,15 @@ public class ProfileFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
-        sharedPreferences = MainActivity.appContext.getSharedPreferences("AuthPreferences", Context.MODE_PRIVATE);
-        String metaName = sharedPreferences.getString("name", "");
-        Uri avatar = Uri.parse(sharedPreferences.getString("profilePicture", getString(R.string.default_profile_picture)));
+        authPref = MainActivity.appContext.getSharedPreferences("AuthPreferences", Context.MODE_PRIVATE);
 
-        TextView nameText = (TextView) view.findViewById(R.id.metaNameText);
-        nameText.setText(metaName);
+        nameText = (TextView) view.findViewById(R.id.metaNameText);
 
 
         progressBar = (ProgressBar) view.findViewById(R.id.userKmStatsFragmentProgressBar);
         progressBar.setVisibility(View.INVISIBLE);
 
         profilePicture = view.findViewById(R.id.profile_picture);
-
-        try {
-            Picasso.get().load(avatar)
-                    .resize(400, 400)
-                    .transform(new PicassoCircle())
-                    .into(profilePicture);
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        }
 
         oneKmDoneText = (TextView) view.findViewById(R.id.one_km_done_text);
         threeKmDoneText = (TextView) view.findViewById(R.id.three_km_done_text);
@@ -149,6 +161,8 @@ public class ProfileFragment extends Fragment {
         tenKmRecordView = (FrameLayout) view.findViewById(R.id.ten_km_record_view);
 
         Button logoutButton = (Button) view.findViewById(R.id.logoutButton);
+        Button editButton = (Button) view.findViewById(R.id.editProfileButton);
+
         logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -156,12 +170,21 @@ public class ProfileFragment extends Fragment {
             }
         });
 
+        editButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showEditProfileDialog();
+            }
+        });
+
+        setUpMetaUI();
 
         getStats();
 
-
         return view;
     }
+
+
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
@@ -200,6 +223,22 @@ public class ProfileFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+
+    private void setUpMetaUI() {
+        String metaName = authPref.getString("name", "");
+        Uri avatar = Uri.parse(authPref.getString("profilePicture", getString(R.string.default_profile_picture)));
+
+        nameText.setText(metaName);
+        try {
+            Picasso.get().load(avatar)
+                    .resize(400, 400)
+                    .transform(new PicassoCircle())
+                    .into(profilePicture);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -329,6 +368,398 @@ public class ProfileFragment extends Fragment {
                 }
             }
         };
+    }
+
+
+
+
+    Uri newAvatarUri;
+    String newAvatarStr;
+
+    FrameLayout chooseAvatarLayout;
+    ImageView avatarImageView;
+    EditText editName;
+    EditText editWeight;
+    RadioButton maleGenderRadioButton;
+    RadioButton femaleGenderRadioButton;
+    Button saveButton;
+    Button dismissButton;
+    LinearLayout buttonContainer;
+    ProgressBar editProfileProgressBar;
+    Dialog editProfileDialog;
+
+
+    public void showEditProfileDialog() {
+        editProfileDialog = new Dialog(getActivity(), android.R.style.Theme_NoTitleBar);
+        editProfileDialog.setContentView(R.layout.edit_profile_layout);
+        editProfileDialog.getWindow().setBackgroundDrawableResource(R.color.transparent);
+        editProfileDialog.setCancelable(true);
+        editProfileDialog.setCanceledOnTouchOutside(true);
+
+        chooseAvatarLayout = editProfileDialog.findViewById(R.id.edit_choose_avatar_layout);
+        avatarImageView = editProfileDialog.findViewById(R.id.edit_profile_selected_image_view);
+        editName = editProfileDialog.findViewById(R.id.edit_name);
+        editWeight = editProfileDialog.findViewById(R.id.edit_weight);
+        maleGenderRadioButton = editProfileDialog.findViewById(R.id.edit_profile_male_radio_button);
+        femaleGenderRadioButton = editProfileDialog.findViewById(R.id.edit_profile_female_radio_button);
+        saveButton = editProfileDialog.findViewById(R.id.edit_profile_save_button);
+        dismissButton = editProfileDialog.findViewById(R.id.edit_profile_dismiss_button);
+        editProfileProgressBar = editProfileDialog.findViewById(R.id.edit_profile_progress_bar);
+        buttonContainer = editProfileDialog.findViewById(R.id.edit_profile_buttons_container);
+
+        String currName = authPref.getString("name", "");
+        int currWeight = authPref.getInt("weight", 70);
+        String currGender = authPref.getString("gender", "null");
+        Uri profilePic = Uri.parse(authPref.getString("profilePicture", getActivity().getResources().getString(R.string.default_profile_picture)));
+
+        editName.setText(currName);
+        editWeight.setText(Integer.toString(currWeight));
+        try {
+            Picasso.get().load(profilePic).fit().transform(new PicassoCircle()).into(avatarImageView);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+
+        if (currGender.toLowerCase().equals("male") || currGender.toLowerCase().equals("null")) {
+            maleGenderRadioButton.setChecked(true);
+        } else {
+            femaleGenderRadioButton.setChecked(true);
+        }
+
+
+        chooseAvatarLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                attemptToGetImage();
+            }
+        });
+
+        dismissButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                editProfileDialog.dismiss();
+            }
+        });
+
+        saveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String name = editName.getText().toString();
+                String weight = editWeight.getText().toString();
+
+                if (isValidForm(name, weight)) {
+                    if (newAvatarUri != null && !newAvatarUri.toString().isEmpty()) {
+                        saveToS3();
+                    } else {
+                        saveEditedProfile();
+                    }
+                }
+            }
+        });
+
+        //Will be using RxJava, RxAndroid and Jake Wharton's binding for form validation
+        //Create all observables on the required form fields
+        Observable<Boolean> observable;
+
+        Observable<String> editNameObservable = RxTextView.textChanges(editName)
+                .skip(1).map(new Function<CharSequence, String>() {
+                    @Override
+                    public String apply(CharSequence charSequence) throws Exception {
+                        return charSequence.toString();
+                    }
+                });
+
+        Observable<String> editWeightObservable = RxTextView.textChanges(editWeight)
+                .skip(1).map(new Function<CharSequence, String>() {
+                    @Override
+                    public String apply(CharSequence charSequence) throws Exception {
+                        return charSequence.toString();
+                    }
+                });
+
+        observable = Observable.combineLatest(
+                editNameObservable,
+                editWeightObservable,
+                new BiFunction<String, String, Boolean>() {
+                    @Override
+                    public Boolean apply(String s, String s2) throws Exception {
+                        return isValidForm(s, s2);
+                    }
+
+                }
+        );
+
+        observable.subscribe(new DisposableObserver<Boolean>() {
+
+            @Override
+            public void onNext(Boolean aBoolean) {
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+
+        editProfileDialog.show();
+
+    }
+
+
+
+
+    boolean isValidForm(String name, String weight) {
+
+        boolean nameIsValid = !name.isEmpty() && name.trim().length() > 2;
+
+        if (!nameIsValid) {
+            try {
+                editName.setError("Name should be at least 3 letters long");
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+            }
+        }
+
+        boolean weightIsValid = !weight.isEmpty() && Integer.parseInt(weight) >= 20;
+
+        if (!weightIsValid) {
+            try {
+                editWeight.setError("Weight should be at least 20kg");
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return nameIsValid && weightIsValid;
+    }
+
+
+    public void saveToS3() {
+        editProfileProgressBar.setVisibility(View.VISIBLE);
+        buttonContainer.setVisibility(View.GONE);
+
+        final String avatarPath = getFilePathfromURI(newAvatarUri);
+
+        S3Uploader.s3UploadInterface s3UploadInterface = new S3Uploader.s3UploadInterface() {
+            @Override
+            public void onUploadSuccess(String response) {
+                String[] resArr = response.split(" ");
+                if (resArr[0].equals("success")) {
+                    newAvatarStr = resArr[1];
+                    saveEditedProfile();
+                }
+
+            }
+
+            @Override
+            public void onUploadError(String response) {
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        editProfileProgressBar.setVisibility(View.GONE);
+                        buttonContainer.setVisibility(View.VISIBLE);
+                        editProfileDialog.dismiss();
+                        Toast.makeText(getContext(), "Error uploading profile picture", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        };
+
+        S3Uploader s3Uploader = new S3Uploader(getContext(), "avatars/", s3UploadInterface);
+        s3Uploader.upload(avatarPath);
+
+    }
+
+
+
+
+    public void saveEditedProfile() {
+        editProfileProgressBar.setVisibility(View.VISIBLE);
+        buttonContainer.setVisibility(View.GONE);
+
+        String userId = Integer.toString(authPref.getInt("userId", 0));
+
+        String url = getString(R.string.root_url) + "/v1/users/" + userId;
+        JSONObject jsonObject = new JSONObject();
+
+        try {
+
+            String name = editName.getText().toString();
+            int weight = Integer.parseInt(editWeight.getText().toString());
+            String gender = maleGenderRadioButton.isChecked() ? "male" : "female";
+
+            jsonObject.put("name", name);
+            jsonObject.put("weight", weight);
+            jsonObject.put("gender", gender);
+
+            if (newAvatarStr != null) {
+                jsonObject.put("profile_picture", newAvatarStr);
+            }
+
+            String payload = jsonObject.toString();
+
+            MyUrlRequestCallback.OnFinishRequest onFinishRequest = new MyUrlRequestCallback.OnFinishRequest() {
+                @Override
+                public void onFinishRequest(Object result) {
+                    try {
+                        final JSONObject resultsObj = new JSONObject(result.toString());
+                        final JSONObject userObj = new JSONObject(resultsObj.getString("body"));
+                        final JSONObject obj = new JSONObject();
+                        obj.put("data", userObj);
+                        final JSONObject headers = new JSONObject(resultsObj.getString("headers"));
+                        int statusCode = resultsObj.getInt("statusCode");
+
+                        if (statusCode == 200) {
+                            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    editProfileProgressBar.setVisibility(View.GONE);
+                                    buttonContainer.setVisibility(View.VISIBLE);
+                                    if (Auth.login(obj.toString(), headers.toString())) { //Just to save results
+                                        setUpMetaUI();
+                                    }
+
+                                    editProfileDialog.dismiss();
+                                    Toast.makeText(getContext(), "Successfully edited profile", Toast.LENGTH_SHORT).show();
+
+                                }
+                            });
+
+                        } else {
+                            new  Handler(Looper.getMainLooper()).post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    editProfileProgressBar.setVisibility(View.GONE);
+                                    buttonContainer.setVisibility(View.VISIBLE);
+
+                                    editProfileDialog.dismiss();
+                                    Toast.makeText(getContext(), "Failed to edit profile", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        new Handler(Looper.getMainLooper()).post(new Runnable() {
+                            @Override
+                            public void run() {
+                                editProfileProgressBar.setVisibility(View.GONE);
+                                buttonContainer.setVisibility(View.VISIBLE);
+
+                            }
+                        });
+                    }
+                }
+            };
+
+            NetworkRequest.put(url, payload, new MyUrlRequestCallback(onFinishRequest));
+
+        } catch (JSONException e) {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    editProfileProgressBar.setVisibility(View.GONE);
+                    buttonContainer.setVisibility(View.VISIBLE);
+
+                }
+            });
+        } catch (NullPointerException e) {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    editProfileProgressBar.setVisibility(View.GONE);
+                    buttonContainer.setVisibility(View.VISIBLE);
+
+                }
+            });
+        }
+
+    }
+
+
+
+    public void attemptToGetImage() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (getActivity().checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_GRANTED) {
+                chooseImage();
+            } else {
+                Log.v("", "Permission is revoked");
+                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+
+            }
+        } else { //permission is automatically granted on sdk<23 upon installation
+            Log.v("", "Permission is granted");
+            chooseImage();
+        }
+    }
+
+    private void chooseImage() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Pick A Picture"), 50);
+    }
+
+    public void onPictureSelect(Intent data) {
+        Uri imageUri = data.getData();
+        newAvatarUri = imageUri;
+        try {
+            Picasso.get().load(imageUri).fit().transform(new PicassoCircle()).into(avatarImageView);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private String getFilePathfromURI(Uri selectedImageUri) {
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            File file = new File(selectedImageUri.getPath());//create path from uri
+            final String[] split = file.getPath().split(":");//split the path.
+            String filePath = split[1];//assign it to a string(your choice).
+            return filePath;
+        } else {
+            try {
+                return PathUtils.getPath(getContext(), selectedImageUri);
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+
+            }
+        }*/
+        //return selectedImageUri.toString();
+        try {
+            return PathUtils.getPath(getContext(), selectedImageUri);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            return selectedImageUri.toString();
+        }
+
+    }
+
+
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 50) {
+            if (resultCode == RESULT_OK) {
+                onPictureSelect(data);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            chooseImage();
+        }
     }
 
 

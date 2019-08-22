@@ -3,11 +3,16 @@ package com.jogtown.jogtown.activities;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.viewpager.widget.ViewPager;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -38,6 +43,7 @@ import com.jogtown.jogtown.R;
 import com.jogtown.jogtown.fragments.GroupJogActiveFragment;
 import com.jogtown.jogtown.fragments.GroupJogMembersFragment;
 import com.jogtown.jogtown.subfragments.JogStatsFragment;
+import com.jogtown.jogtown.utils.Conversions;
 import com.jogtown.jogtown.utils.services.JogStatsService;
 import com.jogtown.jogtown.utils.services.LocationService;
 import com.jogtown.jogtown.utils.adapters.ViewPagerAdapter;
@@ -57,6 +63,8 @@ public class GroupJogActivity extends AppCompatActivity implements
         GroupJogMembersFragment.OnFragmentInteractionListener,
         JogStatsFragment.OnFragmentInteractionListener
 {
+    final int JOG_NOTIFICATION_ID = 115;
+
 
     final Handler handler = new Handler();
     Runnable runnable = new Runnable() {
@@ -242,6 +250,8 @@ public class GroupJogActivity extends AppCompatActivity implements
                         stopProgress();
                         v.setTag(false);
                         stopAllServices();
+                        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
+                        notificationManager.cancel(JOG_NOTIFICATION_ID);
                         redirectToJogDetail();
                     } else if (event.getAction() == MotionEvent.ACTION_UP && eventDuration < 1000) {
                         stopProgress();
@@ -451,6 +461,11 @@ public class GroupJogActivity extends AppCompatActivity implements
         int index = (int) Math.floor(Math.random() * adjectives.length);
         return adjectives[index] + " Jog";
     }
+
+
+
+    /// JOG NOTIFICATION IS IN JogStatsService (/services/JogStatsService);
+
 
     @Override
     public void onBackPressed() {

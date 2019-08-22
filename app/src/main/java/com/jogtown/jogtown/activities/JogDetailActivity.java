@@ -431,12 +431,16 @@ public class JogDetailActivity extends AppCompatActivity implements OnMapReadyCa
                             public void run() {
                                 showActivity();
 
-                                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(JogDetailActivity.this);
-                                alertDialogBuilder
-                                        .setCancelable(true)
-                                        .setMessage(responseBody)
-                                        .setTitle("Error!");
-                                alertDialogBuilder.create().show();
+                                try {
+                                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(JogDetailActivity.this);
+                                    alertDialogBuilder
+                                            .setCancelable(true)
+                                            .setMessage(responseBody)
+                                            .setTitle("Error!");
+                                    alertDialogBuilder.create().show();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
 
                             }
                         });

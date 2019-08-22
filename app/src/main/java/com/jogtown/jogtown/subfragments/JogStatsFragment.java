@@ -63,12 +63,13 @@ public class JogStatsFragment extends Fragment {
     int averagePace = 0;
     float maxSpeed = 0;
     int maxPace = 0;
+    int weight;
 
     List<List<Double>> coordinates = new ArrayList<>();
     List<Integer> paces = new ArrayList<>();
     List<Float> speeds = new ArrayList<>();
 
-    SharedPreferences sharedPreferences;
+    SharedPreferences jogPref;
     public Boolean jogIsOn = false;
     public Boolean jogIsPaused = false;
 
@@ -89,7 +90,7 @@ public class JogStatsFragment extends Fragment {
             Double longitude = intent.getDoubleExtra("longitude", 0);
             Float speed = intent.getFloatExtra("speed", 0);
 
-            boolean jogIsOn = sharedPreferences.getBoolean("jogIsOn", false);
+            boolean jogIsOn = jogPref.getBoolean("jogIsOn", false);
 
             if (jogIsOn) {
                 // I only want these updates when jog is On
@@ -110,12 +111,12 @@ public class JogStatsFragment extends Fragment {
                     coordinates.add(coord);
                 }
 
-                calories = Conversions.calculateCalories(totalDistance, duration, 85);
+                calories = Conversions.calculateCalories(totalDistance, duration, weight);
                 saveJogStats();
 
                 //current Pace and calories
                 String paceString = Conversions.displayPace(totalDistance, duration);
-                String caloriesString = Conversions.displayCalories(totalDistance, duration, 85);
+                String caloriesString = Conversions.displayCalories(totalDistance, duration, weight);
 
                 durationText.setText(Conversions.formatToHHMMSS(duration));
 
@@ -184,10 +185,12 @@ public class JogStatsFragment extends Fragment {
         registerJogStatsBroadcastReceiver();
         registerLocationBroadcastReceiver();
 
-        sharedPreferences = MainActivity.appContext.getSharedPreferences("JogPreferences", Context.MODE_PRIVATE);
-        jogIsOn = sharedPreferences.getBoolean("jogIsOn", false);
-        jogIsPaused = sharedPreferences.getBoolean("jogIsPaused", false);
-        jogType = sharedPreferences.getString("jogType", "");
+        jogPref = MainActivity.appContext.getSharedPreferences("JogPreferences", Context.MODE_PRIVATE);
+        SharedPreferences authPref = MainActivity.appContext.getSharedPreferences("AuthPreferences", Context.MODE_PRIVATE);
+        jogIsOn = jogPref.getBoolean("jogIsOn", false);
+        jogIsPaused = jogPref.getBoolean("jogIsPaused", false);
+        jogType = jogPref.getString("jogType", "");
+        weight = authPref.getInt("weight", 70);
 
         return view;
     }
@@ -263,12 +266,12 @@ public class JogStatsFragment extends Fragment {
 
 
     public void saveGroupMembershipStats() {
-        GroupJogMembersFragment.saveGroupMembershipStats(totalDistance, duration);
+        GroupJogMembersFragment.saveGroupMembershipStats(totalDistance, duration, true);
     }
 
 
     public void saveJogStats() {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
+        SharedPreferences.Editor editor = jogPref.edit();
         Gson gson = new Gson();
 
         averagePace = getIntAverage(paces);

@@ -2,9 +2,12 @@ package com.jogtown.jogtown.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
@@ -25,6 +28,9 @@ public class MainActivity extends AppCompatActivity implements
         GoogleLogin.OnFragmentInteractionListener
 
 {
+
+    final String JOG_NOTIFICATION_CHANNEL_ID = "JOG_NOTIFICATION";
+
 
     public static Context appContext;
     public static String deviceId = null;
@@ -49,6 +55,8 @@ public class MainActivity extends AppCompatActivity implements
         googleLoginButton = (Button) findViewById(R.id.googleLoginButton);
 
         appContext = getApplicationContext();
+
+        createJogNotificationChannel();
 
         deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
 
@@ -102,5 +110,22 @@ public class MainActivity extends AppCompatActivity implements
         //intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         startActivity(intent);
         finish();
+    }
+
+
+    private void createJogNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "JOG_NOTIFICATION";
+            String description = "Send Jog Stats";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(JOG_NOTIFICATION_CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
     }
 }

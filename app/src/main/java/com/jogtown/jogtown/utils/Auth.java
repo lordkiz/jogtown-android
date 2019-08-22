@@ -49,16 +49,10 @@ public class Auth {
             int userId = data.getInt("id");
             String email = data.getString("email");
             String name = data.getString("name");
-            String gender = data.getString("gender") != null ?
-                    data.getString("gender")
-                    : "null";
-            String profilePicture = data.getString("profile_picture") != null ?
-                    data.getString("profile_picture")
-                    : "null";
+            String gender = data.isNull("gender") ? "null" : data.getString("gender");
+            String profilePicture = data.isNull("profile_picture") ? "null" : data.getString("profile_picture");
             String provider = data.getString("provider");
-            String weight = data.getString("weight") != null ?
-                    data.getString("weight")
-                    : "null";
+            int weight = data.isNull("weight") ? 0 : data.getInt("weight");
             String deviceId = MainActivity.deviceId;
             int coins = data.getInt("coins");
 
@@ -74,7 +68,7 @@ public class Auth {
             editor.putString("gender", gender);
             editor.putString("profilePicture", profilePicture);
             editor.putString("provider", provider);
-            editor.putString("weight", weight);
+            editor.putInt("weight", weight);
             editor.putInt("coins", coins);
 
             editor.putBoolean("authKey", true);

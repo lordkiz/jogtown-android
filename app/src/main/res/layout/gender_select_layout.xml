@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/lightGhostWhite"
+    android:layout_marginTop="20dp"
+    android:layout_marginBottom="160dp"
+    android:layout_marginLeft="20dp"
+    android:layout_marginRight="20dp"
+    android:padding="10dp"
+    >
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Choose your gender"
+        android:textSize="16sp"
+        android:textColor="@color/colorPrimary"
+        android:textStyle="bold"
+        android:textAlignment="center"
+        android:layout_marginTop="15dp"
+        />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Optional"
+        android:textSize="12sp"
+        android:textColor="@color/silver"
+        android:textAlignment="center"
+        android:layout_marginBottom="10dp"
+        />
+
+    <NumberPicker
+        android:id="@+id/genderPicker"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:theme="@style/Theme.MaterialComponents.Light"
+        />
+
+    <CheckBox
+        android:id="@+id/genderDoNotAskAgainCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Do not ask me this again"
+        android:textColor="@color/silver"
+        android:textSize="12sp"
+        android:checked="false"
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_margin="10dp"
+        >
+
+        <Button
+            android:id="@+id/genderDialogDismissButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Dismiss"
+            android:textColor="@color/snow"
+            android:background="@drawable/red_linear_gradient"
+            android:padding="5dp"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            />
+
+        <Button
+            android:id="@+id/genderDialogSetButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Save"
+            android:textColor="@color/snow"
+            android:background="@drawable/purple_linear_background"
+            android:padding="5dp"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            />
+
+    </LinearLayout>
+
+
+</LinearLayout>

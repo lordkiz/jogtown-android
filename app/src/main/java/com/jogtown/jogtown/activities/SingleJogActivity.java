@@ -4,6 +4,8 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
@@ -11,6 +13,7 @@ import android.Manifest;
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -49,6 +52,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.jogtown.jogtown.R;
 import com.jogtown.jogtown.subfragments.JogStatsFragment;
+import com.jogtown.jogtown.utils.Conversions;
 import com.jogtown.jogtown.utils.services.JogStatsService;
 import com.jogtown.jogtown.utils.services.LocationService;
 
@@ -66,6 +70,9 @@ public class SingleJogActivity extends AppCompatActivity implements
         JogStatsFragment.OnFragmentInteractionListener,
         OnMapReadyCallback
 {
+
+    final int JOG_NOTIFICATION_ID = 115;
+
 
     final Handler handler = new Handler();
     Runnable runnable = new Runnable() {
@@ -310,6 +317,8 @@ public class SingleJogActivity extends AppCompatActivity implements
                         stopProgress();
                         v.setTag(false);
                         stopAllServices();
+                        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
+                        notificationManager.cancel(JOG_NOTIFICATION_ID);
                         redirectToJogDetail();
                     } else if (event.getAction() == MotionEvent.ACTION_UP && eventDuration < 1000) {
                         stopProgress();
@@ -538,6 +547,7 @@ public class SingleJogActivity extends AppCompatActivity implements
         int index = (int) Math.floor(Math.random() * adjectives.length);
         return adjectives[index] + " Jog";
     }
+
 
 
     /*
