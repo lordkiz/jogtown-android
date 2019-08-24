@@ -196,7 +196,7 @@ public class GoogleLogin extends Fragment {
                         String uid = googleSignInAccount.getId();
                         Uri profilePicture = googleSignInAccount.getPhotoUrl();
                         if (profilePicture == null) {
-                            profilePicture = Uri.parse("https://jogtown-s3.s3.amazonaws.com/assets/default-profile-picture.png");
+                            profilePicture = Uri.parse(getString(R.string.default_profile_picture));
                         }
                         String provider = "google";
 

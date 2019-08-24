@@ -167,7 +167,9 @@ public class InboxFragment extends Fragment {
             @Override
             public void loadImage(ImageView imageView, @Nullable String url, @Nullable Object payload) {
                 try {
-                    Picasso.get().load(url).into(imageView);
+                    Picasso.get().load(url)
+                            .placeholder(R.drawable.progress_animation)
+                            .into(imageView);
                 } catch (IllegalArgumentException e) {
                     e.printStackTrace();
                 }

@@ -26,6 +26,9 @@ import com.jogtown.jogtown.utils.Conversions;
 import com.jogtown.jogtown.utils.services.JogStatsService;
 import com.jogtown.jogtown.utils.services.LocationService;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -68,6 +71,7 @@ public class JogStatsFragment extends Fragment {
     List<List<Double>> coordinates = new ArrayList<>();
     List<Integer> paces = new ArrayList<>();
     List<Float> speeds = new ArrayList<>();
+    List<JSONObject> laps = new ArrayList<>();
 
     SharedPreferences jogPref;
     public Boolean jogIsOn = false;
@@ -103,6 +107,21 @@ public class JogStatsFragment extends Fragment {
                     paces.add(pa);
                     maxSpeed = Collections.max(speeds);
                     maxPace = Collections.min(paces);
+                    try {
+                        int currentLap = totalDistance / 1000;
+                        if (currentLap >= 1) {
+                            JSONObject lapObj = new JSONObject();
+                            lapObj.put("distance", currentLap*1000);
+                            lapObj.put("duration", duration);
+
+                            if (laps.size() < currentLap) {
+                                // add that lap object
+                                laps.add(lapObj);
+                            }
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
                 if (latitude != 0 && longitude != 0) {
                     List<Double> coord = new ArrayList<>();
@@ -130,7 +149,7 @@ public class JogStatsFragment extends Fragment {
                 if (jogType.equals("group")) {
                     if (duration % 60 == 0) {
                         //broadcast every min - whenever we update groupMembership, it will be
-                        //broadcasted to the group
+                        //broadcast to the group
                         saveGroupMembershipStats();
                     }
                 }
@@ -297,6 +316,7 @@ public class JogStatsFragment extends Fragment {
         editor.putInt("averagePace", averagePace);
         editor.putFloat("maxSpeed", maxSpeed);
         editor.putInt("maxPace", maxPace);
+        editor.putString("laps", laps.toString());
         editor.apply();
     }
 

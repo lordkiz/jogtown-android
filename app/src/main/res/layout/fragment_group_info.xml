@@ -343,6 +343,7 @@
                     android:id="@+id/groupInfoMembersRecyclerView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:minHeight="120dp"
                     android:visibility="gone"/>
 
                 <TextView
@@ -361,24 +362,6 @@
 
         </LinearLayout>
 
-    </ScrollView>
-
-
-
-
-
-
-
-
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="gone">
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-        </LinearLayout>
     </ScrollView>
 
 

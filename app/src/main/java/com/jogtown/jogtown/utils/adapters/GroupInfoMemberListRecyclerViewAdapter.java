@@ -96,6 +96,7 @@ public class GroupInfoMemberListRecyclerViewAdapter extends RecyclerView.Adapter
             Picasso.get().load(avatar)
                     .resize(100, 100)
                     .transform(new PicassoCircle())
+                    .placeholder(R.drawable.progress_animation)
                     .into(holder.groupInfoMemberListAvatar);
 
             holder.groupInfoMemberListName.setText(name);
@@ -243,6 +244,7 @@ public class GroupInfoMemberListRecyclerViewAdapter extends RecyclerView.Adapter
             Picasso.get().load(recipientAvatar)
                     .resize(120, 120)
                     .transform(new PicassoCircle())
+                    .placeholder(R.drawable.progress_animation)
                     .into(recipientAvatarView);
             recipientNameText.setText(recipientName);
 

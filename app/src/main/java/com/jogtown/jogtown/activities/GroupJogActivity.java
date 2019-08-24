@@ -377,6 +377,7 @@ public class GroupJogActivity extends AppCompatActivity implements
         Type coordType = new TypeToken<List<List<Double>>>() {}.getType();
         Type pacesType = new TypeToken<List<Integer>>() {}.getType();
         Type speedsType = new TypeToken<List<Float>>() {}.getType();
+        Type lapsType = new TypeToken<List<JSONObject>>() {}.getType();
 
         SharedPreferences.Editor sharedPrefEditor = sharedPreferences.edit();
         sharedPrefEditor.putBoolean("jogIsPaused", false);
@@ -406,6 +407,21 @@ public class GroupJogActivity extends AppCompatActivity implements
         String coordinates = sharedPreferences.getString("coordinates", "[]");
         String spds = sharedPreferences.getString("speeds", "");
         String pcs = sharedPreferences.getString("paces", "");
+        String lapsString = sharedPreferences.getString("laps", "[]");
+
+        List<JSONObject> laps = gson.fromJson(lapsString, lapsType);
+
+        JSONObject lap = new JSONObject();
+        try {
+            lap.put("distance", distance);
+            lap.put("duration", duration);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        if (lap.length() == 2) {
+            laps.add(lap);
+        }
 
         List<Integer> paces = gson.fromJson(pcs, pacesType);
         List<Float> speeds = gson.fromJson(spds, speedsType);
@@ -439,6 +455,7 @@ public class GroupJogActivity extends AppCompatActivity implements
             jog.put("min_altitude", minAltitude);
             jog.put("total_ascent", totalAscent);
             jog.put("total_descent", totalDescent);
+            jog.put("laps", new JSONArray(laps));
             jog.put("created_at", new SimpleDateFormat(DATE_FORMAT_PATTERN).format(new Date()));
 
 

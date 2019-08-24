@@ -1,73 +1,23 @@
 package com.jogtown.jogtown.fragments;
 
-import android.Manifest;
-import android.app.Dialog;
 import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
-import io.reactivex.Observable;
-import io.reactivex.functions.Function;
-import io.reactivex.functions.Function3;
-import io.reactivex.observers.DisposableObserver;
-
-import android.os.Handler;
-import android.os.Looper;
-import android.provider.DocumentsContract;
-import android.provider.MediaStore;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.material.tabs.TabLayout;
-import com.jakewharton.rxbinding2.widget.RxTextView;
 import com.jogtown.jogtown.R;
-import com.jogtown.jogtown.activities.GroupActivity;
-import com.jogtown.jogtown.activities.MainActivity;
 import com.jogtown.jogtown.subfragments.MyGroupsListFragment;
 import com.jogtown.jogtown.subfragments.SearchGroupsListFragment;
 import com.jogtown.jogtown.utils.adapters.ViewPagerAdapter;
-import com.jogtown.jogtown.utils.network.MyUrlRequestCallback;
-import com.jogtown.jogtown.utils.network.NetworkRequest;
-import com.jogtown.jogtown.utils.network.PathUtils;
-import com.jogtown.jogtown.utils.network.S3Uploader;
 import com.jogtown.jogtown.utils.ui.ZoomOutPageTransformer;
-import com.squareup.picasso.Picasso;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
-import static android.app.Activity.RESULT_OK;
 
 /**
  * A simple {@link Fragment} subclass.

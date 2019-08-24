@@ -64,6 +64,7 @@ public class AppActivity extends AppCompatActivity implements
     ActionBar actionBar;
     SharedPreferences jogPref;
     SharedPreferences authPref;
+    SharedPreferences settingsPref;
     boolean canClose = false;
 
     @Override
@@ -75,6 +76,7 @@ public class AppActivity extends AppCompatActivity implements
 
         jogPref = getSharedPreferences("JogPreferences", MODE_PRIVATE);
         authPref = getSharedPreferences("AuthPreferences", MODE_PRIVATE);
+        settingsPref = getSharedPreferences("SettingsPreferences", MODE_PRIVATE);
 
         boolean jogIsOn = jogPref.getBoolean("jogIsOn", false);
         String jogType = jogPref.getString("jogType", "n/a");
@@ -105,9 +107,13 @@ public class AppActivity extends AppCompatActivity implements
             }
         } else if (weight == 0) {
             //Weight is second in priority
-            selectWeight();
+            if (settingsPref.getBoolean("promptForWeight", true)) {
+                selectWeight();
+            }
         } else if (gender.equals("null")) {
-            selectGender();
+            if (settingsPref.getBoolean("promptForGender", true)) {
+                selectGender();
+            }
         }
 
 
@@ -320,7 +326,7 @@ public class AppActivity extends AppCompatActivity implements
             @Override
             public void onClick(View v) {
                 if (doNotAskAgain.isChecked()) {
-                    settingsEditor.putBoolean("promptForWeight", false);
+                    settingsEditor.putBoolean("promptForGender", false);
                     settingsEditor.apply();
                 }
                 genderDialog.dismiss();

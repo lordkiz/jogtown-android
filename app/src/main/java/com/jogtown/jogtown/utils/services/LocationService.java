@@ -16,6 +16,7 @@ import com.jogtown.jogtown.activities.MainActivity;
 import com.jogtown.jogtown.utils.LocationUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import androidx.annotation.Nullable;
@@ -44,6 +45,9 @@ public class LocationService extends Service {
     List<Integer> paces = new ArrayList<>();
     List<Float> speeds = new ArrayList<>();
 
+    HashMap<Integer, Boolean> laps = new HashMap<>(); //in kilometres
+    List<Double> lapDistances = new ArrayList<>();
+
     int numberOfLocationUpdateSent = 0;
 
     private static LocationService instance = null;
@@ -70,6 +74,14 @@ public class LocationService extends Service {
         super.onCreate();
         instance = this;
         intent = new Intent(BROADCAST_ACTION);
+
+        for (int i = 0; i < 51; i++) {
+            if (i == 0) {
+                laps.put(i, true);
+            } else {
+                laps.put(i, false);
+            }
+        }
     }
 
     @Override
@@ -93,7 +105,6 @@ public class LocationService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.i("Location Service Stop", "STOPPED");
         locationManager.removeUpdates(locationListener);
         instance = null;
 
@@ -138,11 +149,26 @@ public class LocationService extends Service {
                     oldLocation.setLatitude((double) startLongitude);
 
                 } else {
-                    totalDistance += LocationUtils.distance(
+                    totalDistance = LocationUtils.distance(
                             oldLocation.getLatitude(), oldLocation.getLongitude(),
-                            location.getLatitude(), location.getLongitude()
-                    );
-                    oldLocation = location;
+                            location.getLatitude(), location.getLongitude());
+                    double lap = totalDistance / 1000;
+                    int currentLap = (int) lap;
+                    if (laps.get(currentLap) == false) {
+                        //Update old location every 1 km
+                        oldLocation = location;
+                        //save distance for that lap
+                        lapDistances.add(totalDistance);
+                        //update lap
+                        laps.put(currentLap, true);
+                    }
+                    //add lap distances saved from prev old locations
+                    if (lapDistances.size() > 0) {
+                        for (Double lapDistance : lapDistances) {
+                            totalDistance += lapDistance;
+                        }
+                    }
+
                 }
             }
             //send all intents

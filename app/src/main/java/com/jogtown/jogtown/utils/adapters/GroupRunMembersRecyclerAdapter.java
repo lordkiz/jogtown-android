@@ -74,6 +74,7 @@ public class GroupRunMembersRecyclerAdapter extends RecyclerView.Adapter<GroupRu
 
             Picasso.get().load(uri)
                     .resize(120, 120)
+                    .placeholder(R.drawable.progress_animation)
                     .transform(new PicassoCircle())
                     .into(holder.userAvatar);
 

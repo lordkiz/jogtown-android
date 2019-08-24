@@ -759,10 +759,14 @@ public class MyGroupsListFragment extends Fragment {
         if (groupAvatarClicked) {
             //load image into group avatar
             groupAvatarUri = imageUri;
-            Picasso.get().load(imageUri).fit().into(groupAvatarImageView);
+            Picasso.get().load(imageUri)
+                    .placeholder(R.drawable.progress_animation)
+                    .fit().into(groupAvatarImageView);
         } else {
             backgroundImageUri = imageUri;
-            Picasso.get().load(imageUri).fit().into(backgroundImageView);
+            Picasso.get().load(imageUri).fit()
+                    .placeholder(R.drawable.progress_animation)
+                    .into(backgroundImageView);
         }
     }
 

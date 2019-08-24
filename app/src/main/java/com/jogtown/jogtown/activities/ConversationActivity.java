@@ -92,6 +92,7 @@ public class ConversationActivity extends AppCompatActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
             try {
                 Picasso.get().load(chatAvatar)
+                        .placeholder(R.drawable.progress_animation)
                         .resize(100,100)
                         .transform(new PicassoCircle())
                         .into(new Target()
@@ -133,7 +134,10 @@ public class ConversationActivity extends AppCompatActivity {
             @Override
             public void loadImage(ImageView imageView, @Nullable String url, @Nullable Object payload) {
                 try {
-                    Picasso.get().load(url).into(imageView);
+                    Picasso.get()
+                            .load(url)
+                            .placeholder(R.drawable.progress_animation)
+                            .into(imageView);
                 } catch (IllegalArgumentException e) {
                     e.printStackTrace();
                 }

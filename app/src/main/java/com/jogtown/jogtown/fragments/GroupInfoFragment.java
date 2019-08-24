@@ -248,11 +248,13 @@ public class GroupInfoFragment extends Fragment {
 
             Picasso.get().load(Uri.parse(groupObject.getString("group_avatar")))
                     .resize(200, 200)
+                    .placeholder(R.drawable.progress_animation)
                     .into(groupAvatar);
 
             if (!GroupActivity.groupObject.isNull("background_image")) {
                 Picasso.get().load(Uri.parse(groupObject.getString("background_image")))
                         .fit()
+                        .placeholder(R.drawable.progress_animation)
                         .centerCrop()
                         .into(groupBackgroundImage);
             }
@@ -623,8 +625,16 @@ public class GroupInfoFragment extends Fragment {
 
         //Set them all
         try {
-            Picasso.get().load(groupObject.getString("background_image")).fit().into(editBackgroundImageView);
-            Picasso.get().load(groupObject.getString("group_avatar")).fit().into(editGroupAvatarImageView);
+            Picasso.get()
+                    .load(groupObject.getString("background_image"))
+                    .fit()
+                    .placeholder(R.drawable.progress_animation)
+                    .into(editBackgroundImageView);
+            Picasso.get()
+                    .load(groupObject.getString("group_avatar"))
+                    .fit()
+                    .placeholder(R.drawable.progress_animation)
+                    .into(editGroupAvatarImageView);
             editGroupNameEditText.setText(groupObject.getString("name"));
             editGroupTagLineEditText.setText(groupObject.getString("tagline"));
             boolean isPublicGroup = groupObject.getBoolean("public");
@@ -1021,10 +1031,14 @@ public class GroupInfoFragment extends Fragment {
         if (editGroupAvatarClicked) {
             //load image into group avatar
             editGroupAvatarUri = imageUri;
-            Picasso.get().load(imageUri).fit().into(editGroupAvatarImageView);
+            Picasso.get().load(imageUri)
+                    .placeholder(R.drawable.progress_animation)
+                    .fit().into(editGroupAvatarImageView);
         } else {
             editBackgroundImageUri = imageUri;
-            Picasso.get().load(imageUri).fit().into(editBackgroundImageView);
+            Picasso.get().load(imageUri)
+                    .placeholder(R.drawable.progress_animation)
+                    .fit().into(editBackgroundImageView);
         }
     }
 

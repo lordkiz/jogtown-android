@@ -82,9 +82,14 @@ public class SearchGroupsListRecyclerAdapter extends RecyclerView.Adapter<Search
             }
 
             Uri uri = Uri.parse(jsonObject.getString("group_avatar"));
-            Picasso.get().load(uri)
-                    .resize(100,100)
-                    .into(holder.groupAvatar);
+            try {
+                Picasso.get().load(uri)
+                        .resize(100, 100)
+                        .placeholder(R.drawable.progress_animation)
+                        .into(holder.groupAvatar);
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+            }
 
             String groupName = jsonObject.getString("name");
             if (groupName.length() >= 16) {

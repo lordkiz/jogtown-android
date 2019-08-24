@@ -86,6 +86,7 @@ public class GroupMessageRecyclerViewAdapter extends RecyclerView.Adapter<GroupM
                 Picasso.get().
                         load(uri).
                         resize(60, 60)
+                        .placeholder(R.drawable.progress_animation)
                         .transform(new PicassoCircle())
                         .into(holder.userAvatar);
 

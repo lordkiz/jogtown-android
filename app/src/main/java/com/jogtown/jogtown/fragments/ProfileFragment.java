@@ -235,6 +235,7 @@ public class ProfileFragment extends Fragment {
             Picasso.get().load(avatar)
                     .resize(400, 400)
                     .transform(new PicassoCircle())
+                    .placeholder(R.drawable.progress_animation)
                     .into(profilePicture);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
@@ -415,7 +416,9 @@ public class ProfileFragment extends Fragment {
         editName.setText(currName);
         editWeight.setText(Integer.toString(currWeight));
         try {
-            Picasso.get().load(profilePic).fit().transform(new PicassoCircle()).into(avatarImageView);
+            Picasso.get().load(profilePic)
+                    .placeholder(R.drawable.progress_animation)
+                    .fit().transform(new PicassoCircle()).into(avatarImageView);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
@@ -710,7 +713,9 @@ public class ProfileFragment extends Fragment {
         Uri imageUri = data.getData();
         newAvatarUri = imageUri;
         try {
-            Picasso.get().load(imageUri).fit().transform(new PicassoCircle()).into(avatarImageView);
+            Picasso.get().load(imageUri)
+                    .placeholder(R.drawable.progress_animation)
+                    .fit().transform(new PicassoCircle()).into(avatarImageView);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }

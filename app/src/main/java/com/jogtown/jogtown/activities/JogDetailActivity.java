@@ -4,6 +4,8 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
 
 import android.app.AlertDialog;
@@ -35,6 +37,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.jogtown.jogtown.DAO.JogDAO;
 import com.jogtown.jogtown.R;
+import com.jogtown.jogtown.utils.adapters.LapsRecyclerAdapter;
 import com.jogtown.jogtown.utils.database.AppDatabase;
 import com.jogtown.jogtown.utils.Auth;
 import com.jogtown.jogtown.utils.Conversions;
@@ -75,6 +78,13 @@ public class JogDetailActivity extends AppCompatActivity implements OnMapReadyCa
 
     AppDatabase database;
 
+    List<JSONObject> laps = new ArrayList<>();
+
+    RecyclerView.LayoutManager lapsLayoutManager;
+    RecyclerView.Adapter lapsAdapter;
+    RecyclerView lapsRecyclerView;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +106,7 @@ public class JogDetailActivity extends AppCompatActivity implements OnMapReadyCa
         maxSpeedTextView = findViewById(R.id.jogDetailsMaxSpeedTextView);
         caloriesTextView = findViewById(R.id.jogDetailsCaloriesTextView);
         jogDate = findViewById(R.id.jogDate);
+        lapsRecyclerView = findViewById(R.id.jogDetailsLapsRecyclerView);
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -120,6 +131,7 @@ public class JogDetailActivity extends AppCompatActivity implements OnMapReadyCa
 
         setJogStats();
         drawCharts();
+        setUpRecyclerView();
 
         if (intent.getBooleanExtra("shouldSave", false)) {
             saveJogStatsToBackend();
@@ -132,9 +144,22 @@ public class JogDetailActivity extends AppCompatActivity implements OnMapReadyCa
         try {
             JSONObject object = new JSONObject(intent.getStringExtra("jog"));
             jog = object;
+            JSONArray lapArr = jog.getJSONArray("laps");
+            for (int i = 0; i < lapArr.length(); i++) {
+                JSONObject lap = new JSONObject(lapArr.get(i).toString());
+                laps.add(lap);
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    public void setUpRecyclerView() {
+        lapsLayoutManager = new LinearLayoutManager(this, RecyclerView.VERTICAL, false);
+        lapsAdapter = new LapsRecyclerAdapter(laps);
+        lapsRecyclerView.setLayoutManager(lapsLayoutManager);
+        lapsRecyclerView.setAdapter(lapsAdapter);
+
     }
 
 
