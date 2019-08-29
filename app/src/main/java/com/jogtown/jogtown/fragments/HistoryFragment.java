@@ -2,6 +2,7 @@ package com.jogtown.jogtown.fragments;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -15,10 +16,13 @@ import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.jogtown.jogtown.R;
 import com.jogtown.jogtown.activities.MainActivity;
 import com.jogtown.jogtown.utils.adapters.HistoryRecyclerAdapter;
@@ -31,6 +35,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.SocketHandler;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -67,6 +72,10 @@ public class HistoryFragment extends Fragment {
     Button loadMoreButton;
 
     LinearLayout historyFragmentEmptyLayout;
+    AdView mAdView;
+    SharedPreferences settingsPref;
+    String sentence = "id jdjd jdjd";
+
 
     public HistoryFragment() {
         // Required empty public constructor
@@ -105,6 +114,16 @@ public class HistoryFragment extends Fragment {
         // Inflate the layout for this fragment
 
         View view = inflater.inflate(R.layout.fragment_history, container, false);
+
+        settingsPref = MainActivity.appContext.getSharedPreferences("SettingsPreferences", Context.MODE_PRIVATE);
+        boolean showAds = settingsPref.getBoolean("showAds", true);
+        if (showAds) {
+
+            mAdView = view.findViewById(R.id.historyAdView);
+            mAdView.setVisibility(View.VISIBLE);
+            AdRequest adRequest = new AdRequest.Builder().build();
+            mAdView.loadAd(adRequest);
+        }
 
         historyFragmentEmptyLayout = view.findViewById(R.id.history_fragment_empty_layout);
 

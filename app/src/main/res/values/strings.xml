@@ -8,6 +8,10 @@
     <string name="websocket_url">wss://jogtown.herokuapp.com/v1/cable/</string>
 
     <string name="default_profile_picture">https://jogtown-s3.s3.amazonaws.com/assets/default-profile-picture.jpg</string>
+
+    <string name="adUnitId">ca-app-pub-4501044826825275/4189882099</string>
+
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

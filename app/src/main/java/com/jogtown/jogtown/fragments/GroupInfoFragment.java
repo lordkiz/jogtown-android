@@ -39,6 +39,8 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.jakewharton.rxbinding2.widget.RxTextView;
 import com.jogtown.jogtown.R;
 import com.jogtown.jogtown.activities.GroupActivity;
@@ -112,7 +114,8 @@ public class GroupInfoFragment extends Fragment {
     JSONObject groupObject = GroupActivity.groupObject;
     List<JSONObject> groupMembers;
 
-
+    AdView mAdView;
+    SharedPreferences settingsPref;
 
     public GroupInfoFragment() {
         // Required empty public constructor
@@ -231,6 +234,15 @@ public class GroupInfoFragment extends Fragment {
 
         setUpMemberList(GroupActivity.groupObject);
         setUpMemberListRecyclerView();
+
+        settingsPref = MainActivity.appContext.getSharedPreferences("SettingsPreferences", Context.MODE_PRIVATE);
+        boolean showAds = settingsPref.getBoolean("showAds", true);
+        if (showAds) {
+            mAdView = view.findViewById(R.id.groupInfoAdView);
+            mAdView.setVisibility(View.VISIBLE);
+            AdRequest adRequest = new AdRequest.Builder().build();
+            mAdView.loadAd(adRequest);
+        }
 
         return view;
     }

@@ -38,9 +38,11 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.MediaController;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -101,7 +103,7 @@ public class SingleJogActivity extends AppCompatActivity implements
 
     private final int LOCATION_REQUEST_CODE = 101;
 
-    SharedPreferences sharedPreferences;
+    SharedPreferences jogPref;
     Intent locationServiceIntent;
     Intent jogStatsServiceIntent;
     boolean jogIsOn;
@@ -124,7 +126,7 @@ public class SingleJogActivity extends AppCompatActivity implements
             mapViewBundle = savedInstanceState.getBundle(MAPVIEW_BUNDLE_KEY);
         }
 
-        sharedPreferences = MainActivity.appContext.getSharedPreferences("JogPreferences", Context.MODE_PRIVATE);
+        jogPref = MainActivity.appContext.getSharedPreferences("JogPreferences", Context.MODE_PRIVATE);
 
         playStopLayout = (FrameLayout) findViewById(R.id.single_run_play_stop_layout);
         pauseButton = (ImageButton) findViewById(R.id.singleRunPauseButton);
@@ -192,11 +194,11 @@ public class SingleJogActivity extends AppCompatActivity implements
                         if (lastKnownLocation != null) {
                             Log.i("location", lastKnownLocation.toString());
                             LatLng latlng = new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
-                            Float startLatitude = sharedPreferences.getFloat("startLatitude", 0.0f);
-                            Float startLongitude = sharedPreferences.getFloat("startLongitude", 0.0f);
+                            Float startLatitude = jogPref.getFloat("startLatitude", 0.0f);
+                            Float startLongitude = jogPref.getFloat("startLongitude", 0.0f);
 
                             if (startLatitude == 0.0f || startLongitude == 0.0f) {
-                                SharedPreferences.Editor editor = sharedPreferences.edit();
+                                SharedPreferences.Editor editor = jogPref.edit();
                                 editor.putFloat("startLatitude", (float)lastKnownLocation.getLatitude());
                                 editor.putFloat("startLongitude", (float)lastKnownLocation.getLongitude());
                                 editor.apply();
@@ -239,11 +241,11 @@ public class SingleJogActivity extends AppCompatActivity implements
 
                         LatLng loc = new LatLng(latitude, longitude);
                         updateMap(loc);
-                        Float startLatitude = sharedPreferences.getFloat("startLatitude", 0.0f);
-                        Float startLongitude = sharedPreferences.getFloat("startLongitude", 0.0f);
+                        Float startLatitude = jogPref.getFloat("startLatitude", 0.0f);
+                        Float startLongitude = jogPref.getFloat("startLongitude", 0.0f);
 
                         if (startLatitude == 0.0f || startLongitude == 0.0f) {
-                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            SharedPreferences.Editor editor = jogPref.edit();
                             editor.putFloat("startLatitude", (float) latitude);
                             editor.putFloat("startLongitude", (float) longitude);
                             editor.apply();
@@ -260,7 +262,7 @@ public class SingleJogActivity extends AppCompatActivity implements
     public void pauseJog(View view) {
 
         stopAllServices();
-        SharedPreferences.Editor sharedPrefEditor = sharedPreferences.edit();
+        SharedPreferences.Editor sharedPrefEditor = jogPref.edit();
 
         sharedPrefEditor.putBoolean("jogIsPaused", true);
         sharedPrefEditor.apply();
@@ -299,7 +301,6 @@ public class SingleJogActivity extends AppCompatActivity implements
        // pauseButton.setVisibility(View.GONE);
         //playStopLayout.setVisibility(View.VISIBLE);
 
-
         if (stopJogButton == null) {
             final AlertDialog eventDurationDialog = eventDurationDialog();
             stopJogButton = findViewById(R.id.singleRunStopButton);
@@ -337,7 +338,7 @@ public class SingleJogActivity extends AppCompatActivity implements
     public void resumeJog(View view) {
 
         startAllServices();
-        SharedPreferences.Editor sharedPrefEditor = sharedPreferences.edit();
+        SharedPreferences.Editor sharedPrefEditor = jogPref.edit();
 
         sharedPrefEditor.putBoolean("jogIsPaused", false);
         sharedPrefEditor.apply();
@@ -357,14 +358,14 @@ public class SingleJogActivity extends AppCompatActivity implements
 
 
     public void updateJogStatus() {
-        jogIsOn = sharedPreferences.getBoolean("jogIsOn", false);
-        jogIsPaused = sharedPreferences.getBoolean("jogIsPaused", false);
+        jogIsOn = jogPref.getBoolean("jogIsOn", false);
+        jogIsPaused = jogPref.getBoolean("jogIsPaused", false);
 
         if (!jogIsOn && !jogIsPaused) {
             // Start jog only when it is not paused or not on
             //Every other global control should be from the Jog Buttons
 
-            SharedPreferences.Editor sharedPrefEditor = sharedPreferences.edit();
+            SharedPreferences.Editor sharedPrefEditor = jogPref.edit();
 
             sharedPrefEditor.putBoolean("jogIsOn", true);
             sharedPrefEditor.putString("jogType", "single");
@@ -469,34 +470,34 @@ public class SingleJogActivity extends AppCompatActivity implements
         Type speedsType = new TypeToken<List<Float>>() {}.getType();
         Type lapsType = new TypeToken<List<JSONObject>>() {}.getType();
 
-        SharedPreferences.Editor sharedPrefEditor = sharedPreferences.edit();
+        SharedPreferences.Editor sharedPrefEditor = jogPref.edit();
         sharedPrefEditor.putBoolean("jogIsPaused", false);
         sharedPrefEditor.putBoolean("jogIsOn", false);
         sharedPrefEditor.apply();
 
         SharedPreferences authPref = MainActivity.appContext.getSharedPreferences("AuthPreferences", MODE_PRIVATE);
         int userId = authPref.getInt("userId", 0);
-        int duration = sharedPreferences.getInt("duration", 0);
-        int distance = sharedPreferences.getInt("distance", 0);
-        Float calories = sharedPreferences.getFloat("calories", 0);
-        Float startLatitude = sharedPreferences.getFloat("startLatitude", 0.0f);
-        Float endLatitude = sharedPreferences.getFloat("endLatitude", 0.0f);
-        Float startLongitude = sharedPreferences.getFloat("startLongitude", 0.0f);
-        Float endLongitude = sharedPreferences.getFloat("endLongitude", 0.0f);
-        Float averageSpeed = sharedPreferences.getFloat("averageSpeed", 0);
-        Float maxSpeed = sharedPreferences.getFloat("maxSpeed", 0);
-        int averagePace = sharedPreferences.getInt("averagePace", 0);
-        int maxPace = sharedPreferences.getInt("maxPace", 0);
-        int hydration = sharedPreferences.getInt("hydration", 0);
-        float maxAltitude = sharedPreferences.getFloat("maxAltitude", 0);
-        float minAltitude = sharedPreferences.getFloat("minAltitude", 0);
-        int totalAscent = sharedPreferences.getInt("totalAscent", 0);
-        int totalDescent = sharedPreferences.getInt("totalDescent", 0);
+        int duration = jogPref.getInt("duration", 0);
+        int distance = jogPref.getInt("distance", 0);
+        Float calories = jogPref.getFloat("calories", 0);
+        Float startLatitude = jogPref.getFloat("startLatitude", 0.0f);
+        Float endLatitude = jogPref.getFloat("endLatitude", 0.0f);
+        Float startLongitude = jogPref.getFloat("startLongitude", 0.0f);
+        Float endLongitude = jogPref.getFloat("endLongitude", 0.0f);
+        Float averageSpeed = jogPref.getFloat("averageSpeed", 0);
+        Float maxSpeed = jogPref.getFloat("maxSpeed", 0);
+        int averagePace = jogPref.getInt("averagePace", 0);
+        int maxPace = jogPref.getInt("maxPace", 0);
+        int hydration = jogPref.getInt("hydration", 0);
+        float maxAltitude = jogPref.getFloat("maxAltitude", 0);
+        float minAltitude = jogPref.getFloat("minAltitude", 0);
+        int totalAscent = jogPref.getInt("totalAscent", 0);
+        int totalDescent = jogPref.getInt("totalDescent", 0);
 
-        String coordinates = sharedPreferences.getString("coordinates", "[]");
-        String spds = sharedPreferences.getString("speeds", "");
-        String pcs = sharedPreferences.getString("paces", "");
-        String lapsString = sharedPreferences.getString("laps", "[]");
+        String coordinates = jogPref.getString("coordinates", "[]");
+        String spds = jogPref.getString("speeds", "");
+        String pcs = jogPref.getString("paces", "");
+        String lapsString = jogPref.getString("laps", "[]");
 
         List<JSONObject> laps = gson.fromJson(lapsString, lapsType);
 

@@ -9,6 +9,21 @@
     android:paddingTop="20dp"
     android:paddingBottom="20dp">
 
+    <com.google.android.gms.ads.AdView
+        xmlns:ads="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/jogStatsAdView"
+        ads:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        ads:adSize="BANNER"
+        android:visibility="gone"
+        ads:adUnitId="@string/adUnitId">
+    </com.google.android.gms.ads.AdView>
+
 
     <LinearLayout
         android:id="@+id/jogStatsDurationLayout"
@@ -19,7 +34,7 @@
         android:layout_marginBottom="5dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/jogStatsAdView">
 
         <TextView
             android:id="@+id/jogStatsDuration"

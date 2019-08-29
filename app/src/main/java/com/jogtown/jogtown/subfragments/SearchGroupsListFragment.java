@@ -3,6 +3,7 @@ package com.jogtown.jogtown.subfragments;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -21,6 +22,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.jogtown.jogtown.R;
 import com.jogtown.jogtown.activities.GroupActivity;
 import com.jogtown.jogtown.activities.MainActivity;
@@ -70,6 +73,9 @@ public class SearchGroupsListFragment extends Fragment {
     Button searchGroupsButton;
 
     private static int page = 1;
+
+    AdView mAdView;
+    SharedPreferences settingsPref;
 
     public SearchGroupsListFragment() {
         // Required empty public constructor
@@ -134,6 +140,16 @@ public class SearchGroupsListFragment extends Fragment {
         groupsResult = new ArrayList<>();
         setUpRecyclerView();
         getGroups(null);
+
+        settingsPref = MainActivity.appContext.getSharedPreferences("SettingsPreferences", Context.MODE_PRIVATE);
+        boolean showAds = settingsPref.getBoolean("showAds", true);
+        if (showAds) {
+            mAdView = view.findViewById(R.id.searchGroupsAdView);
+            mAdView.setVisibility(View.VISIBLE);
+            AdRequest adRequest = new AdRequest.Builder().build();
+            mAdView.loadAd(adRequest);
+        }
+
         return view;
 
     }

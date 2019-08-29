@@ -70,6 +70,17 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/jog_details_map_container" />
 
+        <com.google.android.gms.ads.AdView
+            xmlns:ads="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/jogDetailsAdView"
+            ads:layout_constraintTop_toTopOf="parent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            ads:adSize="BANNER"
+            ads:adUnitId="@string/adUnitId"
+            android:visibility="gone"
+            />
+
         <TextView
             android:id="@+id/jogDetailsSummaryHeaderText"
             android:layout_width="match_parent"
@@ -554,7 +565,7 @@
                     android:textStyle="bold"
                     android:layout_gravity="center"
                     android:textAlignment="center"
-                    />
+                    /><!--
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -565,7 +576,7 @@
                     android:layout_weight="1"
                     android:layout_gravity="center"
                     android:textAlignment="center"
-                    />
+                    />-->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -573,10 +584,15 @@
                     android:textSize="12sp"
                     android:textStyle="bold"
                     android:textColor="@color/slate"
-                    android:layout_weight="1"
+                    android:layout_weight="2"
                     android:layout_gravity="center"
                     android:textAlignment="center"
                     />
+
+                <TextView
+                    android:layout_weight="4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
 
             </LinearLayout>
             <View

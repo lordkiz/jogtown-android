@@ -1,5 +1,6 @@
 package com.jogtown.jogtown.utils.services;
 
+import android.app.Activity;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
@@ -13,6 +14,7 @@ import com.jogtown.jogtown.R;
 import com.jogtown.jogtown.activities.AppActivity;
 import com.jogtown.jogtown.activities.GroupJogActivity;
 import com.jogtown.jogtown.activities.MainActivity;
+import com.jogtown.jogtown.activities.SingleJogActivity;
 import com.jogtown.jogtown.utils.Conversions;
 
 import androidx.annotation.Nullable;
@@ -116,9 +118,12 @@ public class JogStatsService extends Service {
     public void sendJogStatsNotification() {
 
         //Keep sending notification while user is jogging
+        Intent intent = new Intent(this, SingleJogActivity.class);
+        String jogType = sharedPreferences.getString("jogType", "single");
+        if (jogType.equals("group")) {
+            intent = new Intent(this, GroupJogActivity.class);
+        }
 
-        Intent intent = new Intent(this, AppActivity.class);
-        //App activity will redirect to appropriate screen
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
 

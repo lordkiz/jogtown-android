@@ -17,6 +17,11 @@ import android.widget.ProgressBar;
 
 import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.jogtown.jogtown.R;
 import com.jogtown.jogtown.utils.Auth;
 import com.jogtown.jogtown.fragments.FacebookLogin;
@@ -40,6 +45,7 @@ public class MainActivity extends AppCompatActivity implements
     ProgressBar indicator;
     Button facebookLoginButton;
     Button googleLoginButton;
+    AdView mAdView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +55,14 @@ public class MainActivity extends AppCompatActivity implements
         AppEventsLogger.activateApp(getApplication());
 
         setContentView(R.layout.activity_main);
+
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+            }
+        });
+
+
 
         indicator = (ProgressBar) findViewById(R.id.authLoadingIndicator);
         facebookLoginButton = (Button) findViewById(R.id.facebookLoginButton);

@@ -10,11 +10,14 @@ import androidx.fragment.app.FragmentTransaction;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,6 +44,8 @@ import com.jogtown.jogtown.utils.services.LocationService;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
 public class AppActivity extends AppCompatActivity implements
 
@@ -177,6 +182,8 @@ public class AppActivity extends AppCompatActivity implements
                 }
             }
         });
+
+        silentlyRetrieveAndSaveSettings();
     }
 
 
@@ -377,11 +384,65 @@ public class AppActivity extends AppCompatActivity implements
     }
 
 
+    private void silentlyRetrieveAndSaveSettings() {
+        String userId = Integer.toString(authPref.getInt("userId", 0));
+        String url = getString(R.string.root_url) + "v1/current_user_settings?user_id=" + userId;
+        MyUrlRequestCallback.OnFinishRequest onFinishRequest = new MyUrlRequestCallback.OnFinishRequest() {
+            @Override
+            public void onFinishRequest(Object result) {
+                try {
+                    JSONObject jsonObject = new JSONObject(result.toString());
+                    int statusCode = jsonObject.getInt("statusCode");
+                    JSONObject resultObj = new JSONObject(jsonObject.getString("body"));
+
+                    if (statusCode < 300) {
+                        SharedPreferences.Editor editor = settingsPref.edit();
+                        boolean showAds = resultObj.getBoolean("show_ads");
+                        boolean allowNotification = resultObj.getBoolean("allow_notification");
+                        int settingsId = resultObj.getInt("id");
+                        editor.putBoolean("showAds", showAds);
+                        editor.putBoolean("allowNotification", allowNotification);
+                        editor.putInt("settingsId", settingsId);
+
+                        editor.apply();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        try {
+            NetworkRequest.get(url, new MyUrlRequestCallback(onFinishRequest));
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
+    }
 
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.top_menu, menu);
+        Drawable drawable = menu.getItem(0).getIcon();
+        drawable.mutate();
+        drawable.setColorFilter(getResources().getColor(R.color.snow), PorterDuff.Mode.SRC_IN);
 
+        return true;
+    }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
 
+        switch(id) {
+            case R.id.settings_menu_item:
+                Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
+                intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+                getApplicationContext().startActivity(intent);
+                return true;
+        }
+        return false;
+    }
 
     @Override
     public void onFragmentInteraction(Uri uri) {

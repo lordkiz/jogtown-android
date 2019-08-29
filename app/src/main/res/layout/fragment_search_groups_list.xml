@@ -8,6 +8,17 @@
     android:orientation="vertical"
     tools:context=".subfragments.SearchGroupsListFragment">
 
+    <com.google.android.gms.ads.AdView
+        xmlns:ads="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/searchGroupsAdView"
+        android:layout_margin="10dp"
+        ads:layout_constraintTop_toTopOf="parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        ads:adSize="BANNER"
+        android:visibility="gone"
+        ads:adUnitId="@string/adUnitId" />
+
 
     <LinearLayout
         android:layout_width="match_parent"

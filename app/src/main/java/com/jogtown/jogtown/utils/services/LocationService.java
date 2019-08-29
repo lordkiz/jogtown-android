@@ -142,35 +142,52 @@ public class LocationService extends Service {
             float startLatitude = sharedPreferences.getFloat("startLatitude", 0.0f);
             float startLongitude = sharedPreferences.getFloat("startLongitude", 0.0f);
 
-            if (startLatitude != 0.0f || startLongitude != 0.0f) {
+            //old location we have already.
+            float oldLocationLatitude = sharedPreferences.getFloat("oldLocationLatitude", 0.0f);
+            float oldLocationLongitude = sharedPreferences.getFloat("oldLocationLongitude", 0.0f);
+
+
+            if (oldLocationLatitude == 0.0f || oldLocationLongitude == 0.0f) {
                 if (oldLocation == null) {
                     oldLocation = new Location(LocationManager.GPS_PROVIDER);
                     oldLocation.setLatitude((double) startLatitude);
                     oldLocation.setLatitude((double) startLongitude);
-
                 } else {
-                    totalDistance = LocationUtils.distance(
-                            oldLocation.getLatitude(), oldLocation.getLongitude(),
-                            location.getLatitude(), location.getLongitude());
-                    double lap = totalDistance / 1000;
-                    int currentLap = (int) lap;
-                    if (laps.get(currentLap) == false) {
-                        //Update old location every 1 km
-                        oldLocation = location;
-                        //save distance for that lap
-                        lapDistances.add(totalDistance);
-                        //update lap
-                        laps.put(currentLap, true);
-                    }
-                    //add lap distances saved from prev old locations
-                    if (lapDistances.size() > 0) {
-                        for (Double lapDistance : lapDistances) {
-                            totalDistance += lapDistance;
-                        }
-                    }
+                    oldLocation.setLatitude((double) startLatitude);
+                    oldLocation.setLatitude((double) startLongitude);
+                }
 
+            } else {
+                oldLocation = new Location(LocationManager.GPS_PROVIDER);
+                oldLocation.setLatitude((double) startLatitude);
+                oldLocation.setLatitude((double) startLongitude);
+            }
+
+            totalDistance = LocationUtils.distance(
+                    oldLocation.getLatitude(), oldLocation.getLongitude(),
+                    location.getLatitude(), location.getLongitude());
+            double lap = totalDistance / 1000;
+            int currentLap = (int) lap;
+            if (laps.get(currentLap) == false) {
+                //Update old location every 1 km
+                oldLocation = location;
+                //save distance for that lap
+                lapDistances.add(totalDistance);
+                //update lap
+                laps.put(currentLap, true);
+            }
+            //add lap distances saved from prev old locations
+            if (lapDistances.size() > 0) {
+                for (Double lapDistance : lapDistances) {
+                    totalDistance += lapDistance;
                 }
             }
+
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putFloat("oldLocationLatitude", (float) oldLocation.getLatitude());
+            editor.putFloat("oldLocationLongitude", (float) oldLocation.getLongitude());
+            editor.apply();
+
             //send all intents
             intent.putExtra("currentCoordinates", currentCoordinates);
             intent.putExtra("speed", location.getSpeed());
@@ -180,6 +197,7 @@ public class LocationService extends Service {
             intent.putExtra("longitude", longitude);
 
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+
         } else {
             //send only location intents
             intent.putExtra("currentCoordinates", currentCoordinates);

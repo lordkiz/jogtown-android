@@ -214,6 +214,16 @@
         </LinearLayout>
 
 
+        <com.google.android.gms.ads.AdView
+            xmlns:ads="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/profileAdView"
+            ads:layout_constraintTop_toTopOf="parent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            ads:adSize="BANNER"
+            android:visibility="gone"
+            ads:adUnitId="@string/adUnitId">
+        </com.google.android.gms.ads.AdView>
 
         <!-- KM STATS -->
 

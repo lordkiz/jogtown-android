@@ -6,6 +6,20 @@
     android:layout_height="match_parent"
     android:layout_marginBottom="60dp">
 
+    <com.google.android.gms.ads.AdView
+        xmlns:ads="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/historyAdView"
+        ads:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:visibility="gone"
+        ads:adSize="BANNER"
+        ads:adUnitId="@string/adUnitId" />
+
     <LinearLayout
         android:id="@+id/history_fragment_empty_layout"
         android:layout_width="match_parent"
@@ -13,6 +27,9 @@
         android:visibility="gone"
         android:gravity="center"
         android:orientation="vertical"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/historyAdView"
         >
 
         <ImageView
@@ -39,7 +56,7 @@
         android:layout_height="wrap_content"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/historyAdView">
 
     </androidx.recyclerview.widget.RecyclerView>
 

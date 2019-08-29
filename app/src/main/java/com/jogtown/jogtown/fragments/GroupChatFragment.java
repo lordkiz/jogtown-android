@@ -18,6 +18,8 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ProgressBar;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.hosopy.actioncable.Subscription;
 import com.jogtown.jogtown.R;
 import com.jogtown.jogtown.activities.GroupActivity;
@@ -69,6 +71,8 @@ public class GroupChatFragment extends Fragment {
 
 
     Subscription subscription;
+    AdView mAdView;
+    SharedPreferences settingsPref;
 
 
     public GroupChatFragment() {
@@ -107,6 +111,15 @@ public class GroupChatFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_group_chat, container, false);
+
+        settingsPref = MainActivity.appContext.getSharedPreferences("SettingsPreferences", Context.MODE_PRIVATE);
+        boolean showAds = settingsPref.getBoolean("showAds", true);
+        if (showAds) {
+            mAdView = view.findViewById(R.id.groupChatsAdView);
+            mAdView.setVisibility(View.VISIBLE);
+            AdRequest adRequest = new AdRequest.Builder().build();
+            mAdView.loadAd(adRequest);
+        }
 
         messagesRecyclerView = view.findViewById(R.id.group_chat_fragment_recycler_view);
         progressBar = view.findViewById(R.id.group_chat_fragment_progress_bar);

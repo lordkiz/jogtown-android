@@ -12,6 +12,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.google.android.material.tabs.TabLayout;
 import com.jogtown.jogtown.R;
 import com.jogtown.jogtown.subfragments.MyGroupsListFragment;
@@ -41,7 +43,6 @@ public class GroupsFragment extends Fragment {
 
     TabLayout tabLayout;
     ViewPager viewPager;
-
 
     public GroupsFragment() {
         // Required empty public constructor
@@ -79,7 +80,6 @@ public class GroupsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_groups, container, false);
-
 
         tabLayout = (TabLayout) view.findViewById(R.id.groups_fragment_tabs);
         viewPager = (ViewPager) view.findViewById(R.id.groups_fragment_view_pager);

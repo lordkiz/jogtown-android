@@ -27,6 +27,8 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.model.GradientColor;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -84,7 +86,9 @@ public class JogDetailActivity extends AppCompatActivity implements OnMapReadyCa
     RecyclerView.Adapter lapsAdapter;
     RecyclerView lapsRecyclerView;
 
+    SharedPreferences settingsPref;
 
+    AdView mAdView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +96,8 @@ public class JogDetailActivity extends AppCompatActivity implements OnMapReadyCa
         setContentView(R.layout.activity_jog_detail);
 
         intent = getIntent();
+
+        settingsPref = getSharedPreferences("SettingsPreferences", MODE_PRIVATE);
 
         setUpJogObject();
 
@@ -132,6 +138,14 @@ public class JogDetailActivity extends AppCompatActivity implements OnMapReadyCa
         setJogStats();
         drawCharts();
         setUpRecyclerView();
+
+        boolean showAds = settingsPref.getBoolean("showAds", true);
+        if (showAds) {
+            mAdView = findViewById(R.id.jogDetailsAdView);
+            mAdView.setVisibility(View.VISIBLE);
+            AdRequest adRequest = new AdRequest.Builder().build();
+            mAdView.loadAd(adRequest);
+        }
 
         if (intent.getBooleanExtra("shouldSave", false)) {
             saveJogStatsToBackend();

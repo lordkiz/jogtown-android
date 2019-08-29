@@ -20,6 +20,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.jogtown.jogtown.R;
 import com.jogtown.jogtown.activities.ConversationActivity;
 import com.jogtown.jogtown.activities.MainActivity;
@@ -75,6 +77,10 @@ public class InboxFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
+    AdView mAdView;
+    SharedPreferences settingsPref;
+
+
     public InboxFragment() {
         // Required empty public constructor
     }
@@ -111,6 +117,15 @@ public class InboxFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_inbox, container, false);
+
+        settingsPref = MainActivity.appContext.getSharedPreferences("SettingsPreferences", Context.MODE_PRIVATE);
+        boolean showAds = settingsPref.getBoolean("showAds", true);
+        if (showAds) {
+            mAdView = view.findViewById(R.id.inboxAdView);
+            mAdView.setVisibility(View.VISIBLE);
+            AdRequest adRequest = new AdRequest.Builder().build();
+            mAdView.loadAd(adRequest);
+        }
 
         inboxFragmentEmptyLayout = view.findViewById(R.id.inbox_fragment_empty_layout);
 

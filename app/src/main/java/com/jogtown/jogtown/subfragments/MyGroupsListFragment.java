@@ -38,6 +38,8 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.jakewharton.rxbinding2.widget.RxTextView;
 import com.jogtown.jogtown.R;
 import com.jogtown.jogtown.activities.GroupActivity;
@@ -98,6 +100,9 @@ public class MyGroupsListFragment extends Fragment {
 
     static LinearLayout myGroupsListFragmentEmptyLayout;
 
+    AdView mAdView;
+    SharedPreferences settingsPref;
+
     public MyGroupsListFragment() {
         // Required empty public constructor
     }
@@ -135,6 +140,15 @@ public class MyGroupsListFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_my_groups_list, container, false);
+
+        settingsPref = MainActivity.appContext.getSharedPreferences("SettingsPreferences", Context.MODE_PRIVATE);
+        boolean showAds = settingsPref.getBoolean("showAds", true);
+        if (showAds) {
+            mAdView = view.findViewById(R.id.myGroupsListAdView);
+            mAdView.setVisibility(View.VISIBLE);
+            AdRequest adRequest = new AdRequest.Builder().build();
+            mAdView.loadAd(adRequest);
+        }
 
         createGroupButton = view.findViewById(R.id.createGroupButton);
 

@@ -35,6 +35,8 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.jakewharton.rxbinding2.widget.RxTextView;
 import com.jogtown.jogtown.R;
 import com.jogtown.jogtown.activities.MainActivity;
@@ -96,7 +98,10 @@ public class ProfileFragment extends Fragment {
     FrameLayout fiveKmRecordView;
     FrameLayout tenKmRecordView;
 
+    AdView mAdView;
+
     SharedPreferences authPref;
+    SharedPreferences settingsPref;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -180,6 +185,15 @@ public class ProfileFragment extends Fragment {
         setUpMetaUI();
 
         getStats();
+
+        settingsPref = MainActivity.appContext.getSharedPreferences("SettingsPreferences", Context.MODE_PRIVATE);
+        boolean showAds = settingsPref.getBoolean("showAds", true);
+        if (showAds) {
+            mAdView = view.findViewById(R.id.profileAdView);
+            mAdView.setVisibility(View.VISIBLE);
+            AdRequest adRequest = new AdRequest.Builder().build();
+            mAdView.loadAd(adRequest);
+        }
 
         return view;
     }

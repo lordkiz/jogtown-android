@@ -1,6 +1,7 @@
 package com.jogtown.jogtown.fragments;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -13,8 +14,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.jogtown.jogtown.R;
 import com.jogtown.jogtown.activities.GroupActivity;
+import com.jogtown.jogtown.activities.MainActivity;
 import com.jogtown.jogtown.utils.adapters.GroupInfoMemberListRecyclerViewAdapter;
 
 import org.json.JSONArray;
@@ -53,6 +57,9 @@ public class GroupLeaderboardFragment extends Fragment {
     RecyclerView.Adapter adapter;
 
     TextView groupLeaderboardMembersPrivateNotAMemberText;
+
+    AdView mAdView;
+    SharedPreferences settingsPref;
 
     public GroupLeaderboardFragment() {
         // Required empty public constructor
@@ -107,6 +114,16 @@ public class GroupLeaderboardFragment extends Fragment {
 
         sortGroupMembers();
         setUpAdapter();
+
+        settingsPref = MainActivity.appContext.getSharedPreferences("SettingsPreferences", Context.MODE_PRIVATE);
+        boolean showAds = settingsPref.getBoolean("showAds", true);
+        if (showAds) {
+            mAdView = view.findViewById(R.id.groupLeaderboardAdView);
+            mAdView.setVisibility(View.VISIBLE);
+            AdRequest adRequest = new AdRequest.Builder().build();
+            mAdView.loadAd(adRequest);
+        }
+
         return view;
     }
 

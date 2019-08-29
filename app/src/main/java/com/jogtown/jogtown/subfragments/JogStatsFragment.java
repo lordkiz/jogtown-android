@@ -17,7 +17,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.hosopy.actioncable.Subscription;
 import com.jogtown.jogtown.R;
 import com.jogtown.jogtown.activities.MainActivity;
@@ -29,6 +32,7 @@ import com.jogtown.jogtown.utils.services.LocationService;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -58,6 +62,7 @@ public class JogStatsFragment extends Fragment {
     TextView distanceText;
     TextView paceText;
     TextView caloriesText;
+    AdView mAdView;
 
     int totalDistance = 0;
     int duration = 0;
@@ -68,10 +73,10 @@ public class JogStatsFragment extends Fragment {
     int maxPace = 0;
     int weight;
 
-    List<List<Double>> coordinates = new ArrayList<>();
-    List<Integer> paces = new ArrayList<>();
-    List<Float> speeds = new ArrayList<>();
-    List<JSONObject> laps = new ArrayList<>();
+    List<List<Double>> coordinates;
+    List<Integer> paces;
+    List<Float> speeds;
+    List<JSONObject> laps;
 
     SharedPreferences jogPref;
     public Boolean jogIsOn = false;
@@ -80,6 +85,9 @@ public class JogStatsFragment extends Fragment {
     String jogType;
 
     Subscription subscription;
+
+    SharedPreferences settingsPref;
+
 
     public BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -96,6 +104,8 @@ public class JogStatsFragment extends Fragment {
 
             boolean jogIsOn = jogPref.getBoolean("jogIsOn", false);
 
+            SharedPreferences.Editor editor = jogPref.edit();
+
             if (jogIsOn) {
                 // I only want these updates when jog is On
                 if (distance > 0) {
@@ -105,6 +115,8 @@ public class JogStatsFragment extends Fragment {
                     int pa = Conversions.calculatePace(totalDistance, duration);
                     speeds.add(sp);
                     paces.add(pa);
+                    editor.putString("spds", speeds.toString());
+                    editor.putString("pcs", paces.toString());
                     maxSpeed = Collections.max(speeds);
                     maxPace = Collections.min(paces);
                     try {
@@ -119,6 +131,8 @@ public class JogStatsFragment extends Fragment {
                                 laps.add(lapObj);
                             }
                         }
+                        editor.putString("lapString", laps.toString());
+
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -128,6 +142,7 @@ public class JogStatsFragment extends Fragment {
                     coord.add(latitude);
                     coord.add(longitude);
                     coordinates.add(coord);
+                    editor.putString("coordinates", coordinates.toString());
                 }
 
                 calories = Conversions.calculateCalories(totalDistance, duration, weight);
@@ -153,6 +168,8 @@ public class JogStatsFragment extends Fragment {
                         saveGroupMembershipStats();
                     }
                 }
+
+                editor.apply();
             }
         }
     };
@@ -196,6 +213,15 @@ public class JogStatsFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_jog_stats, container, false);
 
+        settingsPref = MainActivity.appContext.getSharedPreferences("SettingsPreferences", Context.MODE_PRIVATE);
+        boolean showAds = settingsPref.getBoolean("showAds", true);
+        if (showAds) {
+            mAdView = view.findViewById(R.id.jogStatsAdView);
+            mAdView.setVisibility(View.VISIBLE);
+            AdRequest adRequest = new AdRequest.Builder().build();
+            mAdView.loadAd(adRequest);
+        }
+
         durationText = (TextView) view.findViewById(R.id.jogStatsDuration);
         distanceText = (TextView) view.findViewById(R.id.jogStatsDistance);
         paceText = (TextView) view.findViewById(R.id.jogStatsPace);
@@ -210,6 +236,41 @@ public class JogStatsFragment extends Fragment {
         jogIsPaused = jogPref.getBoolean("jogIsPaused", false);
         jogType = jogPref.getString("jogType", "");
         weight = authPref.getInt("weight", 70);
+
+        Gson gson = new Gson();
+        Type coordType = new TypeToken<List<List<Double>>>() {}.getType();
+        Type pacesType = new TypeToken<List<Integer>>() {}.getType();
+        Type speedsType = new TypeToken<List<Float>>() {}.getType();
+        Type lapsType = new TypeToken<List<JSONObject>>() {}.getType();
+
+        String coords = jogPref.getString("coordinates", "[]");
+        String spds = jogPref.getString("speeds", "");
+        String pcs = jogPref.getString("paces", "");
+        String lapsString = jogPref.getString("laps", "[]");
+
+        if (pcs.equals("")) {
+            paces = new ArrayList<>();
+        } else  {
+            paces = gson.fromJson(pcs, pacesType);
+        }
+
+        if (spds.equals("")) {
+            speeds = new ArrayList<>();
+        } else {
+            speeds = gson.fromJson(spds, speedsType);
+        }
+
+        if (lapsString.equals("[]")) {
+            laps = new ArrayList<>();
+        } else {
+            laps = gson.fromJson(lapsString, lapsType);
+        }
+
+        if (coords.equals("[]")) {
+            coordinates = new ArrayList<>();
+        } else {
+            coordinates = gson.fromJson(coords, coordType);
+        }
 
         return view;
     }
