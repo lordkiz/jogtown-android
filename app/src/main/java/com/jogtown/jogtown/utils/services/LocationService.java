@@ -41,11 +41,8 @@ public class LocationService extends Service {
 
     Double start_latitude = null;
     Double start_longitude = null;
-    List<List<Double>> coordinates = new ArrayList<>();
-    List<Integer> paces = new ArrayList<>();
-    List<Float> speeds = new ArrayList<>();
 
-    HashMap<Integer, Boolean> laps = new HashMap<>(); //in kilometres
+    HashMap<Integer, Boolean> coveredLaps = new HashMap<>(); //in kilometres
     List<Double> lapDistances = new ArrayList<>();
 
     int numberOfLocationUpdateSent = 0;
@@ -75,13 +72,6 @@ public class LocationService extends Service {
         instance = this;
         intent = new Intent(BROADCAST_ACTION);
 
-        for (int i = 0; i < 51; i++) {
-            if (i == 0) {
-                laps.put(i, true);
-            } else {
-                laps.put(i, false);
-            }
-        }
     }
 
     @Override
@@ -135,63 +125,68 @@ public class LocationService extends Service {
         LatLng currentCoordinates = new LatLng(latitude, longitude);
 
 
-        SharedPreferences sharedPreferences = MainActivity.appContext.getSharedPreferences("JogPreferences", MODE_PRIVATE);
-        boolean jogIsOn = sharedPreferences.getBoolean("jogIsOn", false);
+        SharedPreferences jogPref = MainActivity.appContext.getSharedPreferences("JogPreferences", MODE_PRIVATE);
+        boolean jogIsOn = jogPref.getBoolean("jogIsOn", false);
         if (jogIsOn) {
 
-            float startLatitude = sharedPreferences.getFloat("startLatitude", 0.0f);
-            float startLongitude = sharedPreferences.getFloat("startLongitude", 0.0f);
+//            float startLatitude = jogPref.getFloat("startLatitude", 0.0f);
+//            float startLongitude = jogPref.getFloat("startLongitude", 0.0f);
+//
+//            //old location we have already.
+//            float oldLocationLatitude = jogPref.getFloat("oldLocationLatitude", 0.0f);
+//            float oldLocationLongitude = jogPref.getFloat("oldLocationLongitude", 0.0f);
+//
+//
+//            if (oldLocationLatitude == 0.0f || oldLocationLongitude == 0.0f) {
+//                if (oldLocation == null) {
+//                    oldLocation = new Location(LocationManager.GPS_PROVIDER);
+//                    oldLocation.setLatitude((double) startLatitude);
+//                    oldLocation.setLatitude((double) startLongitude);
+//                } else {
+//                    oldLocation.setLatitude((double) startLatitude);
+//                    oldLocation.setLatitude((double) startLongitude);
+//                }
+//
+//            } else {
+//                oldLocation = new Location(LocationManager.GPS_PROVIDER);
+//                oldLocation.setLatitude((double) startLatitude);
+//                oldLocation.setLatitude((double) startLongitude);
+//            }
+//
+//            totalDistance = LocationUtils.distance(
+//                    oldLocation.getLatitude(), oldLocation.getLongitude(),
+//                    location.getLatitude(), location.getLongitude());
 
-            //old location we have already.
-            float oldLocationLatitude = sharedPreferences.getFloat("oldLocationLatitude", 0.0f);
-            float oldLocationLongitude = sharedPreferences.getFloat("oldLocationLongitude", 0.0f);
-
-
-            if (oldLocationLatitude == 0.0f || oldLocationLongitude == 0.0f) {
-                if (oldLocation == null) {
-                    oldLocation = new Location(LocationManager.GPS_PROVIDER);
-                    oldLocation.setLatitude((double) startLatitude);
-                    oldLocation.setLatitude((double) startLongitude);
-                } else {
-                    oldLocation.setLatitude((double) startLatitude);
-                    oldLocation.setLatitude((double) startLongitude);
-                }
-
-            } else {
-                oldLocation = new Location(LocationManager.GPS_PROVIDER);
-                oldLocation.setLatitude((double) startLatitude);
-                oldLocation.setLatitude((double) startLongitude);
-            }
-
-            totalDistance = LocationUtils.distance(
-                    oldLocation.getLatitude(), oldLocation.getLongitude(),
-                    location.getLatitude(), location.getLongitude());
-            double lap = totalDistance / 1000;
-            int currentLap = (int) lap;
-            if (laps.get(currentLap) == false) {
-                //Update old location every 1 km
-                oldLocation = location;
-                //save distance for that lap
-                lapDistances.add(totalDistance);
-                //update lap
-                laps.put(currentLap, true);
-            }
             //add lap distances saved from prev old locations
-            if (lapDistances.size() > 0) {
-                for (Double lapDistance : lapDistances) {
-                    totalDistance += lapDistance;
-                }
-            }
+//            if (lapDistances.size() > 0) {
+//                for (Double lapDistance : lapDistances) {
+//                    totalDistance += lapDistance;
+//                }
+//            }
+//
+//            double lap = totalDistance / 1000;
+//            int currentLap = (int) lap;
+//            Boolean onCurrentLap = coveredLaps.get(currentLap);
+//            if (onCurrentLap == null || !onCurrentLap) {
+//                //i.e that current lap is false so we are just entering that particular lap.
+//                //Update old location every 1 km
+//                oldLocation = location;
+//                //save distance for that lap
+//                lapDistances.add(totalDistance);
+//                //update lap
+//                coveredLaps.put(currentLap, true);
+//            }
 
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putFloat("oldLocationLatitude", (float) oldLocation.getLatitude());
-            editor.putFloat("oldLocationLongitude", (float) oldLocation.getLongitude());
-            editor.apply();
+//
+//            SharedPreferences.Editor editor = jogPref.edit();
+//            editor.putFloat("oldLocationLatitude", (float) oldLocation.getLatitude());
+//            editor.putFloat("oldLocationLongitude", (float) oldLocation.getLongitude());
+//            editor.apply();
 
-            //send all intents
+            //since jog is on, send all intents
             intent.putExtra("currentCoordinates", currentCoordinates);
             intent.putExtra("speed", location.getSpeed());
-            intent.putExtra("totalDistance", totalDistance);
+            //intent.putExtra("totalDistance", totalDistance);
 
             intent.putExtra("latitude", latitude);
             intent.putExtra("longitude", longitude);
@@ -207,14 +202,6 @@ public class LocationService extends Service {
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
         }
     }
-
-    public static double calculateDistance(double startLatitude, double startLongitude, double endLatitude, double endLongitude) {
-        float[] results = new float[1];
-        results[0] = 0;
-        Location.distanceBetween(startLatitude, startLongitude, endLatitude, endLongitude, results);
-        return Math.abs(results[0]);
-    }
-
 
 
 

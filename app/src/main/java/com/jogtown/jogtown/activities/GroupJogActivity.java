@@ -47,6 +47,7 @@ import com.jogtown.jogtown.utils.Conversions;
 import com.jogtown.jogtown.utils.services.JogStatsService;
 import com.jogtown.jogtown.utils.services.LocationService;
 import com.jogtown.jogtown.utils.adapters.ViewPagerAdapter;
+import com.jogtown.jogtown.utils.services.StepTrackerService;
 import com.jogtown.jogtown.utils.ui.ZoomOutPageTransformer;
 
 import org.json.JSONArray;
@@ -55,6 +56,7 @@ import org.json.JSONObject;
 
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -92,6 +94,7 @@ public class GroupJogActivity extends AppCompatActivity implements
     SharedPreferences sharedPreferences;
     Intent locationServiceIntent;
     Intent jogStatsServiceIntent;
+    Intent stepsTrackerServiceIntent;
 
     boolean jogIsOn;
     boolean jogIsPaused;
@@ -131,6 +134,7 @@ public class GroupJogActivity extends AppCompatActivity implements
         //So we keep intents separate
         locationServiceIntent = new Intent(this, LocationService.class);
         jogStatsServiceIntent = new Intent(this, JogStatsService.class);
+        stepsTrackerServiceIntent = new Intent(this, StepTrackerService.class);
 
         //Update Jog Status;
         //Indicate a jog is ongoing or not
@@ -186,6 +190,9 @@ public class GroupJogActivity extends AppCompatActivity implements
         }
         if (!JogStatsService.isServiceRunning()) {
             this.startService(jogStatsServiceIntent);
+        }
+        if (!StepTrackerService.isServiceRunning()) {
+            this.startService(stepsTrackerServiceIntent);
         }
 
     }
@@ -250,6 +257,8 @@ public class GroupJogActivity extends AppCompatActivity implements
                         stopProgress();
                         v.setTag(false);
                         stopAllServices();
+                        stopService(stepsTrackerServiceIntent);
+
                         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
                         notificationManager.cancel(JOG_NOTIFICATION_ID);
                         redirectToJogDetail();
@@ -404,10 +413,10 @@ public class GroupJogActivity extends AppCompatActivity implements
         int totalAscent = sharedPreferences.getInt("totalAscent", 0);
         int totalDescent = sharedPreferences.getInt("totalDescent", 0);
 
-        String coordinates = sharedPreferences.getString("coordinates", "[]");
-        String spds = sharedPreferences.getString("speeds", "");
-        String pcs = sharedPreferences.getString("paces", "");
-        String lapsString = sharedPreferences.getString("laps", "[]");
+        String coordinates = sharedPreferences.getString("coordinates", new ArrayList<>().toString());
+        String spds = sharedPreferences.getString("speeds", new ArrayList<>().toString());
+        String pcs = sharedPreferences.getString("paces", new ArrayList<>().toString());
+        String lapsString = sharedPreferences.getString("laps", new ArrayList<>().toString());
 
         List<JSONObject> laps = gson.fromJson(lapsString, lapsType);
 

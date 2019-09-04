@@ -26,6 +26,7 @@ import com.jogtown.jogtown.R;
 import com.jogtown.jogtown.activities.MainActivity;
 import com.jogtown.jogtown.fragments.GroupJogMembersFragment;
 import com.jogtown.jogtown.utils.Conversions;
+import com.jogtown.jogtown.utils.services.StepTrackerService;
 import com.jogtown.jogtown.utils.services.JogStatsService;
 import com.jogtown.jogtown.utils.services.LocationService;
 
@@ -72,6 +73,7 @@ public class JogStatsFragment extends Fragment {
     float maxSpeed = 0;
     int maxPace = 0;
     int weight;
+    String gender;
 
     List<List<Double>> coordinates;
     List<Integer> paces;
@@ -88,35 +90,42 @@ public class JogStatsFragment extends Fragment {
 
     SharedPreferences settingsPref;
 
+    StepTrackerService stepTracker;
+
 
     public BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.i("update Stats received", "true");
-            int seconds = intent.getIntExtra("jogStatsServiceDuration", 0);
+            int seconds = intent.getIntExtra("duration", 0);
+            int steps = intent.getIntExtra("steps", 0);
+
             if (seconds > 0) {
                 duration = seconds;
             }
-            int distance = (int) Math.round(intent.getDoubleExtra("totalDistance", 0));
+            //int distance = (int) Math.round(intent.getDoubleExtra("totalDistance", 0));
+            int distance = 0;
+            if (steps > 0) {
+                distance = Conversions.getDistanceFromSteps(steps, gender);
+            }
+
             Double latitude = intent.getDoubleExtra("latitude", 0);
             Double longitude = intent.getDoubleExtra("longitude", 0);
             Float speed = intent.getFloatExtra("speed", 0);
 
             boolean jogIsOn = jogPref.getBoolean("jogIsOn", false);
 
-            SharedPreferences.Editor editor = jogPref.edit();
-
             if (jogIsOn) {
                 // I only want these updates when jog is On
                 if (distance > 0) {
                     //we always get secs but rarely distance. So when distance changes we do major calculations.
-                    totalDistance += distance;
+                    totalDistance = distance;
+
                     Float sp = Conversions.calculateSpeed(totalDistance, duration);
                     int pa = Conversions.calculatePace(totalDistance, duration);
                     speeds.add(sp);
                     paces.add(pa);
-                    editor.putString("spds", speeds.toString());
-                    editor.putString("pcs", paces.toString());
+
                     maxSpeed = Collections.max(speeds);
                     maxPace = Collections.min(paces);
                     try {
@@ -131,18 +140,17 @@ public class JogStatsFragment extends Fragment {
                                 laps.add(lapObj);
                             }
                         }
-                        editor.putString("lapString", laps.toString());
 
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                 }
+
                 if (latitude != 0 && longitude != 0) {
                     List<Double> coord = new ArrayList<>();
                     coord.add(latitude);
                     coord.add(longitude);
                     coordinates.add(coord);
-                    editor.putString("coordinates", coordinates.toString());
                 }
 
                 calories = Conversions.calculateCalories(totalDistance, duration, weight);
@@ -169,7 +177,6 @@ public class JogStatsFragment extends Fragment {
                     }
                 }
 
-                editor.apply();
             }
         }
     };
@@ -229,6 +236,7 @@ public class JogStatsFragment extends Fragment {
 
         registerJogStatsBroadcastReceiver();
         registerLocationBroadcastReceiver();
+        registerStepsTrackerBroadcastReceiver();
 
         jogPref = MainActivity.appContext.getSharedPreferences("JogPreferences", Context.MODE_PRIVATE);
         SharedPreferences authPref = MainActivity.appContext.getSharedPreferences("AuthPreferences", Context.MODE_PRIVATE);
@@ -236,6 +244,7 @@ public class JogStatsFragment extends Fragment {
         jogIsPaused = jogPref.getBoolean("jogIsPaused", false);
         jogType = jogPref.getString("jogType", "");
         weight = authPref.getInt("weight", 70);
+        gender = authPref.getString("gender", "male");
 
         Gson gson = new Gson();
         Type coordType = new TypeToken<List<List<Double>>>() {}.getType();
@@ -243,34 +252,18 @@ public class JogStatsFragment extends Fragment {
         Type speedsType = new TypeToken<List<Float>>() {}.getType();
         Type lapsType = new TypeToken<List<JSONObject>>() {}.getType();
 
-        String coords = jogPref.getString("coordinates", "[]");
-        String spds = jogPref.getString("speeds", "");
-        String pcs = jogPref.getString("paces", "");
-        String lapsString = jogPref.getString("laps", "[]");
+        String coords = jogPref.getString("coordinates", new ArrayList<>().toString());
+        String spds = jogPref.getString("speeds", new ArrayList<>().toString());
+        String pcs = jogPref.getString("paces", new ArrayList<>().toString());
+        String lapsString = jogPref.getString("laps", new ArrayList<>().toString());
 
-        if (pcs.equals("")) {
-            paces = new ArrayList<>();
-        } else  {
-            paces = gson.fromJson(pcs, pacesType);
-        }
+        paces = gson.fromJson(pcs, pacesType);
 
-        if (spds.equals("")) {
-            speeds = new ArrayList<>();
-        } else {
-            speeds = gson.fromJson(spds, speedsType);
-        }
+        speeds = gson.fromJson(spds, speedsType);
 
-        if (lapsString.equals("[]")) {
-            laps = new ArrayList<>();
-        } else {
-            laps = gson.fromJson(lapsString, lapsType);
-        }
+        laps = gson.fromJson(lapsString, lapsType);
 
-        if (coords.equals("[]")) {
-            coordinates = new ArrayList<>();
-        } else {
-            coordinates = gson.fromJson(coords, coordType);
-        }
+        coordinates = gson.fromJson(coords, coordType);
 
         return view;
     }
@@ -302,6 +295,7 @@ public class JogStatsFragment extends Fragment {
             //if jog is not on
             unRegisterJogStatsBroadcastReceiver();
             unRegisterLocationBroadcastReceiver();
+            unRegisterStepsTrackerBroadcastReceiver();
         } else {
         }
     }
@@ -336,11 +330,22 @@ public class JogStatsFragment extends Fragment {
         );
     }
 
+    public void registerStepsTrackerBroadcastReceiver() {
+        LocalBroadcastManager.getInstance(this.getContext()).registerReceiver(
+                broadcastReceiver,
+                new IntentFilter(StepTrackerService.BROADCAST_ACTION)
+        );
+    }
+
     public void unRegisterJogStatsBroadcastReceiver() {
         LocalBroadcastManager.getInstance(this.getContext()).unregisterReceiver(broadcastReceiver);
     }
 
     public void unRegisterLocationBroadcastReceiver() {
+        LocalBroadcastManager.getInstance(this.getContext()).unregisterReceiver(broadcastReceiver);
+    }
+
+    public void unRegisterStepsTrackerBroadcastReceiver() {
         LocalBroadcastManager.getInstance(this.getContext()).unregisterReceiver(broadcastReceiver);
     }
 
@@ -360,6 +365,7 @@ public class JogStatsFragment extends Fragment {
         String coords = gson.toJson(coordinates);
         String speedsJson = gson.toJson(speeds);
         String pacesJson = gson.toJson(paces);
+        String lapsJson = gson.toJson(laps);
 
         Log.i("coordinates saved", coords);
         Log.i("speeds saved", speedsJson);
@@ -377,7 +383,7 @@ public class JogStatsFragment extends Fragment {
         editor.putInt("averagePace", averagePace);
         editor.putFloat("maxSpeed", maxSpeed);
         editor.putInt("maxPace", maxPace);
-        editor.putString("laps", laps.toString());
+        editor.putString("laps", lapsJson);
         editor.apply();
     }
 

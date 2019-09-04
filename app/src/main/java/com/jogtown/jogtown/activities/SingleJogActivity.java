@@ -57,6 +57,7 @@ import com.jogtown.jogtown.subfragments.JogStatsFragment;
 import com.jogtown.jogtown.utils.Conversions;
 import com.jogtown.jogtown.utils.services.JogStatsService;
 import com.jogtown.jogtown.utils.services.LocationService;
+import com.jogtown.jogtown.utils.services.StepTrackerService;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -64,6 +65,7 @@ import org.json.JSONObject;
 
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -106,6 +108,7 @@ public class SingleJogActivity extends AppCompatActivity implements
     SharedPreferences jogPref;
     Intent locationServiceIntent;
     Intent jogStatsServiceIntent;
+    Intent stepsTrackerServiceIntent;
     boolean jogIsOn;
     boolean jogIsPaused;
 
@@ -143,6 +146,7 @@ public class SingleJogActivity extends AppCompatActivity implements
 
         locationServiceIntent = new Intent(this, LocationService.class);
         jogStatsServiceIntent = new Intent(this, JogStatsService.class);
+        stepsTrackerServiceIntent = new Intent(this, StepTrackerService.class);
 
         registerLocationBroadcastReceiver();
 
@@ -317,9 +321,14 @@ public class SingleJogActivity extends AppCompatActivity implements
                         eventDurationDialog.dismiss();
                         stopProgress();
                         v.setTag(false);
+
                         stopAllServices();
+                        stopService(stepsTrackerServiceIntent);
+
                         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
                         notificationManager.cancel(JOG_NOTIFICATION_ID);
+
+
                         redirectToJogDetail();
                     } else if (event.getAction() == MotionEvent.ACTION_UP && eventDuration < 1000) {
                         stopProgress();
@@ -389,6 +398,9 @@ public class SingleJogActivity extends AppCompatActivity implements
         if (!JogStatsService.isServiceRunning()) {
             this.startService(jogStatsServiceIntent);
         }
+        if (!StepTrackerService.isServiceRunning()) {
+            this.startService(stepsTrackerServiceIntent);
+        }
 
     }
 
@@ -442,6 +454,7 @@ public class SingleJogActivity extends AppCompatActivity implements
         return dialog;
     }
 
+
     public ProgressBar createProgressBar() {
         ProgressBar progressBar = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
         progressBar.setMinimumHeight(30);
@@ -494,10 +507,10 @@ public class SingleJogActivity extends AppCompatActivity implements
         int totalAscent = jogPref.getInt("totalAscent", 0);
         int totalDescent = jogPref.getInt("totalDescent", 0);
 
-        String coordinates = jogPref.getString("coordinates", "[]");
-        String spds = jogPref.getString("speeds", "");
-        String pcs = jogPref.getString("paces", "");
-        String lapsString = jogPref.getString("laps", "[]");
+        String coordinates = jogPref.getString("coordinates", new ArrayList<>().toString());
+        String spds = jogPref.getString("speeds", new ArrayList<>().toString());
+        String pcs = jogPref.getString("paces", new ArrayList<>().toString());
+        String lapsString = jogPref.getString("laps", new ArrayList<>().toString());
 
         List<JSONObject> laps = gson.fromJson(lapsString, lapsType);
 

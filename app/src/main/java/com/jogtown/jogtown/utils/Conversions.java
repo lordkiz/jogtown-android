@@ -137,6 +137,17 @@ public class Conversions {
     }
 
 
+    public static int getDistanceFromSteps(int steps, String gender) {
+        //returns distance in metres
+        double AVERAGE_STEP_LENGTH = 7.8; //in metres
+        if (gender.equals("female")) {
+            AVERAGE_STEP_LENGTH = 7.0;
+        }
+
+        return (int) Math.round(steps * AVERAGE_STEP_LENGTH);
+    }
+
+
     public static String formatDateTime(String dateTime) {
 
         String[] dateArr = dateTime.split("T");
