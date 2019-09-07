@@ -76,7 +76,6 @@ public class LocationService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i("LocationService", "onCommandStart");
         super.onStartCommand(intent, flags, startId);
         locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
         locationListener = new JogtownLocationListener();

@@ -5,12 +5,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import android.speech.tts.TextToSpeech;
+import android.speech.tts.Voice;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,6 +40,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 
 /**
@@ -72,6 +76,7 @@ public class JogStatsFragment extends Fragment {
     int averagePace = 0;
     float maxSpeed = 0;
     int maxPace = 0;
+    int steps = 0;
     int weight;
     String gender;
 
@@ -90,7 +95,7 @@ public class JogStatsFragment extends Fragment {
 
     SharedPreferences settingsPref;
 
-    StepTrackerService stepTracker;
+    TextToSpeech textToSpeech;
 
 
     public BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
@@ -98,7 +103,8 @@ public class JogStatsFragment extends Fragment {
         public void onReceive(Context context, Intent intent) {
             Log.i("update Stats received", "true");
             int seconds = intent.getIntExtra("duration", 0);
-            int steps = intent.getIntExtra("steps", 0);
+            int currentSteps = intent.getIntExtra("steps", 0);
+            steps = currentSteps;
 
             if (seconds > 0) {
                 duration = seconds;
@@ -132,12 +138,27 @@ public class JogStatsFragment extends Fragment {
                         int currentLap = totalDistance / 1000;
                         if (currentLap >= 1) {
                             JSONObject lapObj = new JSONObject();
-                            lapObj.put("distance", currentLap*1000);
+                            lapObj.put("distance", currentLap * 1000);
                             lapObj.put("duration", duration);
 
                             if (laps.size() < currentLap) {
                                 // add that lap object
                                 laps.add(lapObj);
+
+                                String kmPronunciation = currentLap < 2 ? " kilometre " : " kilometres ";
+                                String textToSpeak = Integer.toString(currentLap)
+                                        + kmPronunciation + "in "
+                                        + Conversions.formattedHHMMSSToReadableSpeech(duration)
+                                        + "Average Pace is " +
+                                        Conversions.formattedHHMMSSToReadableSpeech(Conversions.calculatePace(totalDistance, duration))
+                                        + " per kilometre";
+
+                                try {
+                                    speak(textToSpeak);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+
                             }
                         }
 
@@ -162,7 +183,7 @@ public class JogStatsFragment extends Fragment {
 
                 durationText.setText(Conversions.formatToHHMMSS(duration));
 
-                if (duration % 10 == 0) {
+                if (seconds % 10 == 0) {
                     //set every 10 seconds
                     distanceText.setText(Conversions.displayKilometres(totalDistance));
                     paceText.setText(paceString);
@@ -170,7 +191,7 @@ public class JogStatsFragment extends Fragment {
                 }
 
                 if (jogType.equals("group")) {
-                    if (duration % 60 == 0) {
+                    if (seconds % 60 == 0) {
                         //broadcast every min - whenever we update groupMembership, it will be
                         //broadcast to the group
                         saveGroupMembershipStats();
@@ -265,6 +286,7 @@ public class JogStatsFragment extends Fragment {
 
         coordinates = gson.fromJson(coords, coordType);
 
+
         return view;
     }
 
@@ -287,9 +309,31 @@ public class JogStatsFragment extends Fragment {
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (textToSpeech != null) {
+            try {
+                textToSpeech.shutdown();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+
+    @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
+
+        if (textToSpeech != null) {
+            try {
+                textToSpeech.shutdown();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
 
         if (!jogIsOn) {
             //if jog is not on
@@ -313,6 +357,24 @@ public class JogStatsFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+
+    public void speak(final String text) {
+        final Bundle bundle = new Bundle();
+        bundle.putInt(TextToSpeech.Engine.KEY_PARAM_STREAM, AudioManager.STREAM_MUSIC);
+
+        textToSpeech = new TextToSpeech(getContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if (status != TextToSpeech.ERROR) {
+                    textToSpeech.setLanguage(Locale.US);
+                    textToSpeech.speak(text, TextToSpeech.QUEUE_ADD, bundle, null);
+
+                }
+            }
+        });
+
     }
 
 
@@ -383,6 +445,7 @@ public class JogStatsFragment extends Fragment {
         editor.putInt("averagePace", averagePace);
         editor.putFloat("maxSpeed", maxSpeed);
         editor.putInt("maxPace", maxPace);
+        editor.putInt("steps", steps);
         editor.putString("laps", lapsJson);
         editor.apply();
     }

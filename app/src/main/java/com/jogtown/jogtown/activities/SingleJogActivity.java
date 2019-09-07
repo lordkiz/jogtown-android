@@ -108,7 +108,7 @@ public class SingleJogActivity extends AppCompatActivity implements
     SharedPreferences jogPref;
     Intent locationServiceIntent;
     Intent jogStatsServiceIntent;
-    Intent stepsTrackerServiceIntent;
+    Intent stepTrackerServiceIntent;
     boolean jogIsOn;
     boolean jogIsPaused;
 
@@ -146,7 +146,7 @@ public class SingleJogActivity extends AppCompatActivity implements
 
         locationServiceIntent = new Intent(this, LocationService.class);
         jogStatsServiceIntent = new Intent(this, JogStatsService.class);
-        stepsTrackerServiceIntent = new Intent(this, StepTrackerService.class);
+        stepTrackerServiceIntent = new Intent(this, StepTrackerService.class);
 
         registerLocationBroadcastReceiver();
 
@@ -323,7 +323,6 @@ public class SingleJogActivity extends AppCompatActivity implements
                         v.setTag(false);
 
                         stopAllServices();
-                        stopService(stepsTrackerServiceIntent);
 
                         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
                         notificationManager.cancel(JOG_NOTIFICATION_ID);
@@ -387,6 +386,7 @@ public class SingleJogActivity extends AppCompatActivity implements
     public void stopAllServices() {
         this.stopService(locationServiceIntent);
         this.stopService(jogStatsServiceIntent);
+        this.stopService(stepTrackerServiceIntent);
 
     }
 
@@ -399,7 +399,7 @@ public class SingleJogActivity extends AppCompatActivity implements
             this.startService(jogStatsServiceIntent);
         }
         if (!StepTrackerService.isServiceRunning()) {
-            this.startService(stepsTrackerServiceIntent);
+            this.startService(stepTrackerServiceIntent);
         }
 
     }

@@ -94,7 +94,7 @@ public class GroupJogActivity extends AppCompatActivity implements
     SharedPreferences sharedPreferences;
     Intent locationServiceIntent;
     Intent jogStatsServiceIntent;
-    Intent stepsTrackerServiceIntent;
+    Intent stepTrackerServiceIntent;
 
     boolean jogIsOn;
     boolean jogIsPaused;
@@ -108,8 +108,10 @@ public class GroupJogActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_group_jog);
 
         Intent intent = getIntent();
+
+        SharedPreferences jogPref = getSharedPreferences("JogPreferences", MODE_PRIVATE);
         try {
-            groupObject = new JSONObject(intent.getStringExtra("group"));
+            groupObject = new JSONObject(jogPref.getString("group", new JSONObject().toString()));
             groupId = groupObject.getInt("id");
         } catch (JSONException e) {
             groupId = 0;
@@ -134,7 +136,7 @@ public class GroupJogActivity extends AppCompatActivity implements
         //So we keep intents separate
         locationServiceIntent = new Intent(this, LocationService.class);
         jogStatsServiceIntent = new Intent(this, JogStatsService.class);
-        stepsTrackerServiceIntent = new Intent(this, StepTrackerService.class);
+        stepTrackerServiceIntent = new Intent(this, StepTrackerService.class);
 
         //Update Jog Status;
         //Indicate a jog is ongoing or not
@@ -177,11 +179,14 @@ public class GroupJogActivity extends AppCompatActivity implements
 
     }
 
+
     public void stopAllServices() {
         this.stopService(locationServiceIntent);
         this.stopService(jogStatsServiceIntent);
+        this.stopService(stepTrackerServiceIntent);
 
     }
+
 
     public void startAllServices() {
         //Only start the services if they are not already running
@@ -192,7 +197,7 @@ public class GroupJogActivity extends AppCompatActivity implements
             this.startService(jogStatsServiceIntent);
         }
         if (!StepTrackerService.isServiceRunning()) {
-            this.startService(stepsTrackerServiceIntent);
+            this.startService(stepTrackerServiceIntent);
         }
 
     }
@@ -256,8 +261,8 @@ public class GroupJogActivity extends AppCompatActivity implements
                         eventDurationDialog.dismiss();
                         stopProgress();
                         v.setTag(false);
+
                         stopAllServices();
-                        stopService(stepsTrackerServiceIntent);
 
                         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
                         notificationManager.cancel(JOG_NOTIFICATION_ID);

@@ -6,6 +6,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -14,6 +15,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.VideoView;
 
 import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
@@ -26,6 +28,10 @@ import com.jogtown.jogtown.R;
 import com.jogtown.jogtown.utils.Auth;
 import com.jogtown.jogtown.fragments.FacebookLogin;
 import com.jogtown.jogtown.fragments.GoogleLogin;
+import com.microsoft.appcenter.AppCenter;
+import com.microsoft.appcenter.analytics.Analytics;
+import com.microsoft.appcenter.crashes.Crashes;
+import com.onesignal.OneSignal;
 
 
 public class MainActivity extends AppCompatActivity implements
@@ -46,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements
     Button facebookLoginButton;
     Button googleLoginButton;
     AdView mAdView;
+    VideoView videoView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +69,15 @@ public class MainActivity extends AppCompatActivity implements
             }
         });
 
+        // OneSignal Initialization
+        OneSignal.startInit(this)
+                .inFocusDisplaying(OneSignal.OSInFocusDisplayOption.Notification)
+                .unsubscribeWhenNotificationsAreDisabled(true)
+                .init();
 
+        // Initialise appcenter && crash reports
+        AppCenter.start(getApplication(), "1fe105a1-1815-44b3-8c8b-32e9159a4154",
+                Analytics.class, Crashes.class);
 
         indicator = (ProgressBar) findViewById(R.id.authLoadingIndicator);
         facebookLoginButton = (Button) findViewById(R.id.facebookLoginButton);
@@ -74,9 +89,43 @@ public class MainActivity extends AppCompatActivity implements
 
         deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
 
+        videoView = findViewById(R.id.login_background_video_view);
+        videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+                mp.setLooping(true);
+            }
+        });
+        Uri uri = Uri.parse("android.resource://"+getPackageName()+"/"+R.raw.jogtown_login_background_video);
+        videoView.setVideoURI(uri);
+        videoView.start();
+
         if (Auth.isSignedIn()) {
+            videoView.stopPlayback();
             redirect();
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        videoView = findViewById(R.id.login_background_video_view);
+        videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+                mp.setLooping(true);
+            }
+        });
+        Uri uri = Uri.parse("android.resource://"+getPackageName()+"/"+R.raw.jogtown_login_background_video);
+        videoView.setVideoURI(uri);
+        videoView.start();
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        videoView.stopPlayback();
     }
 
     @Override

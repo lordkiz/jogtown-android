@@ -69,6 +69,7 @@ public class MyGroupsListRecyclerAdapter extends RecyclerView.Adapter<MyGroupsLi
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         SharedPreferences authPref = MainActivity.appContext.getSharedPreferences("AuthPreferences", Context.MODE_PRIVATE);
+        final SharedPreferences jogPref = MainActivity.appContext.getSharedPreferences("JogPreferences", Context.MODE_PRIVATE);
         int userId = authPref.getInt("userId", 0);
         final JSONObject jsonObject;
         try {
@@ -116,6 +117,12 @@ public class MyGroupsListRecyclerAdapter extends RecyclerView.Adapter<MyGroupsLi
                     if (activity != null) {
                         Intent intent = new Intent(MainActivity.appContext, activity.getClass());
                         intent.putExtra("group", jsonObject.toString());
+
+                        //we need this if we are navigating to GroupJogActivity
+                        SharedPreferences.Editor editor = jogPref.edit();
+                        editor.putString("group", jsonObject.toString());
+                        editor.apply();
+
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         MainActivity.appContext.startActivity(intent);
                     }

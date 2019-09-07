@@ -47,6 +47,58 @@ public class Conversions {
         return formattedHHMMSS;
     }
 
+
+    public static String formattedHHMMSSToReadableSpeech(int secs) {
+        String formattedHHMMSS = formatToHHMMSS(secs);
+        boolean hasHour = false;
+        String[] timeParts = formattedHHMMSS.split(":");
+        int timePartsLength = timeParts.length;
+        if (timePartsLength > 2) {
+            hasHour = true;
+        }
+
+        String hr = "";
+        String min = "";
+        String sec = "";
+
+        for (int i = 0; i < timePartsLength; i++) {
+            int timePartInt = Integer.parseInt(timeParts[i]);
+            if (hasHour) {
+
+                if (timePartInt != 0) {
+                    if (i == 0) {
+                        String hrPronunciation = timePartInt > 1 ? "hours" : "hour";
+                        hr = Integer.toString(timePartInt) + " " + hrPronunciation;
+                    } else if (i == 1) {
+                        String minPronunciation = timePartInt > 1 ? "minutes" : "minute";
+                        min = Integer.toString(timePartInt) + " " + minPronunciation;
+                    } else if (i == 2) {
+                        String secPronunciation = timePartInt > 1 ? "seconds" : "second";
+                        sec = Integer.toString(timePartInt) + " " + secPronunciation;
+                    }
+                }
+
+            } else {
+
+                if (timePartInt != 0) {
+                    if (i == 0) {
+                        String minPronunciation = timePartInt > 1 ? "minutes" : "minute";
+                        min = Integer.toString(timePartInt) + " " + minPronunciation;
+                    } else if (i == 1) {
+                        String secPronunciation = timePartInt > 1 ? "seconds" : "second";
+                        sec = Integer.toString(timePartInt) + " " + secPronunciation;
+                    }
+                }
+
+            }
+        }
+
+        return hr + ", " + min + ", " + sec + ".";
+
+    }
+
+
+
     public static int calculatePace(int distance, int duration) {
         if (duration == 0 || distance == 0) {
             return 0;
@@ -139,12 +191,14 @@ public class Conversions {
 
     public static int getDistanceFromSteps(int steps, String gender) {
         //returns distance in metres
-        double AVERAGE_STEP_LENGTH = 7.8; //in metres
+        double AVERAGE_STEP_LENGTH = 78; //in centimetres
         if (gender.equals("female")) {
-            AVERAGE_STEP_LENGTH = 7.0;
+            AVERAGE_STEP_LENGTH = 70;
         }
 
-        return (int) Math.round(steps * AVERAGE_STEP_LENGTH);
+        float distanceInKM = (float) (steps * AVERAGE_STEP_LENGTH) / 100000f;
+
+        return Math.round(distanceInKM * 1000);
     }
 
 

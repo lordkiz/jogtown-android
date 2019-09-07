@@ -3,18 +3,22 @@ package com.jogtown.jogtown.utils.services;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.IBinder;
+import android.util.Log;
+
+import com.jogtown.jogtown.activities.MainActivity;
 
 import androidx.annotation.Nullable;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 public class StepTrackerService extends Service implements SensorEventListener {
 
-    public static int steps = 0;
+    int steps = 0;
     SensorManager sensorManager;
     Sensor sensor;
 
@@ -22,12 +26,6 @@ public class StepTrackerService extends Service implements SensorEventListener {
     public static final String BROADCAST_ACTION = "Step Tracker Service";
     private static StepTrackerService instance = null;
 
-
-
-    public StepTrackerService(SensorManager sManager) {
-        sensorManager = sManager;
-        sensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
-    }
 
 
     public static boolean isServiceRunning() {
@@ -45,12 +43,6 @@ public class StepTrackerService extends Service implements SensorEventListener {
     }
 
 
-    public static int getSteps() {
-        return steps;
-    }
-
-
-
     // Service Methods
 
     @Override
@@ -58,19 +50,26 @@ public class StepTrackerService extends Service implements SensorEventListener {
         super.onCreate();
         instance = this;
         intent = new Intent(BROADCAST_ACTION);
+        SharedPreferences jogPref = MainActivity.appContext.getSharedPreferences("JogPreferences", MODE_PRIVATE);
+        steps = jogPref.getInt("steps", 0);
 
-        sensorManager = (SensorManager) getApplicationContext().getSystemService(Context.SENSOR_SERVICE);
 
-        if (sensorManager != null) {
-            sensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
-        }
     }
 
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
-        sensorManager.registerListener(this, sensor,10 );
+
+        SharedPreferences jogPref = MainActivity.appContext.getSharedPreferences("JogPreferences", MODE_PRIVATE);
+        steps = jogPref.getInt("steps", 0);
+        sensorManager = (SensorManager) getApplicationContext().getSystemService(Context.SENSOR_SERVICE);
+
+        if (sensorManager != null) {
+            sensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
+
+            sensorManager.registerListener(this, sensor,10 );
+        }
         return START_STICKY;
     }
 
@@ -89,12 +88,15 @@ public class StepTrackerService extends Service implements SensorEventListener {
         return null;
     }
 
+
+
     //SensorEventListener Methods
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        steps = (int) event.values[0];
+        steps++;
         intent.putExtra("steps", steps);
+
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
     }
 

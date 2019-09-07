@@ -16,7 +16,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activities.PurchaseCoinsActivity"></activity>
+
+        <activity android:name=".activities.PurchaseCoinsActivity" />
         <activity android:name=".activities.SettingsActivity" />
         <activity android:name=".activities.GroupActivity" />
         <activity android:name=".activities.ConversationActivity" />
@@ -24,7 +25,10 @@
         <activity android:name=".activities.SingleJogActivity" />
         <activity android:name=".activities.JogDetailActivity" />
         <activity android:name=".activities.AppActivity" />
-        <activity android:name=".activities.MainActivity">
+        <activity
+            android:name=".activities.MainActivity"
+            android:screenOrientation="portrait"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -64,6 +68,9 @@
             android:enabled="true" />
         <service
             android:name=".utils.services.JogStatsService"
+            android:enabled="true" />
+        <service
+            android:name=".utils.services.StepTrackerService"
             android:enabled="true" />
         <service
             android:name="com.amazonaws.mobileconnectors.s3.transferutility.TransferService"

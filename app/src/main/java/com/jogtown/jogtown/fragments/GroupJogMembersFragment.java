@@ -593,7 +593,7 @@ public class GroupJogMembersFragment extends Fragment {
             try {
                 groupMembers.add(jsonObject);
                 notifyDatasetChanged("groupMembers");
-            }catch (IndexOutOfBoundsException e) {
+            } catch (IndexOutOfBoundsException e) {
                 e.printStackTrace();
             }
         }

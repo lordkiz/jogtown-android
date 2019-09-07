@@ -106,7 +106,6 @@ public class JogStatsService extends Service {
 
 
     public void updateStats() {
-        Log.i(BROADCAST_ACTION, "sending");
         duration += 1;
         intent.putExtra("duration", duration);
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
