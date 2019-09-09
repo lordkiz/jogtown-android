@@ -56,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
 
         FacebookSdk.sdkInitialize(getApplicationContext());
@@ -168,6 +169,7 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+
     public void redirect() {
         Intent intent = new Intent(this, AppActivity.class);
         //intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
@@ -182,7 +184,7 @@ public class MainActivity extends AppCompatActivity implements
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = "JOG_NOTIFICATION";
             String description = "Send Jog Stats";
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            int importance = NotificationManager.IMPORTANCE_HIGH;
             NotificationChannel channel = new NotificationChannel(JOG_NOTIFICATION_CHANNEL_ID, name, importance);
             channel.setDescription(description);
             // Register the channel with the system; you can't change the importance

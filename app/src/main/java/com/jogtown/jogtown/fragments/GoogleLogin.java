@@ -3,6 +3,7 @@ package com.jogtown.jogtown.fragments;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -279,7 +280,13 @@ public class GoogleLogin extends Fragment {
                                 alertDialogBuilder
                                         .setCancelable(true)
                                         .setMessage(responseBody)
-                                        .setTitle("Error!");
+                                        .setTitle("Error!")
+                                        .setNegativeButton("Dismiss", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                dialog.dismiss();
+                                            }
+                                        });
                                 alertDialogBuilder.create().show();
                             }
                         });

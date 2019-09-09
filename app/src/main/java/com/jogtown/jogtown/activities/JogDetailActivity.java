@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
 
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.SQLException;
@@ -92,6 +93,7 @@ public class JogDetailActivity extends AppCompatActivity implements OnMapReadyCa
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_jog_detail);
 
@@ -475,7 +477,13 @@ public class JogDetailActivity extends AppCompatActivity implements OnMapReadyCa
                                     alertDialogBuilder
                                             .setCancelable(true)
                                             .setMessage(responseBody)
-                                            .setTitle("Error!");
+                                            .setTitle("Error!")
+                                            .setNegativeButton("Dismiss", new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                    dialog.dismiss();
+                                                }
+                                            });
                                     alertDialogBuilder.create().show();
                                 } catch (Exception e) {
                                     e.printStackTrace();

@@ -313,7 +313,13 @@ public class FacebookLogin extends Fragment {
                                 alertDialogBuilder
                                         .setCancelable(true)
                                         .setMessage(responseBody)
-                                        .setTitle("Error!");
+                                        .setTitle("Error!")
+                                        .setNegativeButton("Dismiss", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                dialog.dismiss();
+                                            }
+                                        });
                                 alertDialogBuilder.create().show();
                             }
                         });

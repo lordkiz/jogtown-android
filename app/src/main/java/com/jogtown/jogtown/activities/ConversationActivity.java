@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -67,6 +68,7 @@ public class ConversationActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation);
 
@@ -277,7 +279,13 @@ public class ConversationActivity extends AppCompatActivity {
                                 alertDialogBuilder
                                         .setCancelable(true)
                                         .setMessage(responseBody)
-                                        .setTitle("Error!");
+                                        .setTitle("Error!")
+                                        .setNegativeButton("Dismiss", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                dialog.dismiss();
+                                            }
+                                        });
                                 alertDialogBuilder.create().show();
                             }
                         });
