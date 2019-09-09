@@ -140,7 +140,7 @@ public class JogStatsService extends Service {
 
         if (notificationBuilder == null) {
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this, JOG_NOTIFICATION_CHANNEL_ID)
-                    .setSmallIcon(R.drawable.ic_running)
+                    .setSmallIcon(R.mipmap.ic_launcher)
                     .setContentTitle("Jogging")
                     .setContentText(notificationText)
                     .setStyle(new NotificationCompat.BigTextStyle()
