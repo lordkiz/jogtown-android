@@ -41,6 +41,7 @@ import com.google.android.gms.ads.AdView;
 import com.jakewharton.rxbinding2.widget.RxTextView;
 import com.jogtown.jogtown.R;
 import com.jogtown.jogtown.activities.MainActivity;
+import com.jogtown.jogtown.activities.PurchaseCoinsActivity;
 import com.jogtown.jogtown.subfragments.MyGroupsListFragment;
 import com.jogtown.jogtown.subfragments.SearchGroupsListFragment;
 import com.jogtown.jogtown.utils.Auth;
@@ -85,6 +86,7 @@ public class ProfileFragment extends Fragment {
 
     ImageView profilePicture;
     TextView nameText;
+    static TextView coinsProfileText;
     TextView oneKmDoneText;
     TextView threeKmDoneText;
     TextView fiveKmDoneText;
@@ -143,31 +145,33 @@ public class ProfileFragment extends Fragment {
 
         authPref = MainActivity.appContext.getSharedPreferences("AuthPreferences", Context.MODE_PRIVATE);
 
-        nameText = (TextView) view.findViewById(R.id.metaNameText);
+        nameText = view.findViewById(R.id.metaNameText);
 
+        coinsProfileText = view.findViewById(R.id.coinsProfileText);
 
-        progressBar = (ProgressBar) view.findViewById(R.id.userKmStatsFragmentProgressBar);
+        progressBar = view.findViewById(R.id.userKmStatsFragmentProgressBar);
         progressBar.setVisibility(View.INVISIBLE);
 
         profilePicture = view.findViewById(R.id.profile_picture);
 
-        oneKmDoneText = (TextView) view.findViewById(R.id.one_km_done_text);
-        threeKmDoneText = (TextView) view.findViewById(R.id.three_km_done_text);
-        fiveKmDoneText = (TextView) view.findViewById(R.id.five_km_done_text);
-        tenKmDoneText = (TextView) view.findViewById(R.id.ten_km_done_text);
+        oneKmDoneText = view.findViewById(R.id.one_km_done_text);
+        threeKmDoneText = view.findViewById(R.id.three_km_done_text);
+        fiveKmDoneText = view.findViewById(R.id.five_km_done_text);
+        tenKmDoneText = view.findViewById(R.id.ten_km_done_text);
 
-        profileStatsCalorieText = (TextView) view.findViewById(R.id.profile_stats_calorie_text);
-        profileStatsDistanceText = (TextView) view.findViewById(R.id.profile_stats_distance_text);
-        profileStatsJogsText = (TextView) view.findViewById(R.id.profile_stats_jogs_text);
-        profileStatsTotalTimeText = (TextView) view.findViewById(R.id.profile_stats_total_time_text);
+        profileStatsCalorieText = view.findViewById(R.id.profile_stats_calorie_text);
+        profileStatsDistanceText = view.findViewById(R.id.profile_stats_distance_text);
+        profileStatsJogsText = view.findViewById(R.id.profile_stats_jogs_text);
+        profileStatsTotalTimeText = view.findViewById(R.id.profile_stats_total_time_text);
 
-        oneKmRecordView = (FrameLayout) view.findViewById(R.id.one_km_record_view);
-        threeKmRecordView = (FrameLayout) view.findViewById(R.id.three_km_record_view);
-        fiveKmRecordView = (FrameLayout) view.findViewById(R.id.five_km_record_view);
-        tenKmRecordView = (FrameLayout) view.findViewById(R.id.ten_km_record_view);
+        oneKmRecordView = view.findViewById(R.id.one_km_record_view);
+        threeKmRecordView = view.findViewById(R.id.three_km_record_view);
+        fiveKmRecordView = view.findViewById(R.id.five_km_record_view);
+        tenKmRecordView = view.findViewById(R.id.ten_km_record_view);
 
-        Button logoutButton = (Button) view.findViewById(R.id.logoutButton);
-        Button editButton = (Button) view.findViewById(R.id.editProfileButton);
+        Button logoutButton = view.findViewById(R.id.logoutButton);
+        Button editButton = view.findViewById(R.id.editProfileButton);
+        Button buyCoinsButton = view.findViewById(R.id.buyCoinsProfileButton);
 
         logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -183,9 +187,19 @@ public class ProfileFragment extends Fragment {
             }
         });
 
+        buyCoinsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getContext(), PurchaseCoinsActivity.class);
+                startActivity(intent);
+            }
+        });
+
         setUpMetaUI();
 
         getStats();
+
+        setCoinText();
 
         settingsPref = MainActivity.appContext.getSharedPreferences("SettingsPreferences", Context.MODE_PRIVATE);
         boolean showAds = settingsPref.getBoolean("showAds", true);
@@ -240,6 +254,17 @@ public class ProfileFragment extends Fragment {
         void onFragmentInteraction(Uri uri);
     }
 
+
+    public static void setCoinText() {
+        SharedPreferences authPref = MainActivity.appContext.getSharedPreferences("AuthPreferences", Context.MODE_PRIVATE);
+        final String coins = Integer.toString(authPref.getInt("coins", 0));
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                coinsProfileText.setText(coins);
+            }
+        });
+    }
 
     private void setUpMetaUI() {
         String metaName = authPref.getString("name", "");

@@ -6,6 +6,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
@@ -141,6 +142,8 @@ public class JogStatsService extends Service {
         if (notificationBuilder == null) {
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this, JOG_NOTIFICATION_CHANNEL_ID)
                     .setSmallIcon(R.mipmap.ic_launcher)
+                    .setLargeIcon(BitmapFactory.decodeResource(getResources(),
+                            R.mipmap.ic_launcher))
                     .setContentTitle("Jogging")
                     .setContentText(notificationText)
                     .setStyle(new NotificationCompat.BigTextStyle()

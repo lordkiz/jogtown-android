@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="10dp"
+    android:background="@color/white"
+    android:elevation="1dp"
+    android:gravity="center"
+    >
+
+    <ImageView
+        android:id="@+id/coinImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_margin="10dp"
+        />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginLeft="10dp"
+        android:layout_weight="1"
+        >
+
+        <TextView
+            android:id="@+id/coinTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/slate"
+            android:textSize="16sp"
+            />
+
+        <TextView
+            android:id="@+id/coinPrice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/mediumGreen"
+            android:textSize="14sp"
+            />
+
+
+        <TextView
+            android:id="@+id/coinDescription"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/silver"
+            android:textSize="14sp"
+            />
+    </LinearLayout>
+
+
+    <Button
+        android:id="@+id/buyCoinButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/lightGreen"
+        android:layout_weight="1"
+        android:textColor="@color/white"
+        android:text="Get"
+        android:layout_margin="10dp"
+        />
+
+
+</LinearLayout>

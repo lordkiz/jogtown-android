@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements
                 .init();
 
         // Initialise appcenter && crash reports
-        AppCenter.start(getApplication(), "1fe105a1-1815-44b3-8c8b-32e9159a4154",
+        AppCenter.start(getApplication(), "86e003b2-00eb-4a14-96e7-dabd7572d7ab",
                 Analytics.class, Crashes.class);
 
         indicator = (ProgressBar) findViewById(R.id.authLoadingIndicator);
