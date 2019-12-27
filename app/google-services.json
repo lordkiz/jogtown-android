@@ -1,0 +1,64 @@
+{
+  "project_info": {
+    "project_number": "523584014997",
+    "firebase_url": "https://jogtown.firebaseio.com",
+    "project_id": "jogtown",
+    "storage_bucket": "jogtown.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:523584014997:android:8cbdb79bb02736fd25a99c",
+        "android_client_info": {
+          "package_name": "com.jogtown.jogtown"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "523584014997-0u8lgarg9runvmqg0005unfubcu0c13v.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.jogtown.jogtown",
+            "certificate_hash": "984b6d1897407c64d5671da44848fdd50a6a0f9c"
+          }
+        },
+        {
+          "client_id": "523584014997-0hh5h1iqtiki1th0iqackr5htv1997dn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.jogtown.jogtown",
+            "certificate_hash": "f6e705347c9933666eeb7c4599b001fa087a0fce"
+          }
+        },
+        {
+          "client_id": "523584014997-uvb9ihbgrdnto1vf3dgvhaq7p4673f2u.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.jogtown.jogtown",
+            "certificate_hash": "57f1dd25e6a396090ae49b68e1dc76350ab0078b"
+          }
+        },
+        {
+          "client_id": "523584014997-la4sfu905d9to59hop2q5slabb5v7jsk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBUzPtbQXukBSGvakjXbBCVuqT606pNK4o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "523584014997-la4sfu905d9to59hop2q5slabb5v7jsk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
