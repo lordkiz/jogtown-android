@@ -50,18 +50,12 @@ import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 public class AppActivity extends AppCompatActivity implements
 
         //FRAGMENTS THAT FORM THE BOTTOM TAB NAVIGATION
-        StartFragment.OnFragmentInteractionListener,
-        HistoryFragment.OnFragmentInteractionListener,
-        InboxFragment.OnFragmentInteractionListener,
-        GroupsFragment.OnFragmentInteractionListener,
         ProfileFragment.OnFragmentInteractionListener,
+        StartFragment.OnFragmentInteractionListener,
+        InboxFragment.OnFragmentInteractionListener,
 
         //SUBFRAGMENTS THAT MAKE UP THE FRAGMENTS ABOVE
-        JogStatsFragment.OnFragmentInteractionListener,
-        MyGroupsListFragment.OnFragmentInteractionListener,
-        SearchGroupsListFragment.OnFragmentInteractionListener,
-        MyGroupsListInDialogFragment.OnFragmentInteractionListener
-
+        JogStatsFragment.OnFragmentInteractionListener
 {
 
 
@@ -144,28 +138,12 @@ public class AppActivity extends AppCompatActivity implements
                         openFragment(startFragment, "Start");
                         return true;
 
-                    case "History":
-                        if (actionBar != null) {
-                            actionBar.setTitle("History");
-                        }
-                        HistoryFragment historyFragment = new HistoryFragment();
-                        openFragment(historyFragment, "History");
-                        return true;
-
                     case "Inbox":
                         if (actionBar != null) {
                             actionBar.setTitle("Inbox");
                         }
                         InboxFragment inboxFragment = new InboxFragment();
                         openFragment(inboxFragment, "Inbox");
-                        return true;
-
-                    case "Groups":
-                        if (actionBar != null) {
-                            actionBar.setTitle("Groups");
-                        }
-                        GroupsFragment groupsFragment = new GroupsFragment();
-                        openFragment(groupsFragment, "Groups");
                         return true;
 
                     case "Profile":
@@ -198,7 +176,7 @@ public class AppActivity extends AppCompatActivity implements
 
 
     public static void switchToMyGroupsTab() {
-        bottomNavigation.setSelectedItemId(R.id.groupsTab);
+        bottomNavigation.setSelectedItemId(R.id.inboxTab);
     }
 
     public static void switchToInboxTab() {

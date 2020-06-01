@@ -462,8 +462,6 @@
                     android:textStyle="normal" />
             </LinearLayout>
 
-
-
             <ProgressBar
                 android:id="@+id/userKmStatsFragmentProgressBar"
                 style="?android:attr/progressBarStyle"
@@ -473,25 +471,7 @@
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-
-
         </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="6dp"
-            android:text="ACTIVITIES"
-            android:textAlignment="viewStart"
-            android:textColor="#8492A6"
-            android:textSize="16sp" />
-
-        <fragment
-            android:id="@+id/profile_history_fragment"
-            android:name="com.jogtown.jogtown.fragments.HistoryFragment"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
 
     </LinearLayout>
 

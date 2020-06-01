@@ -42,8 +42,6 @@ import com.jakewharton.rxbinding2.widget.RxTextView;
 import com.jogtown.jogtown.R;
 import com.jogtown.jogtown.activities.MainActivity;
 import com.jogtown.jogtown.activities.PurchaseCoinsActivity;
-import com.jogtown.jogtown.subfragments.MyGroupsListFragment;
-import com.jogtown.jogtown.subfragments.SearchGroupsListFragment;
 import com.jogtown.jogtown.utils.Auth;
 import com.jogtown.jogtown.utils.Conversions;
 import com.jogtown.jogtown.utils.network.MyUrlRequestCallback;
