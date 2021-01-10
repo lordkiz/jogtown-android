@@ -10,8 +10,9 @@
         android:id="@+id/lapKM"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="14sp"
+        android:textSize="10sp"
         android:textColor="@color/slate"
+        android:fontFamily="@font/michroma_regular"
         android:layout_weight="1"
         android:layout_gravity="center"
         android:textAlignment="center"
@@ -21,22 +22,21 @@
         android:id="@+id/lapPace"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="14sp"
+        android:textSize="10sp"
+        android:fontFamily="@font/michroma_regular"
         android:textColor="@color/slate"
         android:layout_weight="2"
         android:layout_gravity="center"
         android:textAlignment="center"/>
 
-
-
-        <ProgressBar
-            android:id="@+id/paceStrengthBar"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="wrap_content"
-            android:layout_height="3dp"
-            android:max="100"
-            android:min="0"
-            android:layout_weight="4"
-            />
+    <ProgressBar
+        android:id="@+id/paceStrengthBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="3dp"
+        android:max="100"
+        android:min="0"
+        android:layout_weight="4"
+        />
 
 </LinearLayout>

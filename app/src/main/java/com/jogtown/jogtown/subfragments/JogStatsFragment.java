@@ -11,13 +11,13 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-
 import android.speech.tts.TextToSpeech;
-import android.speech.tts.Voice;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import com.google.android.gms.ads.AdRequest;
@@ -27,7 +27,6 @@ import com.google.gson.reflect.TypeToken;
 import com.hosopy.actioncable.Subscription;
 import com.jogtown.jogtown.R;
 import com.jogtown.jogtown.activities.MainActivity;
-import com.jogtown.jogtown.fragments.GroupJogMembersFragment;
 import com.jogtown.jogtown.utils.Conversions;
 import com.jogtown.jogtown.utils.services.StepTrackerService;
 import com.jogtown.jogtown.utils.services.JogStatsService;
@@ -68,6 +67,7 @@ public class JogStatsFragment extends Fragment {
     TextView paceText;
     TextView caloriesText;
     AdView mAdView;
+    Switch jogTypeSwitch;
 
     int totalDistance = 0;
     int duration = 0;
@@ -190,14 +190,6 @@ public class JogStatsFragment extends Fragment {
                     caloriesText.setText(caloriesString);
                 }
 
-                if (jogType.equals("group")) {
-                    if (seconds % 60 == 0) {
-                        //broadcast every min - whenever we update groupMembership, it will be
-                        //broadcast to the group
-                        saveGroupMembershipStats();
-                    }
-                }
-
             }
         }
     };
@@ -250,10 +242,10 @@ public class JogStatsFragment extends Fragment {
             mAdView.loadAd(adRequest);
         }
 
-        durationText = (TextView) view.findViewById(R.id.jogStatsDuration);
-        distanceText = (TextView) view.findViewById(R.id.jogStatsDistance);
-        paceText = (TextView) view.findViewById(R.id.jogStatsPace);
-        caloriesText = (TextView) view.findViewById(R.id.jogStatsCalories);
+        durationText = view.findViewById(R.id.jogStatsDuration);
+        distanceText = view.findViewById(R.id.jogStatsDistance);
+        paceText = view.findViewById(R.id.jogStatsPace);
+        caloriesText = view.findViewById(R.id.jogStatsCalories);
 
         registerJogStatsBroadcastReceiver();
         registerLocationBroadcastReceiver();
@@ -289,6 +281,7 @@ public class JogStatsFragment extends Fragment {
 
         return view;
     }
+
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
@@ -412,10 +405,6 @@ public class JogStatsFragment extends Fragment {
     }
 
 
-    public void saveGroupMembershipStats() {
-        GroupJogMembersFragment.saveGroupMembershipStats(totalDistance, duration, true);
-    }
-
 
     public void saveJogStats() {
         SharedPreferences.Editor editor = jogPref.edit();
@@ -473,3 +462,4 @@ public class JogStatsFragment extends Fragment {
     }
 
 }
+

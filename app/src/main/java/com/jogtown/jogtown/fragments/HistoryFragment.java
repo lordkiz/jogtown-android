@@ -7,6 +7,9 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -14,6 +17,7 @@ import okhttp3.OkHttpClient;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.text.SpannableString;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +33,7 @@ import com.jogtown.jogtown.activities.MainActivity;
 import com.jogtown.jogtown.utils.adapters.HistoryRecyclerAdapter;
 import com.jogtown.jogtown.utils.network.MyUrlRequestCallback;
 import com.jogtown.jogtown.utils.network.NetworkRequest;
+import com.jogtown.jogtown.utils.ui.MyTypefaceSpan;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -75,7 +80,6 @@ public class HistoryFragment extends Fragment {
     LinearLayout historyFragmentEmptyLayout;
     AdView mAdView;
     SharedPreferences settingsPref;
-    String sentence = "id jdjd jdjd";
 
 
     public HistoryFragment() {
@@ -115,8 +119,21 @@ public class HistoryFragment extends Fragment {
         // Inflate the layout for this fragment
 
         View view = inflater.inflate(R.layout.fragment_history, container, false);
+        try {
+            ActionBar actionBar =  ((AppCompatActivity) getActivity()).getSupportActionBar();
 
-        settingsPref = MainActivity.appContext.getSharedPreferences("SettingsPreferences", Context.MODE_PRIVATE);
+            SpannableString spannableString = new SpannableString("History");
+            spannableString.setSpan(
+                    new MyTypefaceSpan(getContext(), "fonts/baijamjuree_semi_bold.ttf"),
+                    0,
+                    spannableString.length(),
+                    SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+            actionBar.setTitle(spannableString);
+        } catch (NullPointerException e) {
+            //
+        }
+        settingsPref = getContext().getSharedPreferences("SettingsPreferences", Context.MODE_PRIVATE);
         boolean showAds = settingsPref.getBoolean("showAds", true);
         if (showAds) {
 
@@ -129,17 +146,17 @@ public class HistoryFragment extends Fragment {
         historyFragmentEmptyLayout = view.findViewById(R.id.history_fragment_empty_layout);
 
         progressBar = view.findViewById(R.id.history_fragment_progess_bar);
-        progressBar.setVisibility(View.INVISIBLE);
+        progressBar.setVisibility(View.GONE);
 
-        loadMoreButton = (Button) view.findViewById(R.id.loadMoreHistoryButton);
+        loadMoreButton = view.findViewById(R.id.loadMoreHistoryButton);
         loadMoreButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                loadMoreUserJogs(v);
-                showButton();
+                loadMoreUserJogs();
+//                showButton();
             }
         });
-        loadMoreButton.setVisibility(View.INVISIBLE);
+        loadMoreButton.setVisibility(View.GONE);
 
         recyclerView = view.findViewById(R.id.history_items_recycler_view);
         setUpRecyclerView();
@@ -209,13 +226,24 @@ public class HistoryFragment extends Fragment {
         mAdapter = new HistoryRecyclerAdapter(jogs);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(mAdapter);
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (!recyclerView.canScrollVertically(1) && newState==RecyclerView.SCROLL_STATE_IDLE) {
+                    loadMoreButton.setVisibility(View.VISIBLE);
+                } else {
+                    loadMoreButton.setVisibility(View.INVISIBLE);
+                }
+            }
+        });
     }
 
     public void showActivity() {
         if (loading) {
             progressBar.setVisibility(View.VISIBLE);
         } else {
-            progressBar.setVisibility(View.INVISIBLE);
+            progressBar.setVisibility(View.GONE);
 
         }
     }
@@ -241,7 +269,7 @@ public class HistoryFragment extends Fragment {
         });
     }
 
-    public void loadMoreUserJogs(View view) {
+    public void loadMoreUserJogs() {
         getUserJogs();
     }
 
@@ -284,11 +312,11 @@ public class HistoryFragment extends Fragment {
                             public void run() {
                                 showActivity();
                             }
-                        });JSONArray jsonArray = new JSONArray(responseBody);
+                        });
+                        JSONArray jsonArray = new JSONArray(responseBody);
                         List<Object> resList = new ArrayList<>();
                         if (jsonArray.length() > 0) {
                             for (int i = 0; i < jsonArray.length(); i++) {
-                                System.out.println(jsonArray.get(i));
                                 resList.add(jsonArray.get(i));
                             }
                         }
@@ -303,7 +331,7 @@ public class HistoryFragment extends Fragment {
                         new Handler(Looper.getMainLooper()).post(new Runnable() {
                             @Override
                             public void run() {
-                                showButton();
+//                                showButton();
 
                                 showEmptyLayout();
                             }

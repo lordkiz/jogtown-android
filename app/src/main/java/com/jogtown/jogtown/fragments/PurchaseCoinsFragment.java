@@ -6,12 +6,15 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.text.SpannableString;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,6 +36,7 @@ import com.jogtown.jogtown.R;
 import com.jogtown.jogtown.utils.adapters.CoinsRecyclerViewAdapter;
 import com.jogtown.jogtown.utils.network.MyUrlRequestCallback;
 import com.jogtown.jogtown.utils.network.NetworkRequest;
+import com.jogtown.jogtown.utils.ui.MyTypefaceSpan;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -111,7 +115,20 @@ public class PurchaseCoinsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view =  inflater.inflate(R.layout.fragment_purchase_coins, container, false);
-        getActivity().setTheme(R.style.AppTheme);
+        try {
+            ActionBar actionBar =  ((AppCompatActivity) getActivity()).getSupportActionBar();
+
+            SpannableString spannableString = new SpannableString("Get Coins");
+            spannableString.setSpan(
+                    new MyTypefaceSpan(getContext(), "fonts/baijamjuree_semi_bold.ttf"),
+                    0,
+                    spannableString.length(),
+                    SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+            actionBar.setTitle(spannableString);
+        } catch (NullPointerException e) {
+            //
+        }
         recyclerView = view.findViewById(R.id.coin_list_recycler_view);
         progressBar = view.findViewById(R.id.purchaseCoinProgressBar);
 

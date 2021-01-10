@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginBottom="60dp">
+    android:orientation="vertical"
+    tools:context=".activities.AppActivity"
+    android:background="@color/snow"
+    >
 
     <com.google.android.gms.ads.AdView
         xmlns:ads="http://schemas.android.com/apk/res-auto"
         android:id="@+id/historyAdView"
-        ads:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
+        android:layout_alignParentTop="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true"
         android:visibility="gone"
         ads:adSize="BANNER"
         ads:adUnitId="@string/adUnitId" />
@@ -23,18 +23,16 @@
     <LinearLayout
         android:id="@+id/history_fragment_empty_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:visibility="gone"
-        android:gravity="center"
+        android:layout_gravity="center"
         android:orientation="vertical"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/historyAdView"
         >
 
         <ImageView
             android:layout_width="120dp"
             android:layout_height="120dp"
+            android:layout_gravity="center"
             android:src="@drawable/empty"
             android:alpha="0.5"
             />
@@ -44,43 +42,51 @@
             android:layout_margin="15dp"
             android:textColor="@color/silver"
             android:text="No Recorded Jogs"
+            android:fontFamily="@font/michroma_regular"
             android:textAlignment="center"
-            android:textSize="16sp"
+            android:textSize="11sp"
             />
 
     </LinearLayout>
 
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/history_items_recycler_view"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        />
+
+
+    <LinearLayout
+        android:id="@+id/history_items_progress_container"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/historyAdView">
+        android:background="@color/transparent"
+        android:gravity="center"
+        >
 
-    </androidx.recyclerview.widget.RecyclerView>
+        <Button
+            android:id="@+id/loadMoreHistoryButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@drawable/circle_green_linear_gradient"
+            android:padding="7dp"
+            android:gravity="center"
+            android:layout_marginTop="10dp"
+            android:text="+"
+            android:visibility="gone"
+            android:fontFamily="@font/baijamjuree_semi_bold"
+            android:textSize="20sp"
+            android:textColor="@color/snow" />
+        <ProgressBar
+            android:id="@+id/history_fragment_progess_bar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
+    </LinearLayout>
 
-    <ProgressBar
-        android:id="@+id/history_fragment_progess_bar"
-        style="?android:attr/progressBarStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/history_items_recycler_view" />
 
-    <Button
-        android:id="@+id/loadMoreHistoryButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:background="#999"
-        android:onClick="loadMoreUserJogs"
-        android:padding="7dp"
-        android:text="load more..."
-        android:textColor="#FCFCFC"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/history_items_recycler_view" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

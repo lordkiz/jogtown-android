@@ -17,6 +17,10 @@
         <!-- <item name="colorPrimaryDark">@android:color/white</item> -->
     </style>
 
+    <style name="BottomNavigationViewTextStyle">
+        <item name="android:fontFamily">@font/baijamjuree_semi_bold</item>
+    </style>
+
 </resources>
 
 

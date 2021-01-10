@@ -13,8 +13,14 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import io.reactivex.Observable;
 import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Function;
@@ -29,6 +35,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -41,9 +48,10 @@ import com.google.android.gms.ads.AdView;
 import com.jakewharton.rxbinding2.widget.RxTextView;
 import com.jogtown.jogtown.R;
 import com.jogtown.jogtown.activities.MainActivity;
-import com.jogtown.jogtown.activities.PurchaseCoinsActivity;
+import com.jogtown.jogtown.activities.SecondaryAppActivity;
 import com.jogtown.jogtown.utils.Auth;
 import com.jogtown.jogtown.utils.Conversions;
+import com.jogtown.jogtown.utils.adapters.HistoryRecyclerAdapter;
 import com.jogtown.jogtown.utils.network.MyUrlRequestCallback;
 import com.jogtown.jogtown.utils.network.NetworkRequest;
 import com.jogtown.jogtown.utils.network.PathUtils;
@@ -51,10 +59,13 @@ import com.jogtown.jogtown.utils.network.S3Uploader;
 import com.jogtown.jogtown.utils.ui.PicassoCircle;
 import com.squareup.picasso.Picasso;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -93,16 +104,28 @@ public class ProfileFragment extends Fragment {
     TextView profileStatsDistanceText;
     TextView profileStatsJogsText;
     TextView profileStatsTotalTimeText;
+    Button seeAllJogsButton;
 
     FrameLayout oneKmRecordView;
     FrameLayout threeKmRecordView;
     FrameLayout fiveKmRecordView;
     FrameLayout tenKmRecordView;
 
+    CardView statsContainer;
+
+    LinearLayout adStatus;
+    LinearLayout coinBalance;
+
     AdView mAdView;
 
     SharedPreferences authPref;
     SharedPreferences settingsPref;
+
+    RecyclerView recyclerView;
+    RecyclerView.LayoutManager layoutManager;
+    RecyclerView.Adapter mAdapter;
+
+    List<Object> jogs = new ArrayList<>();
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -141,6 +164,15 @@ public class ProfileFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
+        try {
+            ActionBar actionBar =  ((AppCompatActivity) getActivity()).getSupportActionBar();
+
+            actionBar.setTitle("");
+            actionBar.setElevation(0);
+        } catch (NullPointerException e) {
+            //
+        }
+
         authPref = MainActivity.appContext.getSharedPreferences("AuthPreferences", Context.MODE_PRIVATE);
 
         nameText = view.findViewById(R.id.metaNameText);
@@ -167,14 +199,20 @@ public class ProfileFragment extends Fragment {
         fiveKmRecordView = view.findViewById(R.id.five_km_record_view);
         tenKmRecordView = view.findViewById(R.id.ten_km_record_view);
 
-        Button logoutButton = view.findViewById(R.id.logoutButton);
-        Button editButton = view.findViewById(R.id.editProfileButton);
-        Button buyCoinsButton = view.findViewById(R.id.buyCoinsProfileButton);
+        statsContainer = view.findViewById(R.id.profile_stats_container);
 
-        logoutButton.setOnClickListener(new View.OnClickListener() {
+        coinBalance = view.findViewById(R.id.profile_coins_balance_linear_layout);
+        adStatus = view.findViewById(R.id.profile_ad_status_linear_layout);
+
+        seeAllJogsButton = view.findViewById(R.id.profile_see_all_jogs_button);
+
+
+        ImageButton editButton = view.findViewById(R.id.editProfileButton);
+
+        seeAllJogsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                logout();
+                Navigation.findNavController(v).navigate(R.id.action_profileFragment_to_historyFragment);
             }
         });
 
@@ -185,13 +223,37 @@ public class ProfileFragment extends Fragment {
             }
         });
 
-        buyCoinsButton.setOnClickListener(new View.OnClickListener() {
+        statsContainer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getContext(), PurchaseCoinsActivity.class);
+                Navigation.findNavController(v).navigate(R.id.action_profileFragment_to_historyFragment);
+            }
+        });
+
+        coinBalance.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Navigation.findNavController(v).navigate(R.id.action_profileFragment_to_purchaseCoinsFragment);
+            }
+        });
+
+        adStatus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getContext(), SecondaryAppActivity.class);
                 startActivity(intent);
             }
         });
+
+
+//        buyCoinsButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent intent = new Intent(getContext(), PurchaseCoinsActivity.class);
+//                startActivity(intent);
+//                Navigation.findNavController(v).navigate(R.id.action_Profile_to_purchaseCoinsFragment);
+//            }
+//        });
 
         setUpMetaUI();
 
@@ -206,7 +268,13 @@ public class ProfileFragment extends Fragment {
             mAdView.setVisibility(View.VISIBLE);
             AdRequest adRequest = new AdRequest.Builder().build();
             mAdView.loadAd(adRequest);
+        } else {
+            TextView adStatusProfileText = view.findViewById(R.id.adStatusProfileText);
+            adStatusProfileText.setText("Ad free until 31 Aug 2020");
         }
+
+        recyclerView = view.findViewById(R.id.profile_jogs_recycler_view);
+        setUpRecyclerView();
 
         return view;
     }
@@ -255,13 +323,21 @@ public class ProfileFragment extends Fragment {
 
     public static void setCoinText() {
         SharedPreferences authPref = MainActivity.appContext.getSharedPreferences("AuthPreferences", Context.MODE_PRIVATE);
-        final String coins = Integer.toString(authPref.getInt("coins", 0));
+        final String coins = Integer.toString(authPref.getInt("coins", 0)) + " coins";
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
                 coinsProfileText.setText(coins);
             }
         });
+    }
+
+
+    private void setUpRecyclerView() {
+        layoutManager = new LinearLayoutManager(MainActivity.appContext);
+        mAdapter = new HistoryRecyclerAdapter(jogs);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(mAdapter);
     }
 
     private void setUpMetaUI() {
@@ -305,6 +381,19 @@ public class ProfileFragment extends Fragment {
                     int totalTime = data.getInt("total_time");
                     int jogsCount = data.getInt("run_count");
 
+                    JSONArray runs = data.getJSONArray("runs");
+                    List<Object> lastThreeRuns = new ArrayList<>();
+                    int maxFive = runs.length() <= 3 ? runs.length() : 3;
+                    if (runs.length() > 0) {
+                        for (int i = 0; i < maxFive; i++) {
+                            lastThreeRuns.add(runs.get(i));
+                        }
+                        jogs.addAll(lastThreeRuns);
+                    }
+
+                    if (runs.length() > jogs.size()) {
+                        seeAllJogsButton.setVisibility(View.VISIBLE);
+                    }
 
                     profileStatsCalorieText.setText(Integer.toString(totalCalories));
                     profileStatsDistanceText.setText(Conversions.displayKilometres(totalDistance));
@@ -349,13 +438,6 @@ public class ProfileFragment extends Fragment {
             progressBar.setVisibility(View.INVISIBLE);
 
         }
-    }
-
-
-    public void logout() {
-
-        final Activity activity = this.getActivity();
-        Auth.signOut(activity);
     }
 
 
@@ -417,7 +499,6 @@ public class ProfileFragment extends Fragment {
 
 
 
-
     Uri newAvatarUri;
     String newAvatarStr;
 
@@ -435,7 +516,7 @@ public class ProfileFragment extends Fragment {
 
 
     public void showEditProfileDialog() {
-        editProfileDialog = new Dialog(getActivity(), android.R.style.Theme_NoTitleBar);
+        editProfileDialog = new Dialog(getActivity(), android.R.style.Theme_Translucent_NoTitleBar);
         editProfileDialog.setContentView(R.layout.edit_profile_layout);
         editProfileDialog.getWindow().setBackgroundDrawableResource(R.color.transparent);
         editProfileDialog.setCancelable(true);

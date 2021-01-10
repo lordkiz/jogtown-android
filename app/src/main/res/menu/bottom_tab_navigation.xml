@@ -2,17 +2,17 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/profileTab"
+        android:id="@+id/profileFragment"
         android:icon="@drawable/ic_person"
         android:title="Profile" />
 
     <item
-        android:id="@+id/startRunTab"
+        android:id="@+id/startFragment"
         android:icon="@drawable/ic_walk"
         android:title="Start" />
 
     <item
-        android:id="@+id/inboxTab"
+        android:id="@+id/historyFragment"
         android:icon="@drawable/ic_mail"
-        android:title="Inbox" />
+        android:title="History" />
 </menu>

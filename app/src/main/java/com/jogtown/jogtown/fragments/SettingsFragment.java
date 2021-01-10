@@ -1,8 +1,8 @@
 package com.jogtown.jogtown.fragments;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
@@ -11,9 +11,11 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.text.SpannableString;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,9 +25,10 @@ import android.widget.Switch;
 import android.widget.Toast;
 
 import com.jogtown.jogtown.R;
-import com.jogtown.jogtown.activities.PurchaseCoinsActivity;
+import com.jogtown.jogtown.utils.Auth;
 import com.jogtown.jogtown.utils.network.MyUrlRequestCallback;
 import com.jogtown.jogtown.utils.network.NetworkRequest;
+import com.jogtown.jogtown.utils.ui.MyTypefaceSpan;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -67,6 +70,8 @@ public class SettingsFragment extends Fragment {
     Button removeAdsButton;
     Button getCoinsButton;
 
+    View thisView;
+
     public SettingsFragment() {
         // Required empty public constructor
     }
@@ -103,8 +108,23 @@ public class SettingsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
+        thisView = view;
         getActivity().setTheme(R.style.AppTheme);
         Context context = getContext();
+        try {
+            ActionBar actionBar =  ((AppCompatActivity) getActivity()).getSupportActionBar();
+
+            SpannableString spannableString = new SpannableString("Settings");
+            spannableString.setSpan(
+                    new MyTypefaceSpan(context, "fonts/baijamjuree_semi_bold.ttf"),
+                    0,
+                    spannableString.length(),
+                    SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+            actionBar.setTitle(spannableString);
+        } catch (NullPointerException e) {
+            //
+        }
         settingsPref = context.getSharedPreferences("SettingsPreferences", MODE_PRIVATE);
         authPref = context.getSharedPreferences("AuthPreferences", MODE_PRIVATE);
 
@@ -144,10 +164,17 @@ public class SettingsFragment extends Fragment {
         getCoinsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), PurchaseCoinsActivity.class);
+                Navigation.findNavController(v).navigate(R.id.action_settingsFragment_to_purchaseCoinsFragment2);
+            }
+        });
 
-                intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
+
+        Button logoutButton = view.findViewById(R.id.logoutButton);
+
+        logoutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                logout();
             }
         });
 
@@ -225,6 +252,11 @@ public class SettingsFragment extends Fragment {
         alertDialogBuilder.show();
     }
 
+    public void logout() {
+        final Activity activity = this.getActivity();
+        Auth.signOut(activity);
+    }
+
 
     private void removeAds() {
         final int userCoins = authPref.getInt("coins", 0);
@@ -244,9 +276,7 @@ public class SettingsFragment extends Fragment {
             alertDialogBuilder.setPositiveButton("Get Coins", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    Intent intent = new Intent(getApplicationContext(), PurchaseCoinsActivity.class);
-                    intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
+                    Navigation.findNavController(thisView).navigate(R.id.action_settingsFragment_to_purchaseCoinsFragment2);
                     dialog.dismiss();
                 }
             });

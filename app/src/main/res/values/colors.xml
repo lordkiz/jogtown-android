@@ -28,5 +28,7 @@
     <color name="red">#FF4949</color>
     <color name="slate">#3C4858</color>
     <color name="silver">#8492A6</color>
+    <color name="steel">#273444</color>
+    <color name="jogBlack">#1F2D3D</color>
 
 </resources>

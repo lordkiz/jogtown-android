@@ -1,136 +1,117 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-
-<ScrollView android:id="@+id/profile_scroll_view"
+<ScrollView
+    android:layout_height="wrap_content"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:background="@color/snow"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <LinearLayout
+        android:id="@+id/profile_container_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
+        android:layout_height="match_parent"
+        android:background="@color/snow"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        >
 
         <LinearLayout
+            android:id="@+id/meta_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#FFF"
-            android:layout_marginBottom="20dp"
-            android:paddingBottom="1dp"
-            android:elevation="1dp"
-            android:orientation="vertical">
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                >
-
-                <View
-                    android:id="@+id/metaBackground"
-                    android:layout_width="match_parent"
-                    android:layout_height="140dp"
-                    android:background="@drawable/purple_linear_background" />
-
-                <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:src="@drawable/light_wool"
-                    android:scaleType="centerCrop"
-                    />
-            </FrameLayout>
-
-            <ImageView
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                android:id="@+id/profile_picture"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:layout_marginTop="-100dp"
-                android:layout_gravity="center"
-                android:src="@drawable/com_facebook_profile_picture_blank_portrait"
-                />
-
-            <TextView
-                android:id="@+id/metaNameText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:text=""
-                android:textAlignment="center"
-                android:textColor="#666"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
+            android:orientation="horizontal"
+            android:paddingBottom="120dp"
+            android:paddingTop="10dp"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:background="@color/colorPrimary"
+            >
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="10dp"
-                android:gravity="center"
-                android:layout_gravity="center"
-                >
+                android:orientation="vertical">
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    >
+                    <ImageView
+                        android:id="@+id/profile_picture"
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/com_facebook_profile_picture_blank_portrait"
+                        />
+                    <ImageButton
+                        android:id="@+id/editProfileButton"
+                        android:layout_gravity="bottom"
+                        android:src="@drawable/ic_pencil_outline"
+                        android:tint="@color/lightGhostWhite"
+                        android:background="@drawable/circle_purple_primary"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp" />
 
-                <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:src="@drawable/one_hundred_coins"
-                    android:layout_gravity="center"
+                </FrameLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="2dp"
+                    android:text="Tap pen icon to edit"
+                    android:textColor="@color/snow"
+                    android:textSize="8sp"
+                    android:fontFamily="@font/michroma_regular" />
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginLeft="10dp"
+                >
+                <TextView
+                    android:id="@+id/metaGreetingText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Hey,"
+                    android:fontFamily="@font/baijamjuree_semi_bold"
+                    android:textColor="@color/snow"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
                     />
 
                 <TextView
-                    android:id="@+id/coinsProfileText"
-                    android:layout_width="match_parent"
+                    android:id="@+id/metaNameText"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
-                    android:text="0"
-                    android:textAlignment="center"
-                    android:textColor="@color/silver"
-                    android:textSize="15sp"
-                    android:textStyle="bold"
-                    android:layout_gravity="center"
-                    />
-
+                    android:text=""
+                    android:layout_marginTop="-10dp"
+                    android:fontFamily="@font/baijamjuree_semi_bold"
+                    android:textColor="@color/snow"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
             </LinearLayout>
+        </LinearLayout>
+
+        <androidx.cardview.widget.CardView
+            xmlns:card_view="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/profile_stats_container"
+            android:padding="20dp"
+            android:layout_marginTop="-80dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginBottom="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            card_view:cardCornerRadius="4dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <Button
-                    android:id="@+id/logoutButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/red_linear_gradient"
-                    android:text="Log Out"
-                    android:textColor="#FFF" />
-
-                <Button
-                    android:id="@+id/editProfileButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/green_linear_gradient"
-                    android:text="Edit Profile"
-                    android:textColor="#FFF" />
-
-                <Button
-                    android:id="@+id/buyCoinsProfileButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/purple_linear_background"
-                    android:text="Get Coins"
-                    android:textColor="#FFF" />
-
-            </LinearLayout>
-
+                android:orientation="vertical">
 
             <LinearLayout
+                android:id="@+id/profile_numbers_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingTop="10dp"
@@ -138,10 +119,9 @@
                 android:paddingLeft="5dp"
                 android:paddingRight="5dp"
                 >
-
                 <LinearLayout
                     android:id="@+id/profile_stats_item_linear_layout_distance"
-                    android:layout_width="92dp"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:layout_weight="1">
@@ -153,8 +133,9 @@
                         android:padding="2dp"
                         android:text="DISTANCE"
                         android:textAlignment="center"
-                        android:textColor="#999"
-                        android:textSize="12sp" />
+                        android:textColor="#666"
+                        android:textSize="8sp"
+                        android:fontFamily="@font/michroma_regular" />
 
                     <TextView
                         android:id="@+id/profile_stats_distance_text"
@@ -164,12 +145,12 @@
                         android:textAlignment="center"
                         android:textColor="#000"
                         android:textSize="18sp"
-                        android:textStyle="bold" />
+                        android:fontFamily="@font/baijamjuree_semi_bold" />
                 </LinearLayout>
 
                 <LinearLayout
                     android:id="@+id/profile_stats_item_linear_layout_total_time"
-                    android:layout_width="93dp"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:layout_weight="1">
@@ -181,8 +162,9 @@
                         android:padding="2dp"
                         android:text="TOTAL TIME"
                         android:textAlignment="center"
-                        android:textColor="#999"
-                        android:textSize="12sp" />
+                        android:textColor="#666"
+                        android:textSize="8sp"
+                        android:fontFamily="@font/michroma_regular" />
 
                     <TextView
                         android:id="@+id/profile_stats_total_time_text"
@@ -192,12 +174,12 @@
                         android:textAlignment="center"
                         android:textColor="#000"
                         android:textSize="18sp"
-                        android:textStyle="bold" />
+                        android:fontFamily="@font/baijamjuree_semi_bold" />
                 </LinearLayout>
 
                 <LinearLayout
                     android:id="@+id/profile_stats_item_linear_layout_jogs"
-                    android:layout_width="93dp"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:layout_weight="1">
@@ -209,8 +191,9 @@
                         android:padding="2dp"
                         android:text="JOGS"
                         android:textAlignment="center"
-                        android:textColor="#999"
-                        android:textSize="12sp" />
+                        android:textColor="#666"
+                        android:textSize="8sp"
+                        android:fontFamily="@font/michroma_regular" />
 
                     <TextView
                         android:id="@+id/profile_stats_jogs_text"
@@ -220,12 +203,12 @@
                         android:textAlignment="center"
                         android:textColor="#000"
                         android:textSize="18sp"
-                        android:textStyle="bold" />
+                        android:fontFamily="@font/baijamjuree_semi_bold" />
                 </LinearLayout>
 
                 <LinearLayout
                     android:id="@+id/profile_stats_item_linear_layout_calorie"
-                    android:layout_width="93dp"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:layout_weight="1">
@@ -237,8 +220,9 @@
                         android:padding="2dp"
                         android:text="CALORIES"
                         android:textAlignment="center"
-                        android:textColor="#999"
-                        android:textSize="12sp" />
+                        android:textColor="#666"
+                        android:textSize="8sp"
+                        android:fontFamily="@font/michroma_regular" />
 
                     <TextView
                         android:id="@+id/profile_stats_calorie_text"
@@ -248,17 +232,190 @@
                         android:textAlignment="center"
                         android:textColor="#000"
                         android:textSize="18sp"
-                        android:textStyle="bold" />
+                        android:fontFamily="@font/baijamjuree_semi_bold" />
+                </LinearLayout>
+            </LinearLayout>
+    <!--        Achievements   -->
+            <LinearLayout
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_gravity="center_horizontal"
+                android:orientation="horizontal">
+                <LinearLayout
+                    android:id="@+id/linearLayout"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <FrameLayout
+                        android:id="@+id/one_km_record_view"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:background="@drawable/stat_circle"
+                        android:gravity="center">
+
+                        <TextView
+                            android:id="@+id/oneKmText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="1KM"
+                            android:fontFamily="@font/baijamjuree_semi_bold"
+                            android:textAlignment="center"
+                            android:textColor="#FFF"
+                            android:textSize="14sp" />
+                    </FrameLayout>
+
+                    <TextView
+                        android:id="@+id/one_km_done_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="NOT DONE"
+                        android:textAlignment="center"
+                        android:textColor="#999"
+                        android:textSize="10sp"
+                        android:fontFamily="@font/michroma_regular" />
                 </LinearLayout>
 
+
+                <LinearLayout
+                    android:id="@+id/linearLayout2"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <FrameLayout
+                        android:id="@+id/three_km_record_view"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:background="@drawable/stat_circle">
+
+                        <TextView
+                            android:id="@+id/threeKmText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="3KM"
+                            android:fontFamily="@font/baijamjuree_semi_bold"
+                            android:textAlignment="center"
+                            android:textColor="#FFF"
+                            android:textSize="14sp" />
+                    </FrameLayout>
+
+                    <TextView
+                        android:id="@+id/three_km_done_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="NOT DONE"
+                        android:textAlignment="center"
+                        android:textColor="#999"
+                        android:textSize="10sp"
+                        android:fontFamily="@font/michroma_regular" />
+                </LinearLayout>
+
+
+                <LinearLayout
+                    android:id="@+id/linearLayout3"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <FrameLayout
+                        android:id="@+id/five_km_record_view"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:background="@drawable/stat_circle">
+
+                        <TextView
+                            android:id="@+id/fiveKmText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="5KM"
+                            android:fontFamily="@font/baijamjuree_semi_bold"
+                            android:textAlignment="center"
+                            android:textColor="#FFF"
+                            android:textSize="14sp" />
+                    </FrameLayout>
+
+                    <TextView
+                        android:id="@+id/five_km_done_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="NOT DONE"
+                        android:textAlignment="center"
+                        android:textColor="#999"
+                        android:textSize="10sp"
+                        android:fontFamily="@font/michroma_regular" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/linearLayout4"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <FrameLayout
+                        android:id="@+id/ten_km_record_view"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:background="@drawable/stat_circle">
+
+                        <TextView
+                            android:id="@+id/tenKmText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="10KM"
+                            android:textAlignment="center"
+                            android:textColor="#FFF"
+                            android:textSize="14sp"
+                            android:fontFamily="@font/baijamjuree_semi_bold"
+                            />
+                    </FrameLayout>
+
+                    <TextView
+                        android:id="@+id/ten_km_done_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="NOT DONE"
+                        android:textAlignment="center"
+                        android:textColor="#999"
+                        android:textSize="10sp"
+                        android:fontFamily="@font/michroma_regular"
+                        />
+                </LinearLayout>
             </LinearLayout>
-        </LinearLayout>
+
+            <ProgressBar
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:id="@+id/userKmStatsFragmentProgressBar"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content" />
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!--   ADVIEW     -->
 
 
         <com.google.android.gms.ads.AdView
             xmlns:ads="http://schemas.android.com/apk/res-auto"
             android:id="@+id/profileAdView"
-            ads:layout_constraintTop_toTopOf="parent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             ads:adSize="BANNER"
@@ -266,212 +423,99 @@
             ads:adUnitId="@string/adUnitId">
         </com.google.android.gms.ads.AdView>
 
-        <!-- KM STATS -->
-
-        <TextView
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:id="@+id/profile_coins_and_ad"
             android:layout_height="wrap_content"
-            android:padding="6dp"
-            android:text="STATS"
-            android:textAlignment="viewStart"
-            android:textColor="#8492A6"
-            android:textSize="16sp" />
-
-
-        <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
-            xmlns:tools="http://schemas.android.com/tools"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginBottom="10dp"
-            android:background="#FFF"
-            android:paddingBottom="30dp"
-            android:paddingTop="30dp"
-            android:elevation="1dp"
+            android:orientation="horizontal"
+            android:layout_marginVertical="20dp"
+            android:layout_marginHorizontal="20dp"
+            android:background="@drawable/ghost_card_background"
+            android:layout_gravity="center_horizontal"
             >
-
             <LinearLayout
-                android:id="@+id/linearLayout"
-                android:layout_width="wrap_content"
+                android:id="@+id/profile_coins_balance_linear_layout"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="10dp"
                 android:gravity="center"
-                android:orientation="vertical"
-                app:layout_constraintEnd_toStartOf="@+id/linearLayout2"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent">
+                android:layout_weight="1"
+                android:layout_gravity="center"
+                >
 
-                <FrameLayout
-                    android:id="@+id/one_km_record_view"
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
-                    android:background="@drawable/stat_circle"
-                    android:gravity="center">
-
-                    <TextView
-                        android:id="@+id/oneKmText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:text="1KM"
-                        android:textAlignment="center"
-                        android:textColor="#FFF"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-                </FrameLayout>
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/five_hundred_coins"
+                    android:layout_gravity="center"
+                    />
 
                 <TextView
-                    android:id="@+id/one_km_done_text"
+                    android:id="@+id/coinsProfileText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="NOT DONE"
+                    android:layout_margin="10dp"
+                    android:text="0 coins"
                     android:textAlignment="center"
-                    android:textColor="#999"
-                    android:textSize="14sp"
-                    android:textStyle="normal" />
+                    android:textColor="@color/dark_gray"
+                    android:textSize="13sp"
+                    android:fontFamily="@font/michroma_regular"
+                    android:layout_gravity="center"
+                    />
             </LinearLayout>
 
+            <View
+                android:layout_height="match_parent"
+                android:layout_width="2dp"
+                android:background="@color/smoke"
+                />
 
             <LinearLayout
-                android:id="@+id/linearLayout2"
-                android:layout_width="wrap_content"
+                android:id="@+id/profile_ad_status_linear_layout"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:gravity="center"
-                android:orientation="vertical"
-                app:layout_constraintEnd_toStartOf="@+id/linearLayout3"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/linearLayout"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent">
-
-                <FrameLayout
-                    android:id="@+id/three_km_record_view"
-                    android:layout_width="70dp"
-                    android:layout_height="70dp"
-                    android:background="@drawable/stat_circle">
-
-                    <TextView
-                        android:id="@+id/threeKmText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:text="3KM"
-                        android:textAlignment="center"
-                        android:textColor="#FFF"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
-                </FrameLayout>
-
+                android:layout_weight="1">
                 <TextView
-                    android:id="@+id/three_km_done_text"
+                    android:id="@+id/adStatusProfileText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="NOT DONE"
+                    android:layout_margin="10dp"
+                    android:text="Remove Ads"
                     android:textAlignment="center"
-                    android:textColor="#999"
-                    android:textSize="14sp"
-                    android:textStyle="normal" />
+                    android:textColor="@color/lightGreen"
+                    android:textSize="13sp"
+                    android:fontFamily="@font/michroma_regular"
+                    android:layout_gravity="center"
+                    />
             </LinearLayout>
 
+        </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/linearLayout3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="vertical"
-                app:layout_constraintEnd_toStartOf="@+id/linearLayout4"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/linearLayout2"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent">
-
-                <FrameLayout
-                    android:id="@+id/five_km_record_view"
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"
-                    android:background="@drawable/stat_circle">
-
-                    <TextView
-                        android:id="@+id/fiveKmText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:text="5KM"
-                        android:textAlignment="center"
-                        android:textColor="#FFF"
-                        android:textSize="20sp"
-                        android:textStyle="bold" />
-                </FrameLayout>
-
-                <TextView
-                    android:id="@+id/five_km_done_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="NOT DONE"
-                    android:textAlignment="center"
-                    android:textColor="#999"
-                    android:textSize="14sp"
-                    android:textStyle="normal" />
-            </LinearLayout>
-
-
-            <LinearLayout
-                android:id="@+id/linearLayout4"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="vertical"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/linearLayout3"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent">
-
-                <FrameLayout
-                    android:id="@+id/ten_km_record_view"
-                    android:layout_width="90dp"
-                    android:layout_height="90dp"
-                    android:background="@drawable/stat_circle">
-
-                    <TextView
-                        android:id="@+id/tenKmText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:text="10KM"
-                        android:textAlignment="center"
-                        android:textColor="#FFF"
-                        android:textSize="22sp"
-                        android:textStyle="bold" />
-                </FrameLayout>
-
-                <TextView
-                    android:id="@+id/ten_km_done_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="NOT DONE"
-                    android:textAlignment="center"
-                    android:textColor="#999"
-                    android:textSize="14sp"
-                    android:textStyle="normal" />
-            </LinearLayout>
-
-            <ProgressBar
-                android:id="@+id/userKmStatsFragmentProgressBar"
-                style="?android:attr/progressBarStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/profile_jogs_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="280dp"
+            android:nestedScrollingEnabled="false"
+            />
+        <Button
+            android:id="@+id/profile_see_all_jogs_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="20dp"
+            android:padding="10dp"
+            android:background="@drawable/button_green_background"
+            android:text="See All Jogs"
+            android:layout_gravity="end"
+            android:layout_marginRight="15dp"
+            android:textColor="@color/snow"
+            android:layout_weight="1"
+            android:textSize="12sp"
+            android:fontFamily="@font/michroma_regular"
+            android:visibility="invisible"
+            />
 
     </LinearLayout>
 

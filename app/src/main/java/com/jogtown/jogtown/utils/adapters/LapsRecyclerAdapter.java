@@ -44,7 +44,6 @@ public class LapsRecyclerAdapter extends RecyclerView.Adapter<LapsRecyclerAdapte
     public class LapsViewHolder extends RecyclerView.ViewHolder {
         View layout;
         TextView lapKM;
-        //TextView lapTime;
         TextView lapPace;
         ProgressBar paceStrengthBar;
 
@@ -52,7 +51,6 @@ public class LapsRecyclerAdapter extends RecyclerView.Adapter<LapsRecyclerAdapte
             super(view);
             layout = view;
             lapKM = view.findViewById(R.id.lapKM);
-            //lapTime = view.findViewById(R.id.lapTime);
             lapPace = view.findViewById(R.id.lapPace);
             paceStrengthBar = view.findViewById(R.id.paceStrengthBar);
         }
@@ -82,13 +80,12 @@ public class LapsRecyclerAdapter extends RecyclerView.Adapter<LapsRecyclerAdapte
             String pace = Conversions.displayPace(distance, duration);
 
             holder.lapKM.setText(km);
-            //holder.lapTime.setText(time);
             holder.lapPace.setText(pace);
 
             int paceInt = Conversions.calculatePace(distance, duration);
             int paceStrength = Math.round((float) paceInt/this.totalPace * 100);
 
-            //To know the percentage which a paceStrngthBar should show we need to know
+            //To know the percentage which a paceStrengthBar should show we need to know
             //the total laps present. So for example, a total laps of 4 means for each to
             //the same strength bar level, the paceStrength has to be 100/4 = 25. So anything
             //less than 25 is a good pace and anything greater than 25 is slower. So let us color

@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteConstraintException;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -22,6 +23,7 @@ import androidx.room.Room;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.text.SpannableString;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,7 +31,9 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
@@ -46,8 +50,6 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.jogtown.jogtown.DAO.JogDAO;
 import com.jogtown.jogtown.R;
-import com.jogtown.jogtown.activities.AppActivity;
-import com.jogtown.jogtown.activities.JogDetailActivity;
 import com.jogtown.jogtown.models.Jog;
 import com.jogtown.jogtown.utils.Auth;
 import com.jogtown.jogtown.utils.Conversions;
@@ -55,6 +57,8 @@ import com.jogtown.jogtown.utils.adapters.LapsRecyclerAdapter;
 import com.jogtown.jogtown.utils.database.AppDatabase;
 import com.jogtown.jogtown.utils.network.MyUrlRequestCallback;
 import com.jogtown.jogtown.utils.network.NetworkRequest;
+import com.jogtown.jogtown.utils.ui.ChartAxisFormatter;
+import com.jogtown.jogtown.utils.ui.MyTypefaceSpan;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -86,6 +90,7 @@ public class JogDetailFragment extends Fragment implements OnMapReadyCallback {
     Boolean loading = false;
 
     GoogleMap mMap;
+    LottieAnimationView jogDetailTreadmill;
     LineChart paceAnalysisChart;
     LineChart speedAnalysisChart;
     TextView durationTextView;
@@ -146,13 +151,38 @@ public class JogDetailFragment extends Fragment implements OnMapReadyCallback {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_jog_detail, container, false);
 
-        getActivity().setTheme(R.style.AppTheme);
+        try {
+            ActionBar actionBar =  ((AppCompatActivity) getActivity()).getSupportActionBar();
+
+            SpannableString spannableString = new SpannableString("Details");
+            spannableString.setSpan(
+                    new MyTypefaceSpan(getContext(), "fonts/baijamjuree_semi_bold.ttf"),
+                    0,
+                    spannableString.length(),
+                    SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+            actionBar.setTitle(spannableString);
+
+            actionBar.setDisplayHomeAsUpEnabled(true);
+
+        } catch (NullPointerException e) {
+            //
+        }
         super.onCreate(savedInstanceState);
 
         settingsPref = getActivity().getSharedPreferences("SettingsPreferences", MODE_PRIVATE);
 
         setUpJogObject();
 
+        jogDetailTreadmill = view.findViewById(R.id.jog_details_treadmill);
+        try {
+            String jogType = jog.getString("jog_type");
+            if (jogType == "treadmill") {
+                jogDetailTreadmill.setVisibility(View.VISIBLE);
+            }
+        } catch (Exception e) {
+
+        }
         progressBar = view.findViewById(R.id.jogDetailsProgressBar);
         paceAnalysisChart = view.findViewById(R.id.jogDetailsPaceAnalysisChart);
         speedAnalysisChart = view.findViewById(R.id.jogDetailsSpeedAnalysisChart);
@@ -165,13 +195,6 @@ public class JogDetailFragment extends Fragment implements OnMapReadyCallback {
         caloriesTextView = view.findViewById(R.id.jogDetailsCaloriesTextView);
         jogDate = view.findViewById(R.id.jogDate);
         lapsRecyclerView = view.findViewById(R.id.jogDetailsLapsRecyclerView);
-
-        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setElevation(0);
-            actionBar.setTitle("Jog Details");
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
 
         SupportMapFragment mMapFragment = SupportMapFragment.newInstance();
         mMapFragment.getMapAsync(this);
@@ -289,48 +312,80 @@ public class JogDetailFragment extends Fragment implements OnMapReadyCallback {
             List<Integer> paces = gson.fromJson(pcs.toString(), pacesType);
             List<Float> speeds = gson.fromJson(spds.toString(), speedsType);
 
-
-            for (int i = 0; i < paces.size(); i++) {
-                paceEntries.add(new Entry((i + 1) * 10, paces.get(i)));
+            int PACE_STEPPER = paces.size() / 10;
+            if (PACE_STEPPER < 1) {
+                PACE_STEPPER = 1;
+            }
+            for (int i = 0; i < paces.size(); i+=PACE_STEPPER) {
+                paceEntries.add(new Entry(i / 10, paces.get(i)/60 )); //convert pace to min/km
             }
 
-            for (int i = 0; i < speeds.size(); i++) {
-                speedEntries.add(new Entry((i + 1) * 10, speeds.get(i)));
+            int SPEED_STEPPER = speeds.size() / 10;
+            if (SPEED_STEPPER < 1) {
+                SPEED_STEPPER = 1;
+            }
+            for (int i = 0; i < speeds.size(); i+=SPEED_STEPPER) {
+                speedEntries.add(new Entry(i / 10, speeds.get(i)));
             }
 
             LineDataSet paceDataSet = new LineDataSet(paceEntries, "Paces");
             LineDataSet speedDataSet = new LineDataSet(speedEntries, "Speeds");
 
-            paceDataSet.setGradientColors(gradientColors);
+            paceDataSet.setDrawValues(false);
             paceDataSet.setCircleRadius(0.2f);
             paceDataSet.setDrawCircles(true);
             paceDataSet.setLineWidth(2);
             paceDataSet.setDrawFilled(true);
             paceDataSet.setDrawHighlightIndicators(false);
-            paceDataSet.setFillDrawable(getActivity().getDrawable(R.drawable.green_linear_gradient));
-            //paceDataSet.setColors(ColorTemplate.MATERIAL_COLORS);
+            paceDataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
 
-            speedDataSet.setGradientColors(gradientColors);
+            speedDataSet.setDrawValues(false);
             speedDataSet.setCircleRadius(0.2f);
             speedDataSet.setDrawCircles(true);
             speedDataSet.setLineWidth(2);
             speedDataSet.setDrawFilled(true);
             speedDataSet.setDrawHighlightIndicators(false);
-            speedDataSet.setFillDrawable(getActivity().getDrawable(R.drawable.purple_linear_background));
-            //speedDataSet.setColors(ColorTemplate.MATERIAL_COLORS);
+            speedDataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
 
             LineData paceChartData = new LineData(paceDataSet);
             LineData speedChartData = new LineData(speedDataSet);
 
+            Typeface typeface = Typeface.createFromAsset(getActivity().getAssets(), "fonts/baijamjuree_regular.ttf");
+
             paceAnalysisChart.setData(paceChartData);
             paceAnalysisChart.setDrawGridBackground(false);
-            paceAnalysisChart.getAxisLeft().setDrawGridLines(false);
-            paceAnalysisChart.getAxisRight().setDrawGridLines(false);
+            paceAnalysisChart.setNoDataTextTypeface(typeface);
+            AxisBase paceAnalysisXAxis = paceAnalysisChart.getXAxis();
+            AxisBase paceAnalysisYAxis = paceAnalysisChart.getAxisRight();
+            paceAnalysisXAxis.setValueFormatter(new ChartAxisFormatter("", false));
+            paceAnalysisYAxis.setValueFormatter(new ChartAxisFormatter(" min/km", true));
+
+            paceAnalysisXAxis.setDrawGridLines(false);
+            paceAnalysisXAxis.setDrawGridLinesBehindData(false);
+            paceAnalysisXAxis.setDrawLimitLinesBehindData(false);
+            paceAnalysisXAxis.setTypeface(typeface);
+            //yaxis
+            paceAnalysisYAxis.setDrawGridLines(false);
+            paceAnalysisYAxis.setDrawGridLinesBehindData(false);
+            paceAnalysisYAxis.setDrawLimitLinesBehindData(false);
+            paceAnalysisYAxis.setTypeface(typeface);
 
             speedAnalysisChart.setData(speedChartData);
             speedAnalysisChart.setDrawGridBackground(false);
-            speedAnalysisChart.getAxisLeft().setDrawGridLines(false);
-            speedAnalysisChart.getAxisRight().setDrawGridLines(false);
+            speedAnalysisChart.setNoDataTextTypeface(typeface);
+            AxisBase speedAnalysisXAxis = speedAnalysisChart.getXAxis();
+            AxisBase speedAnalysisYAxis = speedAnalysisChart.getAxisRight();
+            speedAnalysisXAxis.setValueFormatter(new ChartAxisFormatter("", false));
+            speedAnalysisYAxis.setValueFormatter(new ChartAxisFormatter(" m/s", true));
+            speedAnalysisXAxis.setDrawGridLines(false);
+            speedAnalysisXAxis.setDrawGridLinesBehindData(false);
+            speedAnalysisXAxis.setDrawLimitLinesBehindData(false);
+            speedAnalysisXAxis.setTypeface(typeface);
+            //yaxis
+            speedAnalysisYAxis.setDrawGridLines(false);
+            speedAnalysisYAxis.setDrawGridLinesBehindData(false);
+            speedAnalysisYAxis.setDrawLimitLinesBehindData(false);
+            speedAnalysisYAxis.setTypeface(typeface);
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -561,7 +616,7 @@ public class JogDetailFragment extends Fragment implements OnMapReadyCallback {
                                 showActivity();
 
                                 try {
-                                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(JogDetailActivity.this);
+                                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
                                     alertDialogBuilder
                                             .setCancelable(true)
                                             .setMessage(responseBody)

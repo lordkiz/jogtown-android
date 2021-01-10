@@ -557,11 +557,4 @@ public class ConversationFragment extends Fragment {
     }
 
 
-
-    @Override
-    public boolean onSupportNavigateUp(){
-        getActivity().finish();
-        return true;
-    }
-
 }

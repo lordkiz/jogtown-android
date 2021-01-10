@@ -17,7 +17,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme.Launcher">
-
+        <activity android:name=".activities.SecondaryAppActivity"></activity>
         <activity android:name=".activities.PurchaseCoinsActivity" />
         <activity android:name=".activities.SettingsActivity" />
         <activity android:name=".activities.GroupActivity" />
@@ -28,8 +28,7 @@
         <activity android:name=".activities.AppActivity" />
         <activity
             android:name=".activities.MainActivity"
-            android:screenOrientation="portrait"
-            >
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

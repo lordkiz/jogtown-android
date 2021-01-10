@@ -9,10 +9,13 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.text.SpannableString;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +33,7 @@ import com.jogtown.jogtown.models.MyDialog;
 import com.jogtown.jogtown.models.Message;
 import com.jogtown.jogtown.utils.network.MyUrlRequestCallback;
 import com.jogtown.jogtown.utils.network.NetworkRequest;
+import com.jogtown.jogtown.utils.ui.MyTypefaceSpan;
 import com.squareup.picasso.Picasso;
 import com.stfalcon.chatkit.commons.ImageLoader;
 import com.stfalcon.chatkit.commons.models.IDialog;
@@ -118,7 +122,20 @@ public class InboxFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_inbox, container, false);
+        try {
+            ActionBar actionBar =  ((AppCompatActivity) getActivity()).getSupportActionBar();
 
+            SpannableString spannableString = new SpannableString("Inbox");
+            spannableString.setSpan(
+                    new MyTypefaceSpan(getContext(), "fonts/baijamjuree_semi_bold.ttf"),
+                    0,
+                    spannableString.length(),
+                    SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+            actionBar.setTitle(spannableString);
+        } catch (NullPointerException e) {
+            //
+        }
         settingsPref = MainActivity.appContext.getSharedPreferences("SettingsPreferences", Context.MODE_PRIVATE);
         boolean showAds = settingsPref.getBoolean("showAds", true);
         if (showAds) {

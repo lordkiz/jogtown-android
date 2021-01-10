@@ -6,6 +6,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
@@ -59,6 +60,12 @@ public class MainActivity extends AppCompatActivity implements
         setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
 
+        try {
+            getSupportActionBar().hide();
+        } catch (NullPointerException e) {
+            //
+        }
+
         FacebookSdk.sdkInitialize(getApplicationContext());
         AppEventsLogger.activateApp(getApplication());
 
@@ -97,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements
                 mp.setLooping(true);
             }
         });
-        Uri uri = Uri.parse("android.resource://"+getPackageName()+"/"+R.raw.jogtown_login_background_video);
+        Uri uri = Uri.parse("android.resource://"+getPackageName()+"/"+R.raw.jogtown_running_video);
         videoView.setVideoURI(uri);
         videoView.start();
 
@@ -117,7 +124,7 @@ public class MainActivity extends AppCompatActivity implements
                 mp.setLooping(true);
             }
         });
-        Uri uri = Uri.parse("android.resource://"+getPackageName()+"/"+R.raw.jogtown_login_background_video);
+        Uri uri = Uri.parse("android.resource://"+getPackageName()+"/"+R.raw.jogtown_running_video);
         videoView.setVideoURI(uri);
         videoView.start();
 

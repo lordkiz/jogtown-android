@@ -8,26 +8,48 @@
     <fragment
         android:id="@+id/startFragment"
         android:name="com.jogtown.jogtown.fragments.StartFragment"
-        android:label="fragment_start"
-        tools:layout="@layout/fragment_start" />
-    <fragment
-        android:id="@+id/historyFragment"
-        android:name="com.jogtown.jogtown.fragments.HistoryFragment"
-        android:label="fragment_history"
-        tools:layout="@layout/fragment_history" />
+        android:label="Start"
+        tools:layout="@layout/fragment_start" >
+        <action
+            android:id="@+id/action_startFragment_to_jogDetailFragment"
+            app:destination="@id/jogDetailFragment" />
+    </fragment>
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.jogtown.jogtown.fragments.ProfileFragment"
-        android:label="fragment_profile"
-        tools:layout="@layout/fragment_profile" />
+        android:label="Profile"
+        tools:layout="@layout/fragment_profile" >
+        <action
+            android:id="@+id/action_profileFragment_to_historyFragment"
+            app:destination="@id/historyFragment" />
+        <action
+            android:id="@+id/action_profileFragment_to_purchaseCoinsFragment"
+            app:destination="@id/purchaseCoinsFragment" />
+    </fragment>
+
     <fragment
-        android:id="@+id/conversationFragment"
-        android:name="com.jogtown.jogtown.fragments.ConversationFragment"
-        android:label="fragment_conversation"
-        tools:layout="@layout/fragment_conversation" />
+        android:id="@+id/Inbox"
+        android:name="com.jogtown.jogtown.fragments.InboxFragment"
+        android:label="Inbox"
+        tools:layout="@layout/fragment_inbox" >
+    </fragment>
+    <fragment
+        android:id="@+id/jogDetailFragment"
+        android:name="com.jogtown.jogtown.fragments.JogDetailFragment"
+        android:label="Details"
+        tools:layout="@layout/fragment_jog_detail" />
+    <fragment
+        android:id="@+id/historyFragment"
+        android:name="com.jogtown.jogtown.fragments.HistoryFragment"
+        android:label="History"
+        tools:layout="@layout/fragment_history" >
+        <action
+            android:id="@+id/action_historyFragment_to_jogDetailFragment"
+            app:destination="@id/jogDetailFragment" />
+    </fragment>
     <fragment
         android:id="@+id/purchaseCoinsFragment"
         android:name="com.jogtown.jogtown.fragments.PurchaseCoinsFragment"
-        android:label="fragment_purchase_coins"
+        android:label="Get Coins"
         tools:layout="@layout/fragment_purchase_coins" />
 </navigation>

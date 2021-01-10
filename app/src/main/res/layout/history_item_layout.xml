@@ -1,79 +1,165 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
+<LinearLayout android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="5dp"
-    android:background="#fff"
-    android:backgroundTint="#FFF"
-    android:elevation="1dp"
-    android:padding="7dp">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    >
 
-    <com.airbnb.lottie.LottieAnimationView
-        android:id="@+id/lottie_running_hamster"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:layout_marginRight="7dp"
-        app:layout_constraintLeft_toLeftOf="parent"
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginBottom="5dp"
+        android:layout_gravity="center"
+        android:gravity="center">
 
-        app:layout_constraintTop_toTopOf="parent"
-        app:lottie_autoPlay="true"
-        app:lottie_fileName="running-hamster.json"
-        app:lottie_loop="false" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-    <TextView
-        android:id="@+id/history_item_header_text"
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:layout_marginLeft="20dp"
+                android:elevation="4dp"
+                android:foregroundGravity="right"
+                >
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginLeft="60dp"
+                    android:layout_gravity="center_vertical"
+                    >
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:layout_gravity="center">
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/watch_icon_purple"
+                            />
+
+                        <TextView
+                            android:id="@+id/history_item_run_duration"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="10dp"
+                            android:layout_marginLeft="5dp"
+                            android:text=""
+                            android:layout_gravity="center"
+                            android:textColor="@color/gray"
+                            android:fontFamily="@font/michroma_regular"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:layout_gravity="center">
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/pace_icon_purple"
+                            />
+
+                        <TextView
+                            android:id="@+id/history_item_average_pace"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="10dp"
+                            android:layout_marginLeft="5dp"
+                            android:text=""
+                            android:layout_gravity="center"
+                            android:textColor="@color/gray"
+                            android:fontFamily="@font/michroma_regular"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:layout_gravity="center">
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/distance_icon_purple"
+                            />
+
+                        <TextView
+                            android:id="@+id/history_item_run_distance"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/michroma_regular"
+                            android:layout_marginRight="10dp"
+                            android:layout_marginLeft="5dp"
+                            android:text=""
+                            android:layout_gravity="center"
+                            android:textColor="@color/gray"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/history_item_jog_type_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:layout_gravity="center_vertical"
+            android:background="@drawable/history_item_jog_type_background"
+            android:orientation="vertical"
+            android:elevation="4dp"
+            >
+
+            <ImageView
+                android:id="@+id/history_item_jog_type_image_view"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_gravity="center"
+                android:src="@drawable/treadmill_icon_white"
+                />
+
+            <TextView
+                android:id="@+id/history_item_header_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Date Of Run"
+                android:textColor="@color/lightGhostWhite"
+                android:textAlignment="textStart"
+                android:textSize="6sp"
+                android:fontFamily="@font/michroma_regular"
+                />
+        </LinearLayout>
+
+    </FrameLayout>
+
+    <Button
+        android:id="@+id/loadMoreHistoryButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Date Of Run"
-        android:textColor="#999"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:layout_constraintLeft_toRightOf="@+id/lottie_running_hamster"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/history_item_run_duration"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:drawableStart="@drawable/ic_alarm"
-        android:drawablePadding="2dp"
-        android:drawableTint="#1FB6FF"
-        android:paddingRight="10dp"
-        android:text="Run Duration"
-        android:textColor="#1FB6FF"
-        android:textSize="14sp"
-        app:layout_constraintLeft_toRightOf="@+id/lottie_running_hamster"
-        app:layout_constraintTop_toBottomOf="@+id/history_item_header_text" />
-
-    <TextView
-        android:id="@+id/history_item_average_pace"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:drawableStart="@drawable/ic_paw"
-        android:drawablePadding="2dp"
-        android:drawableTint="#13CE66"
-        android:paddingRight="10dp"
-        android:text="Average Pace"
-        android:textColor="#13CE66"
-        android:textSize="14sp"
-        app:layout_constraintLeft_toRightOf="@+id/history_item_run_duration"
-        app:layout_constraintTop_toBottomOf="@+id/history_item_header_text" />
-
-    <TextView
-        android:id="@+id/history_item_run_distance"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:drawableStart="@drawable/ic_swap"
-        android:drawablePadding="2dp"
-        android:drawableTint="#7E5BEF"
-        android:paddingRight="10dp"
-        android:text="Run Distance"
-        android:textColor="#7E5BEF"
-        android:textSize="14sp"
-        app:layout_constraintLeft_toRightOf="@+id/history_item_average_pace"
-        app:layout_constraintTop_toBottomOf="@+id/history_item_header_text" />
-
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:layout_gravity="center"
+        android:layout_margin="10dp"
+        android:background="@drawable/circle_green_linear_gradient"
+        android:padding="7dp"
+        android:gravity="center"
+        android:text="+"
+        android:visibility="gone"
+        android:fontFamily="@font/baijamjuree_semi_bold"
+        android:textSize="20sp"
+        android:textColor="@color/snow" />
+</LinearLayout>

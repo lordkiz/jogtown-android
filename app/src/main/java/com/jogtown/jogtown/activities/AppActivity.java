@@ -1,12 +1,17 @@
 package com.jogtown.jogtown.activities;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.navigation.NavController;
+import androidx.navigation.NavDestination;
+import androidx.navigation.Navigation;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.navigation.ui.NavigationUI;
 
+import android.animation.ObjectAnimator;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -23,19 +28,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.FrameLayout;
 import android.widget.NumberPicker;
 import android.widget.Toast;
 
+import com.google.android.gms.common.util.ArrayUtils;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.jogtown.jogtown.R;
-import com.jogtown.jogtown.fragments.GroupsFragment;
 import com.jogtown.jogtown.fragments.HistoryFragment;
 import com.jogtown.jogtown.fragments.InboxFragment;
+import com.jogtown.jogtown.fragments.JogDetailFragment;
 import com.jogtown.jogtown.fragments.ProfileFragment;
+import com.jogtown.jogtown.fragments.PurchaseCoinsFragment;
+import com.jogtown.jogtown.fragments.SettingsFragment;
 import com.jogtown.jogtown.fragments.StartFragment;
-import com.jogtown.jogtown.subfragments.MyGroupsListFragment;
-import com.jogtown.jogtown.subfragments.MyGroupsListInDialogFragment;
-import com.jogtown.jogtown.subfragments.SearchGroupsListFragment;
 import com.jogtown.jogtown.subfragments.JogStatsFragment;
 import com.jogtown.jogtown.utils.network.MyUrlRequestCallback;
 import com.jogtown.jogtown.utils.network.NetworkRequest;
@@ -53,24 +59,34 @@ public class AppActivity extends AppCompatActivity implements
         ProfileFragment.OnFragmentInteractionListener,
         StartFragment.OnFragmentInteractionListener,
         InboxFragment.OnFragmentInteractionListener,
-
+        PurchaseCoinsFragment.OnFragmentInteractionListener,
+        HistoryFragment.OnFragmentInteractionListener,
+        JogDetailFragment.OnFragmentInteractionListener,
         //SUBFRAGMENTS THAT MAKE UP THE FRAGMENTS ABOVE
         JogStatsFragment.OnFragmentInteractionListener
 {
 
 
     private static BottomNavigationView bottomNavigation;
-    ActionBar actionBar;
+    AppBarConfiguration appBarConfiguration;
     SharedPreferences jogPref;
     SharedPreferences authPref;
     SharedPreferences settingsPref;
     boolean canClose = false;
+
+    int currentDestinationId;
+
+    ObjectAnimator bottomNavigationBarVisibilityAnimator;
+
+    FrameLayout appActivityFragmentScreenContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_app);
+
+        appActivityFragmentScreenContainer = findViewById(R.id.fragmentScreenContainer);
 
         canClose = false;
 
@@ -87,24 +103,7 @@ public class AppActivity extends AppCompatActivity implements
 
         if (jogIsOn) {
             //jog is more important
-            if (jogType.equals("single")) {
-                Toast.makeText(this, "You have a jog ongoing", Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(this, SingleJogActivity.class));
-            } else if (jogType.equals("group")) {
-                String group = jogPref.getString("group", "");
-                //check if we have the right group pls
-                try {
-                    JSONObject obj = new JSONObject(group);
-                    if (obj.getInt("id") > 0) {
-                        Intent intent = new Intent(this, GroupJogActivity.class);
-                        intent.putExtra("group", group);
-                        startActivity(intent);
-                        Toast.makeText(this, "You have a group jog ongoing", Toast.LENGTH_SHORT).show();
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
+            Toast.makeText(this, "You have a jog ongoing", Toast.LENGTH_SHORT).show();
         } else if (weight == 0) {
             //Weight is second in priority
             if (settingsPref.getBoolean("promptForWeight", true)) {
@@ -116,48 +115,32 @@ public class AppActivity extends AppCompatActivity implements
             }
         }
 
-
-        actionBar = getSupportActionBar();
         bottomNavigation = findViewById(R.id.bottomBarNavigation);
-        if (actionBar != null) {
-            actionBar.setTitle("Start");
-            //actionBar.setDisplayHomeAsUpEnabled(true);
-        }
-        StartFragment startFragment = new StartFragment();
-        openFragment(startFragment, "Start");
 
-        bottomNavigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+        NavController navController = Navigation.findNavController(this, R.id.main_content);
+
+
+        appBarConfiguration = new AppBarConfiguration.Builder(R.id.startFragment, R.id.profileFragment, R.id.historyFragment)
+                .build();
+
+        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+
+        NavigationUI.setupWithNavController(bottomNavigation, navController);
+
+        navController.addOnDestinationChangedListener(new NavController.OnDestinationChangedListener() {
             @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                switch (menuItem.getTitle().toString()) {
-                    case "Start":
-                        if (actionBar != null) {
-                            actionBar.setTitle("Start");
-                        }
-                        StartFragment startFragment = new StartFragment();
-                        openFragment(startFragment, "Start");
-                        return true;
+            public void onDestinationChanged(@NonNull NavController controller, @NonNull NavDestination destination, @Nullable Bundle arguments) {
+                int destinationId = destination.getId();
 
-                    case "Inbox":
-                        if (actionBar != null) {
-                            actionBar.setTitle("Inbox");
-                        }
-                        InboxFragment inboxFragment = new InboxFragment();
-                        openFragment(inboxFragment, "Inbox");
-                        return true;
+                currentDestinationId = destinationId;
 
-                    case "Profile":
-                        if (actionBar != null) {
-                            actionBar.setTitle("Profile");
-                            actionBar.setElevation(0);
-                            actionBar.setBackgroundDrawable(getDrawable(R.drawable.purple_linear_background));
-                        }
-                        ProfileFragment profileFragment = new ProfileFragment();
-                        openFragment(profileFragment, "Profile");
-                        return true;
+                int [] topLevelDestinationIds =  {R.id.startFragment, R.id.profileFragment, R.id.historyFragment};
 
-                    default:
-                        return false;
+                if (ArrayUtils.contains(topLevelDestinationIds, destinationId)) {
+                    //showBottomBar
+                    showBottomBar(true);
+                } else {
+                    showBottomBar(false);
                 }
             }
         });
@@ -166,21 +149,12 @@ public class AppActivity extends AppCompatActivity implements
     }
 
 
-    private void openFragment(Fragment fragment, String fragmentName) {
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.replace(R.id.fragmentScreenContainer, fragment, fragmentName);
-        transaction.addToBackStack(null);
-        transaction.commit();
-    }
-
-
     public static void switchToMyGroupsTab() {
-        bottomNavigation.setSelectedItemId(R.id.inboxTab);
+        bottomNavigation.setSelectedItemId(R.id.Inbox);
     }
 
     public static void switchToInboxTab() {
-        bottomNavigation.setSelectedItemId(R.id.inboxTab);
+        bottomNavigation.setSelectedItemId(R.id.Inbox);
     }
 
 
@@ -362,6 +336,26 @@ public class AppActivity extends AppCompatActivity implements
 
     }
 
+    private void showBottomBar(Boolean show) {
+        int containerPaddingBottom = appActivityFragmentScreenContainer.getPaddingBottom();
+        if (show) {
+            bottomNavigationBarVisibilityAnimator = ObjectAnimator.ofInt(bottomNavigation, "visibility", View.VISIBLE);
+            if (containerPaddingBottom < 56) {
+                appActivityFragmentScreenContainer.setPadding(0, 0, 0, containerPaddingBottom + 120);
+            }
+        } else {
+            bottomNavigationBarVisibilityAnimator = ObjectAnimator.ofInt(bottomNavigation, "visibility", View.GONE);
+            if (containerPaddingBottom > 56) {
+                appActivityFragmentScreenContainer.setPadding(0, 0, 0, 0);
+            }
+
+        }
+
+        bottomNavigationBarVisibilityAnimator.setDuration(500);
+        //add animation objectanimator listener if you want to do extra stuffs
+        bottomNavigationBarVisibilityAnimator.start();
+    }
+
 
     private void silentlyRetrieveAndSaveSettings() {
         String userId = Integer.toString(authPref.getInt("userId", 0));
@@ -415,9 +409,11 @@ public class AppActivity extends AppCompatActivity implements
 
         switch(id) {
             case R.id.settings_menu_item:
-                Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
+                Intent intent = new Intent(getApplicationContext(), SecondaryAppActivity.class);
                 intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
                 getApplicationContext().startActivity(intent);
+
+
                 return true;
         }
         return false;
@@ -425,7 +421,6 @@ public class AppActivity extends AppCompatActivity implements
 
     @Override
     public void onFragmentInteraction(Uri uri) {
-
     }
 
     @Override
@@ -455,6 +450,13 @@ public class AppActivity extends AppCompatActivity implements
         }
     }
 
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        NavController navController = Navigation.findNavController(this, R.id.main_content);
+        return NavigationUI.navigateUp(navController, appBarConfiguration)
+                || super.onSupportNavigateUp();
+    }
 
 
 }
