@@ -170,7 +170,7 @@ public class AppActivity extends AppCompatActivity implements
         Button negativeButton = weightDialog.findViewById(R.id.weightDialogDismissButton);
         Button positiveButton = weightDialog.findViewById(R.id.weightDialogSetButton);
 
-        SharedPreferences settingsPref = getSharedPreferences("SettingsPreferences", MODE_PRIVATE);
+        final SharedPreferences settingsPref = getSharedPreferences("SettingsPreferences", MODE_PRIVATE);
         SharedPreferences authPref = getSharedPreferences("AuthPreferences", MODE_PRIVATE);
         final int userId = authPref.getInt("userId", 0);
         final SharedPreferences.Editor settingsEditor = settingsPref.edit();
@@ -197,6 +197,9 @@ public class AppActivity extends AppCompatActivity implements
                     settingsEditor.apply();
                 }
                 weightDialog.dismiss();
+                if (settingsPref.getBoolean("promptForGender", true)) {
+                    selectGender();
+                }
             }
         });
 
@@ -234,6 +237,9 @@ public class AppActivity extends AppCompatActivity implements
                     }
                 }));
                 weightDialog.dismiss();
+                if (settingsPref.getBoolean("promptForGender", true)) {
+                    selectGender();
+                }
             }
         });
 
