@@ -2,9 +2,7 @@ package com.jogtown.jogtown.activities;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
@@ -40,7 +38,7 @@ import com.jogtown.jogtown.fragments.InboxFragment;
 import com.jogtown.jogtown.fragments.JogDetailFragment;
 import com.jogtown.jogtown.fragments.ProfileFragment;
 import com.jogtown.jogtown.fragments.PurchaseCoinsFragment;
-import com.jogtown.jogtown.fragments.SettingsFragment;
+import com.jogtown.jogtown.subfragments.RemoveAdFragment;
 import com.jogtown.jogtown.fragments.StartFragment;
 import com.jogtown.jogtown.subfragments.JogStatsFragment;
 import com.jogtown.jogtown.utils.network.MyUrlRequestCallback;
@@ -62,6 +60,7 @@ public class AppActivity extends AppCompatActivity implements
         PurchaseCoinsFragment.OnFragmentInteractionListener,
         HistoryFragment.OnFragmentInteractionListener,
         JogDetailFragment.OnFragmentInteractionListener,
+        RemoveAdFragment.OnFragmentInteractionListener,
         //SUBFRAGMENTS THAT MAKE UP THE FRAGMENTS ABOVE
         JogStatsFragment.OnFragmentInteractionListener
 {
@@ -75,6 +74,8 @@ public class AppActivity extends AppCompatActivity implements
     boolean canClose = false;
 
     int currentDestinationId;
+
+    int [] topLevelDestinationIds =  {R.id.startFragment, R.id.profileFragment, R.id.historyFragment};
 
     ObjectAnimator bottomNavigationBarVisibilityAnimator;
 
@@ -98,7 +99,6 @@ public class AppActivity extends AppCompatActivity implements
         String jogType = jogPref.getString("jogType", "n/a");
 
         int weight = authPref.getInt("weight", 0);
-        Log.i("weight", Integer.toString(weight));
         String gender = authPref.getString("gender", "null");
 
         if (jogIsOn) {
@@ -133,8 +133,6 @@ public class AppActivity extends AppCompatActivity implements
                 int destinationId = destination.getId();
 
                 currentDestinationId = destinationId;
-
-                int [] topLevelDestinationIds =  {R.id.startFragment, R.id.profileFragment, R.id.historyFragment};
 
                 if (ArrayUtils.contains(topLevelDestinationIds, destinationId)) {
                     //showBottomBar
@@ -205,8 +203,6 @@ public class AppActivity extends AppCompatActivity implements
         positiveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                Log.i("weightPickerValue: ", Integer.toString(weightPicker.getValue()));
 
                 String url = getString(R.string.root_url) + "v1/users/" + Integer.toString(userId);
                 JSONObject jsonObject = new JSONObject();
@@ -297,8 +293,6 @@ public class AppActivity extends AppCompatActivity implements
             @Override
             public void onClick(View v) {
 
-                Log.i("genderPickerValue: ", displayedValues[genderPicker.getValue()]);
-
                 String url = getString(R.string.root_url) + "v1/users/" + Integer.toString(userId);
                 JSONObject jsonObject = new JSONObject();
                 try {
@@ -372,8 +366,12 @@ public class AppActivity extends AppCompatActivity implements
                         SharedPreferences.Editor editor = settingsPref.edit();
                         boolean showAds = resultObj.getBoolean("show_ads");
                         boolean allowNotification = resultObj.getBoolean("allow_notification");
+                        boolean useKM = resultObj.getBoolean("km");
+                        boolean useKG = resultObj.getBoolean("kg");
                         int settingsId = resultObj.getInt("id");
                         editor.putBoolean("showAds", showAds);
+                        editor.putBoolean("km", useKM);
+                        editor.putBoolean("kg", useKG);
                         editor.putBoolean("allowNotification", allowNotification);
                         editor.putInt("settingsId", settingsId);
 
@@ -425,28 +423,32 @@ public class AppActivity extends AppCompatActivity implements
 
     @Override
     public void onBackPressed() {
-        if (canClose) {
-            boolean jogIsOn = jogPref.getBoolean("jogIsOn", false);
-            if (!jogIsOn) {
-                // if jog is NOT on
-                Intent locationServiceIntent = new Intent(this, LocationService.class);
-                Intent jogStatsServiceIntent = new Intent(this, JogStatsService.class);
-                stopService(locationServiceIntent);
-                stopService(jogStatsServiceIntent);
+        if (ArrayUtils.contains(topLevelDestinationIds, currentDestinationId)) {
+            if (canClose) {
+                boolean jogIsOn = jogPref.getBoolean("jogIsOn", false);
+                if (!jogIsOn) {
+                    // if jog is NOT on
+                    Intent locationServiceIntent = new Intent(this, LocationService.class);
+                    Intent jogStatsServiceIntent = new Intent(this, JogStatsService.class);
+                    stopService(locationServiceIntent);
+                    stopService(jogStatsServiceIntent);
 
-            }
-
-            super.onBackPressed();
-            finish();
-        } else {
-            canClose = true;
-            Toast.makeText(this, "Press back again to exit", Toast.LENGTH_SHORT).show();
-            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    canClose = false;
                 }
-            }, 3000);
+
+                super.onBackPressed();
+                finish();
+            } else {
+                canClose = true;
+                Toast.makeText(this, "Press back again to exit", Toast.LENGTH_SHORT).show();
+                new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        canClose = false;
+                    }
+                }, 3000);
+            }
+        } else {
+            super.onBackPressed();
         }
     }
 

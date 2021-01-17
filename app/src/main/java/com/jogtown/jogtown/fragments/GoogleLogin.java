@@ -147,25 +147,6 @@ public class GoogleLogin extends Fragment {
         mListener = null;
     }
 
-    /*@Override
-    public void responseBody(String resbody) {
-
-
-        Log.i("resBody", resbody);
-    }
-
-    @Override
-    public void statusCode(int statusCode) {
-
-        Log.i("status code", Integer.toString(statusCode));
-    }
-
-    @Override
-    public void headers(String headers) {
-
-        Log.i("resHeaders", headers);
-    }
-*/
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -212,7 +193,6 @@ public class GoogleLogin extends Fragment {
                         String payloadString = payload.toString();
 
                         String url = getString(R.string.root_url) + "v1/auth";
-                        Log.i("payload", payload.toString());
 
                         //Sign out user from google after getting needed data
                         googleSignInClient.signOut();
@@ -223,7 +203,6 @@ public class GoogleLogin extends Fragment {
 
                     } catch (ApiException e) {
                         e.printStackTrace();
-                        Log.w(TAG, "signInResult: failed code=" + e.getStatusCode());
                         if (mListener != null) {
                             runOnUiThread(Uri.parse("loading: false"));
                             Toast.makeText(getContext(), "An Error occurred.", Toast.LENGTH_SHORT).show();

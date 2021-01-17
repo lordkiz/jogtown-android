@@ -43,7 +43,6 @@ public class MyUrlRequestCallback extends UrlRequest.Callback {
 
     @Override
     public void onRedirectReceived(UrlRequest request, UrlResponseInfo info, String newLocationUrl) throws Exception {
-        Log.i(TAG, "onRedirectReceived method called.");
         // You should call the request.followRedirect() method to continue
         // processing the request.
         request.followRedirect();
@@ -52,7 +51,6 @@ public class MyUrlRequestCallback extends UrlRequest.Callback {
     @Override
     public void onResponseStarted(UrlRequest request, UrlResponseInfo info) throws Exception {
         ByteBuffer byteBuffer = ByteBuffer.allocateDirect(1024*1024);
-        Log.i(TAG, "onResponseStarted method called.");
         // You should call the request.read() method before the request can be
         // further processed. The following instruction provides a ByteBuffer object
         // with a capacity of 102400 bytes to the read() method.
@@ -61,7 +59,6 @@ public class MyUrlRequestCallback extends UrlRequest.Callback {
 
     @Override
     public void onReadCompleted(UrlRequest request, UrlResponseInfo info, ByteBuffer byteBuffer) throws Exception {
-        Log.i(TAG, "onReadCompleted method called.");
         // You should keep reading the request until there's no more data.
         request.read(byteBuffer);
 
@@ -83,8 +80,6 @@ public class MyUrlRequestCallback extends UrlRequest.Callback {
         if (responseBodyString.endsWith("0")) {
             responseBodyString = responseBodyString.substring(0, responseBodyString.length()-1);
         }
-
-        Log.i("responseBodyString", responseBodyString);
 
         this.responseBody = responseBodyString;
 

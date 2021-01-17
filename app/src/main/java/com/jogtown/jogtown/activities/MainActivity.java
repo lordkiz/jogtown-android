@@ -11,11 +11,14 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 import android.widget.VideoView;
 
 import com.facebook.FacebookSdk;
@@ -29,6 +32,8 @@ import com.jogtown.jogtown.R;
 import com.jogtown.jogtown.utils.Auth;
 import com.jogtown.jogtown.fragments.FacebookLogin;
 import com.jogtown.jogtown.fragments.GoogleLogin;
+import com.jogtown.jogtown.utils.services.JogStatsService;
+import com.jogtown.jogtown.utils.services.LocationService;
 import com.microsoft.appcenter.AppCenter;
 import com.microsoft.appcenter.analytics.Analytics;
 import com.microsoft.appcenter.crashes.Crashes;
@@ -143,17 +148,14 @@ public class MainActivity extends AppCompatActivity implements
 
         switch (info) {
             case "loading: true":
-                Log.i("case loading true", info);
                 loading = true;
                 showActivityIndicator();
                 break;
             case"loading: false":
-                Log.i("case loading false", info);
                 loading = false;
                 showActivityIndicator();
                 break;
             case "redirect":
-                Log.i("case redirect", info);
                 redirect();
                 showActivityIndicator();
                 break;
@@ -200,4 +202,11 @@ public class MainActivity extends AppCompatActivity implements
             notificationManager.createNotificationChannel(channel);
         }
     }
+
+    @Override
+    public void onBackPressed() {
+        //always close app on back pressed in mainactivity
+        finishAffinity();
+    }
+
 }

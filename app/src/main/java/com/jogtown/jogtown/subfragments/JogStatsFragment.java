@@ -72,6 +72,7 @@ public class JogStatsFragment extends Fragment {
     int totalDistance = 0;
     int duration = 0;
     float calories = 0.0f;
+    float hydration = 0.0f;
     float averageSpeed = 0;
     int averagePace = 0;
     float maxSpeed = 0;
@@ -101,7 +102,6 @@ public class JogStatsFragment extends Fragment {
     public BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.i("update Stats received", "true");
             int seconds = intent.getIntExtra("duration", 0);
             int currentSteps = intent.getIntExtra("steps", 0);
             steps = currentSteps;
@@ -175,6 +175,7 @@ public class JogStatsFragment extends Fragment {
                 }
 
                 calories = Conversions.calculateCalories(totalDistance, duration, weight);
+                hydration = calories/1700;
                 saveJogStats();
 
                 //current Pace and calories
@@ -234,7 +235,9 @@ public class JogStatsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_jog_stats, container, false);
 
         settingsPref = MainActivity.appContext.getSharedPreferences("SettingsPreferences", Context.MODE_PRIVATE);
-        boolean showAds = settingsPref.getBoolean("showAds", true);
+        SharedPreferences authPref = MainActivity.appContext.getSharedPreferences("AuthPreferences", Context.MODE_PRIVATE);
+
+        boolean showAds = authPref.getBoolean("premium", false);
         if (showAds) {
             mAdView = view.findViewById(R.id.jogStatsAdView);
             mAdView.setVisibility(View.VISIBLE);
@@ -252,7 +255,6 @@ public class JogStatsFragment extends Fragment {
         registerStepsTrackerBroadcastReceiver();
 
         jogPref = MainActivity.appContext.getSharedPreferences("JogPreferences", Context.MODE_PRIVATE);
-        SharedPreferences authPref = MainActivity.appContext.getSharedPreferences("AuthPreferences", Context.MODE_PRIVATE);
         jogIsOn = jogPref.getBoolean("jogIsOn", false);
         jogIsPaused = jogPref.getBoolean("jogIsPaused", false);
         jogType = jogPref.getString("jogType", "");
@@ -418,18 +420,13 @@ public class JogStatsFragment extends Fragment {
         String pacesJson = gson.toJson(paces);
         String lapsJson = gson.toJson(laps);
 
-        Log.i("coordinates saved", coords);
-        Log.i("speeds saved", speedsJson);
-        Log.i("paces saved", pacesJson);
-        Log.i("paces average", Integer.toString(averagePace));
-        Log.i("paces max", Integer.toString(maxPace));
-
         editor.putString("coordinates", coords);
         editor.putString("speeds", speedsJson);
         editor.putString("paces", pacesJson);
         editor.putInt("duration", duration);
         editor.putInt("distance", totalDistance);
         editor.putFloat("calories", calories);
+        editor.putFloat("hydration", hydration);
         editor.putFloat("averageSpeed", averageSpeed);
         editor.putInt("averagePace", averagePace);
         editor.putFloat("maxSpeed", maxSpeed);

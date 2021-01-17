@@ -357,7 +357,6 @@ public class StartFragment extends Fragment implements OnMapReadyCallback,
     //Because I implemented Jogstats.OnfragmentInteration
     @Override
     public void onFragmentInteraction(Uri uri) {
-        Log.i("StartFragment", uri.toString());
         String message = uri.toString();
         if (message.equals("JogSwitch=true")) {
             //i.e switched to treadmill
@@ -387,6 +386,7 @@ public class StartFragment extends Fragment implements OnMapReadyCallback,
                 //ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_REQUEST_CODE);
 
             } else {
+                zoomIntoMap();
                 handleButtonVisibilities();
                 Boolean jogIsOn = jogPref.getBoolean("jogIsOn", false);
 
@@ -397,7 +397,37 @@ public class StartFragment extends Fragment implements OnMapReadyCallback,
 
             mMapView.onResume();
         }
+    }
 
+    private LatLng extractLastKnownLatLng(Location lastKnownLocation) {
+        LatLng latlng = new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
+        Float startLatitude = jogPref.getFloat("startLatitude", 0.0f);
+        Float startLongitude = jogPref.getFloat("startLongitude", 0.0f);
+
+        if (startLatitude == 0.0f || startLongitude == 0.0f) {
+            SharedPreferences.Editor editor = jogPref.edit();
+            editor.putFloat("startLatitude", (float)lastKnownLocation.getLatitude());
+            editor.putFloat("startLongitude", (float)lastKnownLocation.getLongitude());
+            editor.apply();
+        }
+        return latlng;
+    }
+
+    private void zoomIntoMap() {
+        if (mMap != null) {
+            mMap.setMyLocationEnabled(true);
+        }
+        Location lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        if (lastKnownLocation != null) {
+            LatLng latlng = extractLastKnownLatLng(lastKnownLocation);
+            updateMap(latlng);
+        } else {
+            lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            if (lastKnownLocation != null) {
+                LatLng latlng = extractLastKnownLatLng(lastKnownLocation);
+                updateMap(latlng);
+            }
+        }
     }
 
     @Override
@@ -406,24 +436,7 @@ public class StartFragment extends Fragment implements OnMapReadyCallback,
             case LOCATION_REQUEST_CODE:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                        if (mMap != null) {
-                            mMap.setMyLocationEnabled(true);
-                        }
-                        Location lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                        if (lastKnownLocation != null) {
-                            Log.i("location", lastKnownLocation.toString());
-                            LatLng latlng = new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
-                            Float startLatitude = jogPref.getFloat("startLatitude", 0.0f);
-                            Float startLongitude = jogPref.getFloat("startLongitude", 0.0f);
-
-                            if (startLatitude == 0.0f || startLongitude == 0.0f) {
-                                SharedPreferences.Editor editor = jogPref.edit();
-                                editor.putFloat("startLatitude", (float)lastKnownLocation.getLatitude());
-                                editor.putFloat("startLongitude", (float)lastKnownLocation.getLongitude());
-                                editor.apply();
-                            }
-                            updateMap(latlng);
-                        }
+                        zoomIntoMap();
 
                     }
 
@@ -438,7 +451,6 @@ public class StartFragment extends Fragment implements OnMapReadyCallback,
     void handleButtonVisibilities() {
         Boolean jogIsOn = jogPref.getBoolean("jogIsOn", false);
         Boolean jogIsPaused = jogPref.getBoolean("jogIsPaused", false);
-        Log.i("JoG is On", jogIsOn.toString());
         if (jogIsOn && !jogIsPaused) {
             pauseButton.setVisibility(View.VISIBLE);
             playButton.setVisibility(View.GONE);
@@ -678,9 +690,9 @@ public class StartFragment extends Fragment implements OnMapReadyCallback,
         Float maxSpeed = jogPref.getFloat("maxSpeed", 0);
         int averagePace = jogPref.getInt("averagePace", 0);
         int maxPace = jogPref.getInt("maxPace", 0);
-        int hydration = jogPref.getInt("hydration", 0);
-        float maxAltitude = jogPref.getFloat("maxAltitude", 0);
-        float minAltitude = jogPref.getFloat("minAltitude", 0);
+        float hydration = jogPref.getFloat("hydration", 0f);
+        float maxAltitude = jogPref.getFloat("maxAltitude", 0f);
+        float minAltitude = jogPref.getFloat("minAltitude", 0f);
         int totalAscent = jogPref.getInt("totalAscent", 0);
         int totalDescent = jogPref.getInt("totalDescent", 0);
 

@@ -1,24 +1,21 @@
-package com.jogtown.jogtown.fragments;
+package com.jogtown.jogtown.subfragments;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.text.SpannableString;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -26,6 +23,7 @@ import com.android.billingclient.api.AcknowledgePurchaseParams;
 import com.android.billingclient.api.AcknowledgePurchaseResponseListener;
 import com.android.billingclient.api.BillingClient;
 import com.android.billingclient.api.BillingClientStateListener;
+import com.android.billingclient.api.BillingFlowParams;
 import com.android.billingclient.api.BillingResult;
 import com.android.billingclient.api.Purchase;
 import com.android.billingclient.api.PurchasesUpdatedListener;
@@ -33,10 +31,9 @@ import com.android.billingclient.api.SkuDetails;
 import com.android.billingclient.api.SkuDetailsParams;
 import com.android.billingclient.api.SkuDetailsResponseListener;
 import com.jogtown.jogtown.R;
-import com.jogtown.jogtown.utils.adapters.CoinsRecyclerViewAdapter;
+import com.jogtown.jogtown.activities.MainActivity;
 import com.jogtown.jogtown.utils.network.MyUrlRequestCallback;
 import com.jogtown.jogtown.utils.network.NetworkRequest;
-import com.jogtown.jogtown.utils.ui.MyTypefaceSpan;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -50,12 +47,12 @@ import static com.facebook.FacebookSdk.getApplicationContext;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link PurchaseCoinsFragment.OnFragmentInteractionListener} interface
+ * {@link RemoveAdFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link PurchaseCoinsFragment#newInstance} factory method to
+ * Use the {@link RemoveAdFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class PurchaseCoinsFragment extends Fragment {
+public class RemoveAdFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -67,19 +64,19 @@ public class PurchaseCoinsFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
+
     private BillingClient billingClient;
     List<String> skuList = new ArrayList<>();
     SkuDetailsParams skuDetailsParams;
-    List<SkuDetails> skuDetailsArray;
-
-    RecyclerView recyclerView;
-    RecyclerView.LayoutManager layoutManager;
-    RecyclerView.Adapter mAdapter;
-
+    SkuDetails skuDetails;
     boolean loading = true;
     ProgressBar progressBar;
+    LinearLayout removeAdsLayout;
+    LinearLayout loadingRemoveAdsLayout;
 
-    public PurchaseCoinsFragment() {
+    SharedPreferences authPref;
+
+    public RemoveAdFragment() {
         // Required empty public constructor
     }
 
@@ -89,11 +86,11 @@ public class PurchaseCoinsFragment extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment PurchaseCoinsFragment.
+     * @return A new instance of fragment RemoveAdFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static PurchaseCoinsFragment newInstance(String param1, String param2) {
-        PurchaseCoinsFragment fragment = new PurchaseCoinsFragment();
+    public static RemoveAdFragment newInstance(String param1, String param2) {
+        RemoveAdFragment fragment = new RemoveAdFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -114,26 +111,27 @@ public class PurchaseCoinsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view =  inflater.inflate(R.layout.fragment_purchase_coins, container, false);
-        try {
-            ActionBar actionBar =  ((AppCompatActivity) getActivity()).getSupportActionBar();
+        View view =  inflater.inflate(R.layout.fragment_remove_ad, container, false);
+        progressBar = view.findViewById(R.id.removeAdsProgressBar);
+        removeAdsLayout = view.findViewById(R.id.removeAdsLayout);
 
-            SpannableString spannableString = new SpannableString("Get Coins");
-            spannableString.setSpan(
-                    new MyTypefaceSpan(getContext(), "fonts/baijamjuree_semi_bold.ttf"),
-                    0,
-                    spannableString.length(),
-                    SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
+        removeAdsLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startRemoveAdsFlow();
+            }
+        });
 
-            actionBar.setTitle(spannableString);
-        } catch (NullPointerException e) {
-            //
+        loadingRemoveAdsLayout = view.findViewById(R.id.loadingRemoveAdsLayout);
+
+        authPref = MainActivity.appContext.getSharedPreferences("AuthPreferences", Context.MODE_PRIVATE);
+
+        boolean isPremium = authPref.getBoolean("premium", false);
+        if (!isPremium) {
+            removeAdsLayout.setVisibility(View.GONE);
         }
-        recyclerView = view.findViewById(R.id.coin_list_recycler_view);
-        progressBar = view.findViewById(R.id.purchaseCoinProgressBar);
 
         shouldShowProgressBar();
-
 
         setUpBillingClient();
 
@@ -181,11 +179,8 @@ public class PurchaseCoinsFragment extends Fragment {
 
 
     void setUpBillingClient() {
-        skuList.add("jogtown_coins_100");
-        skuList.add("jogtown_coins_250");
-        skuList.add("jogtown_coins_500");
-        skuList.add("jogtown_coins_1000");
 
+        skuList.add("remove_ads");
 
         billingClient = BillingClient.newBuilder(getApplicationContext()).enablePendingPurchases().setListener(new PurchasesUpdatedListener() {
             @Override
@@ -202,8 +197,9 @@ public class PurchaseCoinsFragment extends Fragment {
                     Toast.makeText(getApplicationContext(), "Purchase Cancelled", Toast.LENGTH_SHORT).show();
                 } else {
                     // Handle any other error codes.
+                    String errorMsg = billingResult.getDebugMessage();
                     Toast.makeText(getApplicationContext(),
-                            "An unexpected error occurred. Please contact support",
+                            "Error: " + errorMsg + ". Please contact support",
                             Toast.LENGTH_SHORT).show();
                 }
 
@@ -222,9 +218,8 @@ public class PurchaseCoinsFragment extends Fragment {
                     billingClient.querySkuDetailsAsync(skuDetailsParams, new SkuDetailsResponseListener() {
                         @Override
                         public void onSkuDetailsResponse(BillingResult billingResult, List<SkuDetails> skuDetailsList) {
-                            skuDetailsArray = skuDetailsList;
-
-                            setUpRecyclerAdapter();
+                            
+                            skuDetails = skuDetailsList.get(0);
 
                             loading = false;
                             new Handler(Looper.getMainLooper()).post(new Runnable() {
@@ -249,18 +244,9 @@ public class PurchaseCoinsFragment extends Fragment {
     }
 
 
-    void setUpRecyclerAdapter() {
-        layoutManager = new LinearLayoutManager(getApplicationContext());
-        mAdapter = new CoinsRecyclerViewAdapter(skuDetailsArray, billingClient, getActivity());
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(mAdapter);
-    }
-
-
-
     void handlePurchase(Purchase purchase) {
         SharedPreferences authPref = getActivity().getSharedPreferences("AuthPreferences", MODE_PRIVATE);
-        int userCoins = authPref.getInt("coins", 0);
+        Boolean isPremium = authPref.getBoolean("premium", false);
 
         if (purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED) {
             SharedPreferences.Editor editor = authPref.edit();
@@ -269,11 +255,10 @@ public class PurchaseCoinsFragment extends Fragment {
 
             for (String sku : skuList) {
                 if (sku.equals(purchaseSku)) {
-                    int coinsToAward = Integer.parseInt(sku.split("_")[2]) + userCoins;
-                    editor.putInt("coins", coinsToAward);
+                    editor.putBoolean("premium", true);
                     editor.apply();
 
-                    updateCoinsInBackend(coinsToAward);
+                    updateBackend(true);
 
                     break;
                 }
@@ -295,18 +280,16 @@ public class PurchaseCoinsFragment extends Fragment {
     }
 
 
-
-
-    void updateCoinsInBackend(int coins) {
+    void updateBackend(boolean bool) {
         loading = true;
         shouldShowProgressBar();
 
-        SharedPreferences authPref = getActivity().getSharedPreferences("AuthPreferences", MODE_PRIVATE);
+        final SharedPreferences authPref = getActivity().getSharedPreferences("AuthPreferences", MODE_PRIVATE);
         int userId = authPref.getInt("userId", 0);
         String url = getString(R.string.root_url) + "v1/users/" + Integer.toString(userId);
         JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put("coins", coins);
+            jsonObject.put("premium", bool);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -324,9 +307,11 @@ public class PurchaseCoinsFragment extends Fragment {
                         new Handler(Looper.getMainLooper()).post(new Runnable() {
                             @Override
                             public void run() {
-                                Toast.makeText(getApplicationContext(), "Coins updated", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(), "Saved", Toast.LENGTH_SHORT).show();
+                                SharedPreferences.Editor editor = authPref.edit();
+                                editor.putBoolean("premium", true);
+                                editor.apply();
                                 shouldShowProgressBar();
-                                ProfileFragment.setCoinText();
                             }
                         });
 
@@ -335,7 +320,6 @@ public class PurchaseCoinsFragment extends Fragment {
                             @Override
                             public void run() {
                                 shouldShowProgressBar();
-                                ProfileFragment.setCoinText();
                             }
                         });
                     }
@@ -352,12 +336,30 @@ public class PurchaseCoinsFragment extends Fragment {
     }
 
 
+    private void startRemoveAdsFlow() {
+        if (skuDetails != null) {
+            BillingFlowParams flowParams = BillingFlowParams.newBuilder()
+                    .setSkuDetails(skuDetails)
+                    .build();
+            Activity activity = getActivity();
+            if (activity != null) {
+                billingClient.launchBillingFlow(activity, flowParams);
+            }
+        }
+    }
+
 
     void shouldShowProgressBar() {
         if (loading) {
-            progressBar.setVisibility(View.VISIBLE);
+            loadingRemoveAdsLayout.setVisibility(View.VISIBLE);
+            removeAdsLayout.setVisibility(View.GONE);
         } else {
-            progressBar.setVisibility(View.GONE);
+            loadingRemoveAdsLayout.setVisibility(View.GONE);
+
+            boolean isPremium = authPref.getBoolean("premium", false);
+            if (!isPremium) {
+                removeAdsLayout.setVisibility(View.VISIBLE);
+            }
         }
     }
 }

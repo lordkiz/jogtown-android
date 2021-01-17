@@ -13,6 +13,6 @@
 
     <item
         android:id="@+id/historyFragment"
-        android:icon="@drawable/ic_mail"
+        android:icon="@drawable/ic_clipboard"
         android:title="History" />
 </menu>

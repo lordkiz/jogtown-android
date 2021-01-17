@@ -15,7 +15,7 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         manifestPlaceholders = [
-                onesignal_app_id               : '72d5c3e0-aec6-41f4-9efb-18624c866b0d',
+                onesignal_app_id               : "@string/onesignal_app_id",
                 // Project number pulled from dashboard, local value  is ignored.
                 onesignal_google_project_number: 'REMOTE'
         ]
@@ -66,7 +66,7 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.0.0'
     implementation 'com.google.android.gms:play-services-ads:18.1.1'
     implementation 'com.onesignal:OneSignal:[3.11.2, 3.99.99]'
-    implementation 'com.android.billingclient:billing:2.0.3'
+    implementation 'com.android.billingclient:billing:3.0.0'
     implementation "androidx.cardview:cardview:1.0.0"
     def appCenterSdkVersion = '2.3.0'
     implementation "com.microsoft.appcenter:appcenter-analytics:${appCenterSdkVersion}"

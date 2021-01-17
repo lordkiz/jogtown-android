@@ -4,9 +4,13 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,9 +26,12 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdRequest;
 import com.jogtown.jogtown.R;
+import com.jogtown.jogtown.activities.MainActivity;
 import com.jogtown.jogtown.utils.Auth;
 import com.jogtown.jogtown.utils.network.MyUrlRequestCallback;
 import com.jogtown.jogtown.utils.network.NetworkRequest;
@@ -61,14 +68,22 @@ public class SettingsFragment extends Fragment {
     SharedPreferences authPref;
 
     boolean allowNotification;
+    boolean useKM;
+    boolean useKG;
     boolean showAds;
     int settingsId;
 
     Switch disableNotificationsSwitch;
-    LinearLayout removeAdsLayout;
-    LinearLayout loadingRemoveAdsLayout;
-    Button removeAdsButton;
-    Button getCoinsButton;
+
+    Switch weightUnitSwitch;
+
+    Switch distanceUnitSwitch;
+
+    Button logoutButton;
+
+    Button deleteAccountButton;
+
+    TextView versionText;
 
     View thisView;
 
@@ -129,16 +144,16 @@ public class SettingsFragment extends Fragment {
         authPref = context.getSharedPreferences("AuthPreferences", MODE_PRIVATE);
 
         allowNotification = settingsPref.getBoolean("allowNotification", true);
+        useKM = settingsPref.getBoolean("km", true);
+        useKG = settingsPref.getBoolean("kg", true);
         showAds = settingsPref.getBoolean("showAds", true);
         settingsId = settingsPref.getInt("settingsId", 0);
 
         disableNotificationsSwitch = view.findViewById(R.id.disableNotificationsSwitch);
+        weightUnitSwitch = view.findViewById(R.id.weightUnitSwitch);
+        distanceUnitSwitch = view.findViewById(R.id.distanceUnitSwitch);
 
-        removeAdsLayout = view.findViewById(R.id.removeAdsLayout);
-        loadingRemoveAdsLayout = view.findViewById(R.id.loadingRemoveAdsLayout);
-
-        removeAdsButton = view.findViewById(R.id.removeAdsButton);
-        getCoinsButton = view.findViewById(R.id.getCoinsButton);
+        showAds = authPref.getBoolean("premium", false);
 
         ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         if (actionBar != null) {
@@ -150,26 +165,28 @@ public class SettingsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 boolean isChecked = disableNotificationsSwitch.isChecked();
-                disableNotificationUpdate(isChecked);
+                updateUserSettings("allow_notification", !isChecked);
             }
         });
 
-        removeAdsButton.setOnClickListener(new View.OnClickListener() {
+        weightUnitSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                promptRemoveAds();
+                boolean isChecked = weightUnitSwitch.isChecked();
+                updateUserSettings("kg", isChecked);
             }
         });
 
-        getCoinsButton.setOnClickListener(new View.OnClickListener() {
+        distanceUnitSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Navigation.findNavController(v).navigate(R.id.action_settingsFragment_to_purchaseCoinsFragment2);
+                boolean isChecked = distanceUnitSwitch.isChecked();
+                updateUserSettings("km", isChecked);
             }
         });
 
 
-        Button logoutButton = view.findViewById(R.id.logoutButton);
+        logoutButton = view.findViewById(R.id.logoutButton);
 
         logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -177,6 +194,18 @@ public class SettingsFragment extends Fragment {
                 logout();
             }
         });
+
+        deleteAccountButton = view.findViewById(R.id.deleteAccountButton);
+        deleteAccountButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startDeleteAccount();
+            }
+        });
+
+        versionText = view.findViewById(R.id.versionText);
+
+        setUpUI();
 
         return view;
     }
@@ -221,129 +250,41 @@ public class SettingsFragment extends Fragment {
     }
 
 
-    public void setUpUI() {
-        if (!showAds) {
-            removeAdsLayout.setVisibility(View.GONE);
-        }
-
+    private void setUpUI() {
         disableNotificationsSwitch.setChecked(!allowNotification);
+        weightUnitSwitch.setChecked(useKG);
+        distanceUnitSwitch.setChecked(useKM);
+        try {
+            PackageManager manager = getContext().getPackageManager();
+            PackageInfo info = manager.getPackageInfo("com.jogtown.jogtown", 0);
+
+            String versionName = info.versionName;
+            String versionNumber = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) ?
+                    Long.toString(info.getLongVersionCode()) : Integer.toString(info.versionCode);
+
+            versionText.setText("version: " + versionName + " (" + versionNumber + ")");
+
+        } catch (NullPointerException | PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
-    private void promptRemoveAds() {
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
-        alertDialogBuilder.setTitle("Remove Ads");
-        alertDialogBuilder.setMessage("Remove Ads forever! This will cost you 100 coins.");
 
-        alertDialogBuilder.setNegativeButton("Dismiss", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-
-        alertDialogBuilder.setPositiveButton("Proceed", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                removeAds();
-                dialog.dismiss();
-            }
-        });
-
-        alertDialogBuilder.show();
-    }
-
-    public void logout() {
+    private void logout() {
         final Activity activity = this.getActivity();
         Auth.signOut(activity);
     }
 
 
-    private void removeAds() {
-        final int userCoins = authPref.getInt("coins", 0);
-
-        if (userCoins < 100) {
-            final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
-            alertDialogBuilder.setTitle("Insufficient Coins");
-            alertDialogBuilder.setMessage("You need 100 coins to remove ads forever.");
-
-            alertDialogBuilder.setNegativeButton("Dismiss", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                }
-            });
-
-            alertDialogBuilder.setPositiveButton("Get Coins", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    Navigation.findNavController(thisView).navigate(R.id.action_settingsFragment_to_purchaseCoinsFragment2);
-                    dialog.dismiss();
-                }
-            });
-
-            alertDialogBuilder.show();
-        } else {
-            removeAdsButton.setVisibility(View.GONE);
-            loadingRemoveAdsLayout.setVisibility(View.VISIBLE);
-            removeAdsLayout.setVisibility(View.VISIBLE);
-
-            String url = getString(R.string.root_url) + "v1/settings/" + Integer.toString(settingsId);
-            JSONObject jsonObject = new JSONObject();
-            try {
-                jsonObject.put("show_ads", false);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            String payload = jsonObject.toString();
-
-            MyUrlRequestCallback.OnFinishRequest onFinishRequest = new MyUrlRequestCallback.OnFinishRequest() {
-                @Override
-                public void onFinishRequest(Object result) {
-                    try {
-                        JSONObject jsonObj = new JSONObject(result.toString());
-                        final int statusCode = jsonObj.getInt("statusCode");
-
-                        if (statusCode < 300) {
-                            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Toast.makeText(getApplicationContext(), "Settings Updated", Toast.LENGTH_SHORT).show();
-                                    removeAdsLayout.setVisibility(View.GONE);
-                                    loadingRemoveAdsLayout.setVisibility(View.GONE);
-                                    SharedPreferences.Editor settingsEditor = settingsPref.edit();
-                                    settingsEditor.putBoolean("showAds", false);
-
-                                    SharedPreferences.Editor authPrefEditor = authPref.edit();
-                                    authPrefEditor.putInt("coins", userCoins - 100);
-
-                                    settingsEditor.apply();
-                                    authPrefEditor.apply();
-
-                                    setUpUI();
-                                }
-                            });
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-            };
-
-            NetworkRequest.put(url, payload, new MyUrlRequestCallback(onFinishRequest));
-
-        }
-    }
-
-    public void disableNotificationUpdate(Boolean isChecked) {
-        allowNotification = !isChecked;
+    private void updateUserSettings(String key, Boolean value) {
         SharedPreferences.Editor editor = settingsPref.edit();
-        editor.putBoolean("allowNotification", !isChecked);
+        editor.putBoolean(key, value);
         editor.apply();
 
         String url = getString(R.string.root_url) + "v1/settings/" + Integer.toString(settingsId);
         JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put("allow_notification", !isChecked);
+            jsonObject.put(key, value);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -361,7 +302,6 @@ public class SettingsFragment extends Fragment {
                             @Override
                             public void run() {
                                 Toast.makeText(getContext(), "Settings Updated", Toast.LENGTH_SHORT).show();
-                                setUpUI();
                             }
                         });
                     }
@@ -373,6 +313,69 @@ public class SettingsFragment extends Fragment {
 
         NetworkRequest.put(url, payload, new MyUrlRequestCallback(onFinishRequest));
 
+    }
+
+    private void startDeleteAccount() {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+        alertDialogBuilder
+                .setCancelable(true)
+                .setMessage("Are you sure you want to delete your account? If you proceed all your data will be deleted forever.")
+                .setTitle("DELETE ACCOUNT!")
+                .setNegativeButton("Dismiss", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .setPositiveButton("Proceed", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        deleteAccount();
+                    }
+                });
+        alertDialogBuilder.create().show();
+
+    }
+
+
+    private void deleteAccount() {
+
+        int userId = authPref.getInt("userId", 0);
+        String url = getString(R.string.root_url) + "v1/users/" + userId;
+
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("id", userId);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        String payload = jsonObject.toString();
+
+        MyUrlRequestCallback.OnFinishRequest onFinishRequest = new MyUrlRequestCallback.OnFinishRequest() {
+            @Override
+            public void onFinishRequest(Object result) {
+                logout();
+                try {
+                    JSONObject jsonObj = new JSONObject(result.toString());
+                    final int statusCode = jsonObj.getInt("statusCode");
+
+                    if (statusCode < 300) {
+                        new Handler(Looper.getMainLooper()).post(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(getContext(), "Account Deleted", Toast.LENGTH_SHORT).show();
+                                logout();
+                            }
+                        });
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        NetworkRequest.delete(url, payload, new MyUrlRequestCallback(onFinishRequest));
     }
 
 }

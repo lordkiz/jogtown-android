@@ -423,76 +423,14 @@
             ads:adUnitId="@string/adUnitId">
         </com.google.android.gms.ads.AdView>
 
-        <LinearLayout
-            android:id="@+id/profile_coins_and_ad"
-            android:layout_height="wrap_content"
+        <fragment
+            android:id="@+id/removeAdsFragment"
+            android:name="com.jogtown.jogtown.subfragments.RemoveAdFragment"
             android:layout_width="match_parent"
-            android:orientation="horizontal"
-            android:layout_marginVertical="20dp"
+            android:layout_height="wrap_content"
             android:layout_marginHorizontal="20dp"
-            android:background="@drawable/ghost_card_background"
-            android:layout_gravity="center_horizontal"
-            >
-            <LinearLayout
-                android:id="@+id/profile_coins_balance_linear_layout"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="10dp"
-                android:gravity="center"
-                android:layout_weight="1"
-                android:layout_gravity="center"
-                >
-
-                <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:src="@drawable/five_hundred_coins"
-                    android:layout_gravity="center"
-                    />
-
-                <TextView
-                    android:id="@+id/coinsProfileText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
-                    android:text="0 coins"
-                    android:textAlignment="center"
-                    android:textColor="@color/dark_gray"
-                    android:textSize="13sp"
-                    android:fontFamily="@font/michroma_regular"
-                    android:layout_gravity="center"
-                    />
-            </LinearLayout>
-
-            <View
-                android:layout_height="match_parent"
-                android:layout_width="2dp"
-                android:background="@color/smoke"
-                />
-
-            <LinearLayout
-                android:id="@+id/profile_ad_status_linear_layout"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:layout_weight="1">
-                <TextView
-                    android:id="@+id/adStatusProfileText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
-                    android:text="Remove Ads"
-                    android:textAlignment="center"
-                    android:textColor="@color/lightGreen"
-                    android:textSize="13sp"
-                    android:fontFamily="@font/michroma_regular"
-                    android:layout_gravity="center"
-                    />
-            </LinearLayout>
-
-        </LinearLayout>
+            android:layout_marginVertical="10dp"
+            />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/profile_jogs_recycler_view"

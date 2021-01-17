@@ -25,9 +25,16 @@ import androidx.recyclerview.widget.RecyclerView;
 public class HistoryRecyclerAdapter extends RecyclerView.Adapter<HistoryRecyclerAdapter.ViewHolder> {
 
     public List<Object> jogs;
+    String hostFragmentName = "HistoryFragment";
+
 
     public HistoryRecyclerAdapter(List arr) {
         jogs = arr;
+    }
+
+    public HistoryRecyclerAdapter(List arr, String holdingFragmentName) {
+        jogs = arr;
+        hostFragmentName = holdingFragmentName;
     }
 
 
@@ -77,7 +84,7 @@ public class HistoryRecyclerAdapter extends RecyclerView.Adapter<HistoryRecycler
 
             String jogType = "treadmill"; //jsonObject.getString("jog_type");
 
-            if (jogType.equals("outdoors")) {
+            if (jogType.equals("outdoor")) {
                 holder.jogTypeImageView.setImageResource(R.drawable.treadmill_icon_white);
             } else {
                 holder.jogTypeImageView.setImageResource(R.drawable.outdoor_icon_white);
@@ -115,8 +122,11 @@ public class HistoryRecyclerAdapter extends RecyclerView.Adapter<HistoryRecycler
                     bundle.putBoolean("canGoBack", true);
                     bundle.putBoolean("shouldSave", false);
                     bundle.putString("jog", jsonObj.toString());
-
-                    Navigation.findNavController(v).navigate(R.id.action_historyFragment_to_jogDetailFragment, bundle);
+                    if (hostFragmentName.equals("HistoryFragment")) {
+                        Navigation.findNavController(v).navigate(R.id.action_historyFragment_to_jogDetailFragment, bundle);
+                    } else if (hostFragmentName.equals("ProfileFragment")) {
+                        Navigation.findNavController(v).navigate(R.id.action_profileFragment_to_jogDetailFragment, bundle);
+                    }
 
                 } catch (JSONException e) {
                     e.printStackTrace();

@@ -100,8 +100,7 @@ public class CoinsRecyclerViewAdapter extends RecyclerView.Adapter<CoinsRecycler
         });
 
         String coinsStr = skuDetails.getTitle().split(" ")[0];
-        Log.i("coinStr", coinsStr);
-
+        
         switch (Integer.parseInt(coinsStr)) {
             case 100:
                 holder.coinTitle.setText("100 Coins");

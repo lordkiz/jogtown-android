@@ -79,7 +79,7 @@ public class HistoryFragment extends Fragment {
 
     LinearLayout historyFragmentEmptyLayout;
     AdView mAdView;
-    SharedPreferences settingsPref;
+    SharedPreferences authPref;
 
 
     public HistoryFragment() {
@@ -133,8 +133,9 @@ public class HistoryFragment extends Fragment {
         } catch (NullPointerException e) {
             //
         }
-        settingsPref = getContext().getSharedPreferences("SettingsPreferences", Context.MODE_PRIVATE);
-        boolean showAds = settingsPref.getBoolean("showAds", true);
+        authPref = getContext().getSharedPreferences("AuthPreferences", Context.MODE_PRIVATE);
+        
+        boolean showAds = authPref.getBoolean("premium", false);
         if (showAds) {
 
             mAdView = view.findViewById(R.id.historyAdView);

@@ -34,6 +34,8 @@ import android.widget.TextView;
 import com.airbnb.lottie.LottieAnimationView;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
+import com.github.mikephil.charting.components.Description;
+import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
@@ -85,7 +87,6 @@ public class JogDetailFragment extends Fragment implements OnMapReadyCallback {
     private OnFragmentInteractionListener mListener;
 
     Boolean shouldSave = false;
-    Boolean canGoBack = true;
 
     Boolean loading = false;
 
@@ -100,6 +101,7 @@ public class JogDetailFragment extends Fragment implements OnMapReadyCallback {
     TextView averageSpeedTextView;
     TextView maxSpeedTextView;
     TextView caloriesTextView;
+    TextView hydrationTextView;
     TextView jogDate;
     ProgressBar progressBar;
 
@@ -114,6 +116,7 @@ public class JogDetailFragment extends Fragment implements OnMapReadyCallback {
     RecyclerView lapsRecyclerView;
 
     SharedPreferences settingsPref;
+    SharedPreferences authPref;
 
     AdView mAdView;
 
@@ -141,7 +144,6 @@ public class JogDetailFragment extends Fragment implements OnMapReadyCallback {
                 e.printStackTrace();
             }
             shouldSave = getArguments().getBoolean("shouldSave");
-            canGoBack = getArguments().getBoolean("canGoBack");
         }
     }
 
@@ -172,6 +174,8 @@ public class JogDetailFragment extends Fragment implements OnMapReadyCallback {
 
         settingsPref = getActivity().getSharedPreferences("SettingsPreferences", MODE_PRIVATE);
 
+        authPref = getActivity().getSharedPreferences("AuthPreferences", MODE_PRIVATE);
+
         setUpJogObject();
 
         jogDetailTreadmill = view.findViewById(R.id.jog_details_treadmill);
@@ -193,6 +197,7 @@ public class JogDetailFragment extends Fragment implements OnMapReadyCallback {
         averageSpeedTextView = view.findViewById(R.id.jogDetailsAverageSpeedTextView);
         maxSpeedTextView = view.findViewById(R.id.jogDetailsMaxSpeedTextView);
         caloriesTextView = view.findViewById(R.id.jogDetailsCaloriesTextView);
+        hydrationTextView = view.findViewById(R.id.jogDetailsHydrationTextView);
         jogDate = view.findViewById(R.id.jogDate);
         lapsRecyclerView = view.findViewById(R.id.jogDetailsLapsRecyclerView);
 
@@ -214,7 +219,7 @@ public class JogDetailFragment extends Fragment implements OnMapReadyCallback {
         drawCharts();
         setUpRecyclerView();
 
-        boolean showAds = settingsPref.getBoolean("showAds", true);
+        boolean showAds = authPref.getBoolean("premium", false);
         if (showAds) {
             mAdView = view.findViewById(R.id.jogDetailsAdView);
             mAdView.setVisibility(View.VISIBLE);
@@ -297,10 +302,6 @@ public class JogDetailFragment extends Fragment implements OnMapReadyCallback {
             List<Entry> paceEntries = new ArrayList<Entry>();
             List<Entry> speedEntries = new ArrayList<Entry>();
 
-            List<GradientColor> gradientColors = new ArrayList<>();
-
-            gradientColors.add(new GradientColor(R.color.mediumGreen, R.color.extraLightGreen));
-
             JSONArray spds = jog.getJSONArray("speeds");
             JSONArray pcs = jog.getJSONArray("paces");
 
@@ -333,19 +334,29 @@ public class JogDetailFragment extends Fragment implements OnMapReadyCallback {
 
             paceDataSet.setDrawValues(false);
             paceDataSet.setCircleRadius(0.2f);
-            paceDataSet.setDrawCircles(true);
-            paceDataSet.setLineWidth(2);
+            paceDataSet.setDrawCircles(false);
+            paceDataSet.setLineWidth(0);
             paceDataSet.setDrawFilled(true);
             paceDataSet.setDrawHighlightIndicators(false);
             paceDataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+            try {
+                paceDataSet.setFillDrawable(getActivity().getDrawable(R.drawable.green_linear_gradient));
+            } catch (NullPointerException e) {
+                //
+            }
 
             speedDataSet.setDrawValues(false);
             speedDataSet.setCircleRadius(0.2f);
-            speedDataSet.setDrawCircles(true);
-            speedDataSet.setLineWidth(2);
+            speedDataSet.setDrawCircles(false);
+            speedDataSet.setLineWidth(0);
             speedDataSet.setDrawFilled(true);
             speedDataSet.setDrawHighlightIndicators(false);
             speedDataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+            try {
+                speedDataSet.setFillDrawable(getActivity().getDrawable(R.drawable.purple_linear_background));
+            } catch (NullPointerException e) {
+                //
+            }
 
             LineData paceChartData = new LineData(paceDataSet);
             LineData speedChartData = new LineData(speedDataSet);
@@ -355,6 +366,10 @@ public class JogDetailFragment extends Fragment implements OnMapReadyCallback {
             paceAnalysisChart.setData(paceChartData);
             paceAnalysisChart.setDrawGridBackground(false);
             paceAnalysisChart.setNoDataTextTypeface(typeface);
+            Description paceDesc = new Description();
+            paceDesc.setText("");
+            paceAnalysisChart.setDescription(paceDesc);
+            paceAnalysisChart.getLegend().setEnabled(false);
             AxisBase paceAnalysisXAxis = paceAnalysisChart.getXAxis();
             AxisBase paceAnalysisYAxis = paceAnalysisChart.getAxisRight();
             paceAnalysisXAxis.setValueFormatter(new ChartAxisFormatter("", false));
@@ -373,6 +388,10 @@ public class JogDetailFragment extends Fragment implements OnMapReadyCallback {
             speedAnalysisChart.setData(speedChartData);
             speedAnalysisChart.setDrawGridBackground(false);
             speedAnalysisChart.setNoDataTextTypeface(typeface);
+            Description speedDesc = new Description();
+            speedDesc.setText("");
+            speedAnalysisChart.setDescription(speedDesc);
+            speedAnalysisChart.getLegend().setEnabled(false);
             AxisBase speedAnalysisXAxis = speedAnalysisChart.getXAxis();
             AxisBase speedAnalysisYAxis = speedAnalysisChart.getAxisRight();
             speedAnalysisXAxis.setValueFormatter(new ChartAxisFormatter("", false));
@@ -423,6 +442,10 @@ public class JogDetailFragment extends Fragment implements OnMapReadyCallback {
                     .setScale(2, RoundingMode.HALF_UP)
                     + " kcal";
             caloriesTextView.setText(calories);
+
+            String hydration = new BigDecimal(jog.getDouble("hydration"))
+                    .setScale(2, RoundingMode.HALF_UP) + "L";
+            hydrationTextView.setText(hydration);
 
         } catch (JSONException e) {
             e.printStackTrace();

@@ -29,7 +29,6 @@ public class Auth {
         SharedPreferences sharedPreferences = MainActivity.appContext.getSharedPreferences("AuthPreferences", Context.MODE_PRIVATE);
 
         JSONObject res = null;
-        Log.i("resp auth", response);
         try {
 
             res = new JSONObject(response);
@@ -55,6 +54,7 @@ public class Auth {
             int weight = data.isNull("weight") ? 0 : data.getInt("weight");
             String deviceId = MainActivity.deviceId;
             int coins = data.getInt("coins");
+            Boolean premium = data.isNull("premium") ? false : data.getBoolean("premium");
 
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putLong("dateOfLastLogin", dateOfLastLogin);
@@ -70,6 +70,7 @@ public class Auth {
             editor.putString("provider", provider);
             editor.putInt("weight", weight);
             editor.putInt("coins", coins);
+            editor.putBoolean("premium", premium);
 
             editor.putBoolean("authKey", true);
 
@@ -110,8 +111,6 @@ public class Auth {
         activity.stopService(locationServiceIntent);
         activity.stopService(jogStatsServiceIntent);
 
-
-        Log.i("provider", provider);
         if (provider.equals("facebook")) {
             LoginManager.getInstance().logOut();
             SharedPreferences.Editor authEditor = authPreferences.edit();
@@ -126,7 +125,6 @@ public class Auth {
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             activity.getApplicationContext().startActivity(intent);
             activity.finish();
-            Log.i("logged out of ", provider);
             Toast.makeText(activity, "Successfully signed out", Toast.LENGTH_SHORT).show();
         } else if (provider.equals("google")) {
             //For Google I have already signed the user out immediately I got the data I needed

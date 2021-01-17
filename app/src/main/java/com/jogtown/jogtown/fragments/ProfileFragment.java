@@ -1,7 +1,6 @@
 package com.jogtown.jogtown.fragments;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -48,7 +47,7 @@ import com.google.android.gms.ads.AdView;
 import com.jakewharton.rxbinding2.widget.RxTextView;
 import com.jogtown.jogtown.R;
 import com.jogtown.jogtown.activities.MainActivity;
-import com.jogtown.jogtown.activities.SecondaryAppActivity;
+import com.jogtown.jogtown.subfragments.RemoveAdFragment;
 import com.jogtown.jogtown.utils.Auth;
 import com.jogtown.jogtown.utils.Conversions;
 import com.jogtown.jogtown.utils.adapters.HistoryRecyclerAdapter;
@@ -77,7 +76,7 @@ import static android.app.Activity.RESULT_OK;
  * Use the {@link ProfileFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ProfileFragment extends Fragment {
+public class ProfileFragment extends Fragment implements RemoveAdFragment.OnFragmentInteractionListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -111,10 +110,11 @@ public class ProfileFragment extends Fragment {
     FrameLayout fiveKmRecordView;
     FrameLayout tenKmRecordView;
 
+    Fragment removeAdFragment;
+
     CardView statsContainer;
 
     LinearLayout adStatus;
-    LinearLayout coinBalance;
 
     AdView mAdView;
 
@@ -177,8 +177,6 @@ public class ProfileFragment extends Fragment {
 
         nameText = view.findViewById(R.id.metaNameText);
 
-        coinsProfileText = view.findViewById(R.id.coinsProfileText);
-
         progressBar = view.findViewById(R.id.userKmStatsFragmentProgressBar);
         progressBar.setVisibility(View.INVISIBLE);
 
@@ -200,9 +198,6 @@ public class ProfileFragment extends Fragment {
         tenKmRecordView = view.findViewById(R.id.ten_km_record_view);
 
         statsContainer = view.findViewById(R.id.profile_stats_container);
-
-        coinBalance = view.findViewById(R.id.profile_coins_balance_linear_layout);
-        adStatus = view.findViewById(R.id.profile_ad_status_linear_layout);
 
         seeAllJogsButton = view.findViewById(R.id.profile_see_all_jogs_button);
 
@@ -230,31 +225,6 @@ public class ProfileFragment extends Fragment {
             }
         });
 
-        coinBalance.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Navigation.findNavController(v).navigate(R.id.action_profileFragment_to_purchaseCoinsFragment);
-            }
-        });
-
-        adStatus.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getContext(), SecondaryAppActivity.class);
-                startActivity(intent);
-            }
-        });
-
-
-//        buyCoinsButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Intent intent = new Intent(getContext(), PurchaseCoinsActivity.class);
-//                startActivity(intent);
-//                Navigation.findNavController(v).navigate(R.id.action_Profile_to_purchaseCoinsFragment);
-//            }
-//        });
-
         setUpMetaUI();
 
         getStats();
@@ -262,15 +232,13 @@ public class ProfileFragment extends Fragment {
         setCoinText();
 
         settingsPref = MainActivity.appContext.getSharedPreferences("SettingsPreferences", Context.MODE_PRIVATE);
-        boolean showAds = settingsPref.getBoolean("showAds", true);
+
+        boolean showAds = authPref.getBoolean("premium", false);
         if (showAds) {
             mAdView = view.findViewById(R.id.profileAdView);
             mAdView.setVisibility(View.VISIBLE);
             AdRequest adRequest = new AdRequest.Builder().build();
             mAdView.loadAd(adRequest);
-        } else {
-            TextView adStatusProfileText = view.findViewById(R.id.adStatusProfileText);
-            adStatusProfileText.setText("Ad free until 31 Aug 2020");
         }
 
         recyclerView = view.findViewById(R.id.profile_jogs_recycler_view);
@@ -305,6 +273,11 @@ public class ProfileFragment extends Fragment {
         mListener = null;
     }
 
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -327,7 +300,8 @@ public class ProfileFragment extends Fragment {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                coinsProfileText.setText(coins);
+                //disabled for now
+//                coinsProfileText.setText(coins);
             }
         });
     }
@@ -335,7 +309,7 @@ public class ProfileFragment extends Fragment {
 
     private void setUpRecyclerView() {
         layoutManager = new LinearLayoutManager(MainActivity.appContext);
-        mAdapter = new HistoryRecyclerAdapter(jogs);
+        mAdapter = new HistoryRecyclerAdapter(jogs, "ProfileFragment");
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(mAdapter);
     }
@@ -389,6 +363,7 @@ public class ProfileFragment extends Fragment {
                             lastThreeRuns.add(runs.get(i));
                         }
                         jogs.addAll(lastThreeRuns);
+                        setUpRecyclerView();
                     }
 
                     if (runs.length() > jogs.size()) {

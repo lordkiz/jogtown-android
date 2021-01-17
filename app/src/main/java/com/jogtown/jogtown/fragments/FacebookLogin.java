@@ -115,7 +115,6 @@ public class FacebookLogin extends Fragment {
 
                 @Override
                 public void onCancel() {
-                    Log.i("user cancelled", "true");
                     if (mListener != null) {
                         mListener.onFragmentInteraction(Uri.parse("loading: false"));
                     }
@@ -123,7 +122,6 @@ public class FacebookLogin extends Fragment {
 
                 @Override
                 public void onError(FacebookException error) {
-                    Log.i("fb login error", error.toString());
                     if (mListener != null) {
                         mListener.onFragmentInteraction(Uri.parse("loading: false"));
                     }
@@ -147,7 +145,6 @@ public class FacebookLogin extends Fragment {
 
             return view;
         } catch (Exception e) {
-            Log.i("onCreateView", e.toString());
             throw e;
         }
         //return view;
@@ -207,7 +204,6 @@ public class FacebookLogin extends Fragment {
         GraphRequest request = GraphRequest.newMeRequest(token, new GraphRequest.GraphJSONObjectCallback() {
             @Override
             public void onCompleted(JSONObject object, GraphResponse response) {
-                Log.i("fb USer", response.getRawResponse());
                 try {
                     String name = object.getString("name");
                     String email = object.getString("email");

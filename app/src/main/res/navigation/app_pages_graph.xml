@@ -25,6 +25,9 @@
         <action
             android:id="@+id/action_profileFragment_to_purchaseCoinsFragment"
             app:destination="@id/purchaseCoinsFragment" />
+        <action
+            android:id="@+id/action_profileFragment_to_jogDetailFragment"
+            app:destination="@id/jogDetailFragment" />
     </fragment>
 
     <fragment

@@ -137,7 +137,10 @@ public class InboxFragment extends Fragment {
             //
         }
         settingsPref = MainActivity.appContext.getSharedPreferences("SettingsPreferences", Context.MODE_PRIVATE);
-        boolean showAds = settingsPref.getBoolean("showAds", true);
+
+        SharedPreferences authPref = MainActivity.appContext.getSharedPreferences("AuthPreferences", Context.MODE_PRIVATE);
+
+        boolean showAds = authPref.getBoolean("premium", false);
         if (showAds) {
             mAdView = view.findViewById(R.id.inboxAdView);
             mAdView.setVisibility(View.VISIBLE);
