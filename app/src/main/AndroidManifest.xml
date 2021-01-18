@@ -17,7 +17,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme.Launcher">
-        <activity android:name=".activities.SecondaryAppActivity"></activity>
+        <activity android:name=".activities.SecondaryAppActivity" />
         <activity android:name=".activities.ConversationActivity" />
         <activity android:name=".activities.AppActivity" />
         <activity
