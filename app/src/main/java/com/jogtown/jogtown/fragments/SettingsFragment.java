@@ -259,10 +259,15 @@ public class SettingsFragment extends Fragment {
             PackageInfo info = manager.getPackageInfo("com.jogtown.jogtown", 0);
 
             String versionName = info.versionName;
-            String versionNumber = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) ?
-                    Long.toString(info.getLongVersionCode()) : Integer.toString(info.versionCode);
+            String versionNumber;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                versionNumber = Long.toString(info.getLongVersionCode());
+            } else {
+                versionNumber = Integer.toString(info.versionCode);
+            }
 
-            versionText.setText("version: " + versionName + " (" + versionNumber + ")");
+            String vText = "version: " + versionName + " (" + versionNumber + ")";
+            versionText.setText(vText);
 
         } catch (NullPointerException | PackageManager.NameNotFoundException e) {
             e.printStackTrace();

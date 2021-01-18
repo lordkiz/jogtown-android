@@ -333,11 +333,6 @@ public class FacebookLogin extends Fragment {
     }
 
 
-
-    public void onFBButtonClick(View view) {
-
-    }
-
     public void runOnUiThread(final Uri uri) {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override

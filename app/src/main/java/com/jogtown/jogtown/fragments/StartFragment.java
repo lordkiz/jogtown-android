@@ -413,7 +413,9 @@ public class StartFragment extends Fragment implements OnMapReadyCallback,
         return latlng;
     }
 
+    @SuppressLint("MissingPermission")
     private void zoomIntoMap() {
+        //func only called after checking permissions
         if (mMap != null) {
             mMap.setMyLocationEnabled(true);
         }

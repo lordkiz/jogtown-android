@@ -43,7 +43,7 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:layout_gravity="center"
-                            android:src="@drawable/watch_icon_purple"
+                            android:contentDescription="TODO" android:src="@drawable/watch_icon_purple"
                             />
 
                         <TextView
@@ -68,7 +68,7 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:layout_gravity="center"
-                            android:src="@drawable/pace_icon_purple"
+                            android:contentDescription="TODO" android:src="@drawable/pace_icon_purple"
                             />
 
                         <TextView
@@ -93,7 +93,7 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:layout_gravity="center"
-                            android:src="@drawable/distance_icon_purple"
+                            android:contentDescription="TODO" android:src="@drawable/distance_icon_purple"
                             />
 
                         <TextView
@@ -131,7 +131,7 @@
                 android:layout_width="36dp"
                 android:layout_height="36dp"
                 android:layout_gravity="center"
-                android:src="@drawable/treadmill_icon_white"
+                android:contentDescription="TODO" android:src="@drawable/treadmill_icon_white"
                 />
 
             <TextView

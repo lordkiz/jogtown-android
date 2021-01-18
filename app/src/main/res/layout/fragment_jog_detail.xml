@@ -97,7 +97,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_marginBottom="15dp"
-                android:orientation="horizontal">
+                android:baselineAligned="false" android:orientation="horizontal">
 
                 <LinearLayout
                     android:id="@+id/jogDetailsSummaryDurationLayout"
@@ -111,7 +111,7 @@
                         android:layout_width="50dp"
                         android:layout_height="50dp"
                         android:layout_marginRight="10dp"
-                        android:src="@drawable/watch_icon_purple"
+                        android:contentDescription="TODO" android:src="@drawable/watch_icon_purple"
                         />
 
 
@@ -155,7 +155,7 @@
                         android:layout_width="50dp"
                         android:layout_height="50dp"
                         android:layout_marginRight="10dp"
-                        android:src="@drawable/distance_icon_lightgreen"
+                        android:contentDescription="TODO" android:src="@drawable/distance_icon_lightgreen"
                         />
 
                     <LinearLayout
@@ -191,7 +191,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_marginBottom="15dp"
-                android:orientation="horizontal">
+                android:baselineAligned="false" android:orientation="horizontal">
 
                 <LinearLayout
                     android:id="@+id/jogDetailsSummaryAvgPaceLayout"
@@ -206,7 +206,7 @@
                         android:layout_width="50dp"
                         android:layout_height="50dp"
                         android:layout_marginRight="10dp"
-                        android:src="@drawable/pace_icon_lightgreen"
+                        android:contentDescription="TODO" android:src="@drawable/pace_icon_lightgreen"
                         />
 
 
@@ -248,7 +248,7 @@
                         android:layout_width="50dp"
                         android:layout_height="50dp"
                         android:layout_marginRight="10dp"
-                        android:src="@drawable/pace_icon_purple"
+                        android:contentDescription="TODO" android:src="@drawable/pace_icon_purple"
                         />
 
 
@@ -282,7 +282,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
+                android:baselineAligned="false" android:orientation="horizontal"
                 android:layout_gravity="center_vertical"
                 android:layout_marginBottom="15dp"
                 >
@@ -299,7 +299,7 @@
                         android:layout_width="50dp"
                         android:layout_height="60dp"
                         android:layout_marginRight="10dp"
-                        android:src="@drawable/speedometer_icon_mediumorange"
+                        android:contentDescription="TODO" android:src="@drawable/speedometer_icon_mediumorange"
                         />
 
 
@@ -341,7 +341,7 @@
                         android:layout_width="50dp"
                         android:layout_height="60dp"
                         android:layout_marginRight="10dp"
-                        android:src="@drawable/speedometer_icon_red"
+                        android:contentDescription="TODO" android:src="@drawable/speedometer_icon_red"
                         />
 
 
@@ -377,7 +377,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_marginBottom="15dp"
-                android:orientation="horizontal">
+                android:baselineAligned="false" android:orientation="horizontal">
 
                 <LinearLayout
                     android:id="@+id/jogDetailsSummaryCaloriesLayout"
@@ -391,7 +391,7 @@
                         android:layout_width="50dp"
                         android:layout_height="45dp"
                         android:layout_marginRight="10dp"
-                        android:src="@drawable/calories_icon_darkorange"
+                        android:contentDescription="TODO" android:src="@drawable/calories_icon_darkorange"
                         />
 
                     <LinearLayout
@@ -432,7 +432,7 @@
                         android:layout_width="50dp"
                         android:layout_height="45dp"
                         android:layout_marginRight="10dp"
-                        android:src="@drawable/hydration_icon_blue"
+                        android:contentDescription="TODO" android:src="@drawable/hydration_icon_blue"
                         />
 
                     <LinearLayout

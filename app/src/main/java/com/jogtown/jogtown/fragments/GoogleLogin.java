@@ -292,7 +292,4 @@ public class GoogleLogin extends Fragment {
         });
     }
 
-    public void onGoogleButtonClick(View view) {
-
-    }
 }

@@ -33,7 +33,7 @@
             android:layout_width="120dp"
             android:layout_height="120dp"
             android:layout_gravity="center"
-            android:src="@drawable/empty"
+            android:contentDescription="TODO" android:src="@drawable/empty"
             android:alpha="0.5"
             />
         <TextView

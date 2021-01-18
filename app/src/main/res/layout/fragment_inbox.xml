@@ -34,7 +34,7 @@
         <ImageView
             android:layout_width="120dp"
             android:layout_height="120dp"
-            android:src="@drawable/empty"
+            android:contentDescription="TODO" android:src="@drawable/empty"
             android:alpha="0.5"
             />
         <TextView
@@ -74,7 +74,6 @@
         android:layout_height="wrap_content"
         android:layout_margin="7dp"
         android:background="#999"
-        android:onClick="loadMoreUserJogs"
         android:padding="7dp"
         android:text="load more..."
         android:textColor="#FCFCFC"

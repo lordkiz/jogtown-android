@@ -14,7 +14,6 @@
         android:layout_marginBottom="5dp"
         android:backgroundTint="#FFF"
         android:drawableStart="@drawable/googleg_standard_color_18"
-        android:onClick="onGoogleButtonClick"
         android:text="Login With Google"
         android:textColor="#666"
         android:textSize="12sp" />

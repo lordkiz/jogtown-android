@@ -1,5 +1,6 @@
 package com.jogtown.jogtown.utils.services;
 
+import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -8,12 +9,10 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.jogtown.jogtown.activities.MainActivity;
-import com.jogtown.jogtown.utils.LocationUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -64,8 +63,6 @@ public class LocationService extends Service {
     }
 
 
-
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -74,6 +71,7 @@ public class LocationService extends Service {
 
     }
 
+    @SuppressLint("MissingPermission")
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
@@ -127,61 +125,6 @@ public class LocationService extends Service {
         SharedPreferences jogPref = MainActivity.appContext.getSharedPreferences("JogPreferences", MODE_PRIVATE);
         boolean jogIsOn = jogPref.getBoolean("jogIsOn", false);
         if (jogIsOn) {
-
-//            float startLatitude = jogPref.getFloat("startLatitude", 0.0f);
-//            float startLongitude = jogPref.getFloat("startLongitude", 0.0f);
-//
-//            //old location we have already.
-//            float oldLocationLatitude = jogPref.getFloat("oldLocationLatitude", 0.0f);
-//            float oldLocationLongitude = jogPref.getFloat("oldLocationLongitude", 0.0f);
-//
-//
-//            if (oldLocationLatitude == 0.0f || oldLocationLongitude == 0.0f) {
-//                if (oldLocation == null) {
-//                    oldLocation = new Location(LocationManager.GPS_PROVIDER);
-//                    oldLocation.setLatitude((double) startLatitude);
-//                    oldLocation.setLatitude((double) startLongitude);
-//                } else {
-//                    oldLocation.setLatitude((double) startLatitude);
-//                    oldLocation.setLatitude((double) startLongitude);
-//                }
-//
-//            } else {
-//                oldLocation = new Location(LocationManager.GPS_PROVIDER);
-//                oldLocation.setLatitude((double) startLatitude);
-//                oldLocation.setLatitude((double) startLongitude);
-//            }
-//
-//            totalDistance = LocationUtils.distance(
-//                    oldLocation.getLatitude(), oldLocation.getLongitude(),
-//                    location.getLatitude(), location.getLongitude());
-
-            //add lap distances saved from prev old locations
-//            if (lapDistances.size() > 0) {
-//                for (Double lapDistance : lapDistances) {
-//                    totalDistance += lapDistance;
-//                }
-//            }
-//
-//            double lap = totalDistance / 1000;
-//            int currentLap = (int) lap;
-//            Boolean onCurrentLap = coveredLaps.get(currentLap);
-//            if (onCurrentLap == null || !onCurrentLap) {
-//                //i.e that current lap is false so we are just entering that particular lap.
-//                //Update old location every 1 km
-//                oldLocation = location;
-//                //save distance for that lap
-//                lapDistances.add(totalDistance);
-//                //update lap
-//                coveredLaps.put(currentLap, true);
-//            }
-
-//
-//            SharedPreferences.Editor editor = jogPref.edit();
-//            editor.putFloat("oldLocationLatitude", (float) oldLocation.getLatitude());
-//            editor.putFloat("oldLocationLongitude", (float) oldLocation.getLongitude());
-//            editor.apply();
-
             //since jog is on, send all intents
             intent.putExtra("currentCoordinates", currentCoordinates);
             intent.putExtra("speed", location.getSpeed());

@@ -9,7 +9,7 @@
         <ImageView
             android:layout_width="10dp"
             android:layout_height="10dp"
-            android:visibility="invisible"
+            android:contentDescription="TODO" android:visibility="invisible"
             />
         <TextView
             android:layout_width="10dp"

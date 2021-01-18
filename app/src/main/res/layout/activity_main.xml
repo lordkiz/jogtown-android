@@ -29,7 +29,7 @@
         <ImageView
             android:layout_width="200dp"
             android:layout_height="200dp"
-            android:src="@drawable/jogtown_logo_png"
+            android:contentDescription="TODO" android:src="@drawable/jogtown_logo_png"
             />
 
         <fragment

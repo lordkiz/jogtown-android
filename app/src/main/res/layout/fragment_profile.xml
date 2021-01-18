@@ -39,12 +39,12 @@
                         android:layout_width="100dp"
                         android:layout_height="100dp"
                         android:layout_gravity="center"
-                        android:src="@drawable/com_facebook_profile_picture_blank_portrait"
+                        android:contentDescription="TODO" android:src="@drawable/com_facebook_profile_picture_blank_portrait"
                         />
                     <ImageButton
                         android:id="@+id/editProfileButton"
                         android:layout_gravity="bottom"
-                        android:src="@drawable/ic_pencil_outline"
+                        android:contentDescription="TODO" android:src="@drawable/ic_pencil_outline"
                         android:tint="@color/lightGhostWhite"
                         android:background="@drawable/circle_purple_primary"
                         android:layout_width="40dp"
@@ -115,7 +115,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingTop="10dp"
-                android:paddingBottom="20dp"
+                android:baselineAligned="false" android:paddingBottom="20dp"
                 android:paddingLeft="5dp"
                 android:paddingRight="5dp"
                 >
@@ -240,7 +240,7 @@
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
                 android:layout_gravity="center_horizontal"
-                android:orientation="horizontal">
+                android:baselineAligned="false" android:orientation="horizontal">
                 <LinearLayout
                     android:id="@+id/linearLayout"
                     android:layout_weight="1"

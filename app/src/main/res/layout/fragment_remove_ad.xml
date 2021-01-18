@@ -21,7 +21,7 @@
         <ImageView
             android:layout_width="50dp"
             android:layout_height="30dp"
-            android:src="@drawable/bug_spray"
+            android:contentDescription="TODO" android:src="@drawable/bug_spray"
             android:layout_weight="1"
             />
         <TextView

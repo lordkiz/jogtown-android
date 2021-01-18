@@ -18,7 +18,7 @@
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="160dp"
-                android:scaleType="centerCrop"
+                android:contentDescription="TODO" android:scaleType="centerCrop"
                 android:src="@drawable/athletes_exercise_feet" />
 
             <FrameLayout
@@ -32,7 +32,7 @@
                 >
                 <ImageView
                     android:id="@+id/edit_profile_selected_image_view"
-                    android:layout_width="120dp"
+                    android:layout_width="120dp" android:contentDescription="TODO" 
                     android:layout_height="120dp" />
 
                 <Button
