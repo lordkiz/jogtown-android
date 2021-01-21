@@ -76,6 +76,9 @@ import java.util.Date;
 import java.util.List;
 
 import static android.content.Context.MODE_PRIVATE;
+import static com.jogtown.jogtown.utils.Definitions.JOG_NOTIFICATION_ID;
+import static com.jogtown.jogtown.utils.Definitions.LOCATION_REQUEST_CODE;
+import static com.jogtown.jogtown.utils.Definitions.PHYSICAL_ACTIVITY_CODE;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -106,9 +109,6 @@ public class StartFragment extends Fragment implements OnMapReadyCallback,
 
     LottieAnimationView jogTreadmillView;
 
-    private final int LOCATION_REQUEST_CODE = 101;
-
-    final int JOG_NOTIFICATION_ID = 115;
 
     final Handler handler = new Handler();
     Runnable runnable = new Runnable() {
@@ -446,6 +446,16 @@ public class StartFragment extends Fragment implements OnMapReadyCallback,
                     Toast.makeText(getContext(),"Location permission missing",Toast.LENGTH_SHORT).show();
                 }
                 break;
+            case PHYSICAL_ACTIVITY_CODE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    handleJogStart();
+                } else {
+                    Toast.makeText(
+                            getContext(),
+                            "Physical Activity Permission denied. Jogtown is unable to track jog accurately",
+                            Toast.LENGTH_LONG).show();
+                }
+                break;
         }
 
     }
@@ -550,6 +560,21 @@ public class StartFragment extends Fragment implements OnMapReadyCallback,
     }
 
     public void startOrResumeJog() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            //Ask for permission in android 10 and above
+            if (ContextCompat.checkSelfPermission(getActivity().getApplicationContext(), Manifest.permission.ACTIVITY_RECOGNITION)
+                    != PackageManager.PERMISSION_GRANTED) {
+
+                requestPermissions(new String[]{Manifest.permission.ACTIVITY_RECOGNITION}, PHYSICAL_ACTIVITY_CODE);
+
+            } else {
+                handleJogStart();
+            }
+        } else handleJogStart();
+
+    }
+
+    private void handleJogStart() {
         startAllServices();
         SharedPreferences.Editor sharedPrefEditor = jogPref.edit();
 
@@ -563,8 +588,6 @@ public class StartFragment extends Fragment implements OnMapReadyCallback,
         animator.setDuration(500);
 
         animator.start();
-
-
     }
 
 
